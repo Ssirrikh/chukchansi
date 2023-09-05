@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset = 'utf-8'>
+	<title>English-Chukchansi Dictionary</title>
+	<style>
+		* {
+			margin: 0px;
+			padding: 0px;
+			font-family: 'Times New Roman';
+		}	
+		body {
+			background-color: #000000;
+			overflow: hidden;
+		}
+
+		.blockSection {
+			display: block;
+		}
+		
+		/* header bar */
+		#navBar {
+			background-color: #461220;
+
+			box-sizing: border-box;
+			position: sticky;
+			padding: 10px;
+			top: 0px;
+			width: 100%;
+			min-width: 1040px;
+			height: 50px;
+
+			z-index: 2;
+		}
+		#pageTitle {
+			color: #ffdab3;
+
+			position: absolute;
+			top: calc(50% - 2px);
+			left: 20px;
+			transform: translate(0%, -50%);
+
+			font-size: 25px;
+		}
+
+		/* search stuff */
+		#searchContainer {
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			width: 30%;
+			min-width: 250px;
+			height: 30px;
+			transform: translate(-50%, -50%);
+		}
+		#searchBox {
+			color: #75544b;
+			background-color: #ffffff;
+
+			box-sizing: border-box;
+			padding: 0px 15px;
+			padding-right: 30px;
+			width: 100%;
+			height: 100%;
+
+			border: none;
+			border-radius: 30px;
+
+			font-size: 20px;
+		}
+		#searchClear {
+			cursor: pointer;
+
+			position: absolute;
+			top: 50%;
+			right: 3px;
+			width: 24px;
+			height: 24px;
+			transform: translate(0%, -50%);
+
+			border-radius: 50%;
+		}
+		.searchClearCross {
+			background-color: #826545;
+
+			display: inline-block;
+			position: absolute;
+			top: 50%;
+			right: 50%;
+			width: 2px;
+			height: 18px;
+			/*transform: translate(-50%, -50%);*/
+		}
+
+		/* language toggle */
+		#hangingTab {
+			background-color: #f2e3d3;
+
+			position: absolute;
+			top: 50px;
+			left: calc(100% - 30px);
+			width: 100px;
+			height: 30px;
+			transform: translate(-100%, 0%);
+			
+			border: 3px solid;
+			border-top: none;
+			border-color: #4f3a09;
+			border-radius: 0px 0px 15px 15px;
+		}
+		#langToggleTitle {
+			color: #4f3a09;
+
+			position: absolute;
+			top: calc(50% - 1px);
+			left: 29px;
+			transform: translate(-50%, -50%);
+
+			font-size: 20px;
+		}
+		#langToggle {
+			cursor: pointer;
+			
+			background-color: #ad8e6c;
+
+			position: absolute;
+			top: 50%;
+			left: calc(100% - 7px);
+			width: 30px;
+			height: 16px;
+			transform: translate(-100%, -50%);
+			
+			border: 3px solid;
+			border-color: #4f3a09;
+			border-radius: 15px;
+		}
+		#langToggleSwitch {
+			background-color: #4f3a09;
+
+			position: absolute;
+			top: 50%;
+			left: 1px;
+			width: 18px;
+			height: 14px;
+			transform: translate(0%, -50%);
+
+			border-radius: 7px;
+		}
+
+		/* main content */
+		#resultPanel {
+			color: #4f3a09;
+			background-color: #bfa07e;
+			
+			box-sizing: border-box;
+			position: absolute;
+			padding: 13px 20px;
+			top: 50px;
+			width: 100%;
+			height: calc(100% - 50px);
+
+			overflow-x: hidden;
+			overflow-y: scroll;
+
+			z-index: 0;
+		}
+		#noResultsText {
+			color: #75544b;
+
+			position: absolute;
+			padding-top: 10px;
+			left: 50%;
+			transform: translate(-50%, 0%);
+
+			font-family: "Times New Roman";
+			font-size: 40px;
+		}
+		.entryContainer {
+			background-color: #f2e3d3;
+
+			box-sizing: border-box;
+			margin: 5px auto;
+			padding: 7px 16px;
+			width: 1000px;
+
+			border: 3px solid #75544b;
+			border-radius: 10px;
+		}
+		.entrySectionIndented {
+			display: block;
+			margin-left: 40px;
+
+			padding-left: 40px;
+			text-indent: -40px;
+		}
+
+		/* entry first line */
+		.entryTitleText {
+			font-size: 40px;
+			font-weight: bold;
+		}
+		.entryCatgText {
+			margin-left: 10px;
+			font-size: 18px;
+			font-style: italic;
+		}
+		.entryTranslationText {
+			margin-left: 10px;
+			font-size: 30px;
+		}
+		/* entry second line */
+		.entrySentenceText {
+			font-size: 20px;
+		}
+		.entrySentenceTranslation {
+			margin-left: 10px;
+			font-size: 20px;
+			font-style: italic;
+		}
+	</style>
+</head>
+
+<body>
+
+	<!-- create loading screen -->
+
+	<!-- load dependencies -->
+	<script type='text/javascript' src='script/dictionary.js'></script>
+	<script type='text/javascript' src='data/en-ch-v9.js'></script>
+
+	<script>
+
+		// 1.5 hrs: update dictionary to v8, improve entry builder and subscript regex
+		// 0.5 hrs: work on new search method
+		// 1.5 hrs: handle sentences in v8 parse, refactor storage of sentences in dictionary.js Entry class, finish basic en-ch display
+		// 1.5 hrs: update dictionary.js and dictionary.html to v9, finish impl new search method, correct duplicates in v9 spreadsheet
+		// 1.0 hrs: impl dictionary.js ordered entries, begin re-impl lang toggle
+		// 1.0 hrs: correct duplicate entries, finish lang toggle
+		//// BASIC DICTIONARY COMPLETELY UPGRADED TO V9 DATASET ////
+
+		//// PLANNED FEATURES ////
+		// display at most two sentences in normal view
+		// click entries to show pop-up with full speaking dictionary entry
+
+		/////////////////////////////////////////////////////////////////////
+
+		//// ENV SETUP ////
+
+		// debug
+		const t0 = Date.now();
+
+		// build dictionary
+		let dictionary = new Dictionary(primary_eng, secondary_chk);
+		dictionary.loadData( parse_en_ch_v9(tsv_en_ch_v9) );
+
+		// track search
+		let langToggle = false;
+		let searchSettings = {
+			shiftDown: false,
+			elem: undefined
+		};
+
+		// helpers
+		function capitalize(s) { s=s.toString().toLowerCase(); return (s[0]||'').toUpperCase()+s.substr(1); }
+
+		function clearSearch() {
+			searchSettings.elem.value = '';
+			filterContainer(resultPanel, '');
+			resultPanel.scroll(0, 0);
+			document.getElementById('searchBox').focus();
+		}
+		function togglePrimary() {
+			langToggle = dictionary.togglePrimary();
+			// `waayaw hudaʔhiy'`
+			document.getElementById('pageTitle').innerHTML = (!langToggle) ? `English-Chukchansi Dictionary` : `Chukchansi-English Waayaw Hudaʔhiy'`;
+			document.getElementById('pageTitle').style.fontSize = (!langToggle) ? '25px' : '20px';
+			searchSettings.elem.value = '';
+			searchSettings.elem.placeholder = (!langToggle) ? 'Search...' : 'Yuhgo...';
+			document.getElementById('langToggleTitle').innerHTML = (!langToggle) ? 'en-ch' : 'ch-en';
+			document.getElementById('langToggleSwitch').style.left = (!langToggle) ? '1px' : '11px';
+			populateContainer(resultPanel);
+			filterContainer(resultPanel, '');
+			resultPanel.scroll(0, 0);
+			document.getElementById('searchBox').focus();
+		}
+
+		function keydown_search(e) {
+			switch (e.keyCode) {
+				case 27: // [Esc] to defocus search box
+					e.preventDefault();
+					searchSettings.elem.blur();
+					searchSettings.suggestionsElem.style.display = 'none';
+					console.log('defocused search');
+					break;
+				case 9: // prevent [Tab] from leaving search box
+					e.preventDefault();
+					console.log('blocked tab-out');
+					break;
+				case 13: // prevent [Enter] from trying to submit page
+					e.preventDefault();
+					break;
+				case 16: // manually track [Shift] for [?] detection
+					searchSettings.shiftDown = true;
+					break;
+				case 191: // change [?] to [ʔ]
+					if (searchSettings.shiftDown) {
+						e.preventDefault();
+						searchSettings.elem.value += 'ʔ';
+					}
+					break;
+			}
+		}
+		function keyup_search(e) {
+			switch (e.keyCode) {
+				case 16: // manually track [Shift] for [?] detection
+					searchSettings.shiftDown = false;
+					break;
+			}
+			// run fragment search on searchbar update
+			filterContainer(resultPanel, searchSettings.elem.value);
+		}
+
+
+
+		/////////////////////////////////////////////////////////////////////
+
+		//// 
+
+
+
+		/////////////////////////////////////////////////////////////////////
+
+		//// CORE ////
+
+		const subscriptFind = new RegExp('_([0-9]*)', 'ig'); // global, case-insensitive
+		const subscriptReplace = '<sub>$1</sub>';
+		const trySubscript = (text='') => text.replaceAll(subscriptFind, subscriptReplace);
+
+		function entryHTML (entry, word) {
+			// console.log(entry, word);
+
+			const chkForm0 = entry.getSecondaryForm(0);
+			const chkForm1 = entry.getSecondaryForm(1);
+			const chkForms = chkForm1 ? (chkForm0[0]+', '+chkForm1[0]) : chkForm0[0];
+			const engForm0 = entry._pForms[0].join(', ');
+
+			const title 		= !langToggle	? word			: chkForms;
+			const titleTrans	=  langToggle	? engForm0		: chkForms;
+			const catg			= entry.catg;
+			const sentences		= [];
+
+			if (word=='diwdiw') {
+				console.log(engForm0);
+			}
+
+			entry.forEachSentence( (sent) => sentences.push({base:sent.base, trans:sent.trans}) );
+
+			let elemStr = '';
+
+			elemStr += '<div id="'+word+'" class="entryContainer">';
+				elemStr += '<div class="blockSection">';
+					elemStr += '<span class="entryTitleText">'			+ trySubscript(title)		+ '</span>';
+					elemStr += '<span class="entryCatgText">'			+ catg						+ '</span>';
+					elemStr += '<span class="entryTranslationText">'	+ trySubscript(titleTrans)	+ '</span>';
+				elemStr += '</div>';
+				elemStr += '<div class="entrySectionIndented">';
+					for (let sentence of sentences) {
+						elemStr += '<span class="blockSection">';
+							elemStr += '<span class="entrySentenceText">'			+ trySubscript(sentence.base)	+ '</span>';
+							elemStr += '<span class="entrySentenceTranslation">'	+ trySubscript(sentence.trans)	+ '</span>';
+						elemStr += '</span>';
+					}
+					if (sentences.length == 0) {
+						elemStr += '<span class="entrySentenceText">[[ no example sentences ]]</span>';
+					}
+				elemStr += '</div>';
+			elemStr += '</div>';
+
+			return elemStr;
+		}
+
+		function populateContainer (container) {
+			const t1 = Date.now();
+
+			let elemStr = '';
+			dictionary.forEachSynonym((entry, word) => { elemStr += entryHTML(entry, word); });
+			elemStr += '<p id="noResultsText" style="display:none">No results...</p>';
+			container.innerHTML = elemStr;
+
+			console.log('DOM elements generated in ' + (Date.now()-t1) + 'ms.');
+		}
+
+		function filterContainer (container, fragment) {
+			// console.log('Searching "'+fragment+'"');
+			const searchFragFromStart = new RegExp('^'+fragment, 'i'); // case insensitive
+
+			let numResults = 0;
+			let results = [];
+
+			dictionary.forEachSynonym((entry, word) => {
+				const match = searchFragFromStart.test(word);
+				const entryElem = document.getElementById(word);
+
+				if (match) {numResults++; results.push(word);}
+
+				// entryElem.style.backgroundColor = (match) ? '#ffffff' : '#ff0000';
+				entryElem.style.display = (match) ? 'block' : 'none';
+			});
+
+			document.getElementById('noResultsText').style.display = numResults>0 ? 'none' : 'block';
+
+			console.log('Searching "'+fragment+'": '+numResults + ' matches');
+			console.log(results);
+		}
+
+		function init () {
+			// add containers
+			let navBar = document.createElement('div');
+				navBar.id = 'navBar';
+				navBar.innerHTML = '<span id="pageTitle">English-Chukchansi Dictionary</span>';
+			document.body.appendChild(navBar);
+			let resultPanel = document.createElement('div');
+				resultPanel.id = 'resultPanel';
+			document.body.appendChild(resultPanel);
+			// add search
+			let searchContainer = document.createElement('div');
+				searchContainer.id = 'searchContainer';
+			navBar.appendChild(searchContainer);
+			let search = document.createElement('input');
+				search.setAttribute('type', 'text');
+				search.id = 'searchBox';
+				search.placeholder = 'Search...';
+				search.value = '';
+			searchContainer.appendChild(search);
+			searchSettings.elem = search;
+			let searchClear = document.createElement('div');
+				searchClear.id = 'searchClear';
+				searchClear.innerHTML = '<div class="searchClearCross" style="transform: translate(-50%, -50%) rotate(45deg)"></div><div class="searchClearCross" style="transform: translate(-50%, -50%) rotate(-45deg)"></div>';
+				searchClear.onclick = clearSearch;
+			searchContainer.appendChild(searchClear);
+			// add language toggle
+			let langToggleTab = document.createElement('div');
+				langToggleTab.id = 'hangingTab';
+			navBar.appendChild(langToggleTab);
+			let langToggleTitle = document.createElement('span');
+				langToggleTitle.id = 'langToggleTitle';
+				langToggleTitle.innerHTML = 'en-ch';
+			langToggleTab.appendChild(langToggleTitle);
+			let langToggle = document.createElement('div');
+				langToggle.id = 'langToggle';
+				langToggle.onclick = togglePrimary;
+			langToggleTab.appendChild(langToggle);
+			let langToggleSwitch = document.createElement('div');
+				langToggleSwitch.id = 'langToggleSwitch';
+			langToggle.appendChild(langToggleSwitch);
+			// implement search logic
+			search.addEventListener('keydown', keydown_search);
+			search.addEventListener('keyup', keyup_search);
+			// initial search
+			populateContainer(resultPanel);
+			filterContainer(resultPanel, '');
+			search.focus();
+		}
+
+		/////////////////////////////////////////////////////////////////////
+
+		//// INIT ////
+
+		init();
+
+		console.log('Page generated in ' + (Date.now() - t0) + ' ms');
+
+		/////////////////////////////////////////////////////////////////////
+	</script>
+
+</body>
+
+</html>
