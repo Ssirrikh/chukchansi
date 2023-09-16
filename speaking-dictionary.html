@@ -298,9 +298,13 @@
 
 	<!-- load dependencies -->
 	<script type='text/javascript' src='script/dictionary.js'></script>
-	<script type='text/javascript' src='source/data-v9.js'></script>
+	<script type='text/javascript' src='data/en-ch-v9.js'></script>
+	<script type='text/javascript' src='source/resources.js'></script>
 
 	<script>
+
+		// 1.5 hrs: connect/test auto-generated audio/image resource list; switch to new system of searching; detect relevant audio per-entry
+
 		/////////////////////////////////////////////////////////////////////
 
 		//// ENV SETUP ////
@@ -319,11 +323,6 @@
 			speakerNames:         ['Holly Wyatt', 'Jane Wyatt']
 		};
 
-		// index resources
-		let audio_en_ch = ["baabas_H.mp3", "baabasi_H.mp3", "bokbokish_H.mp3", "bokbokshi_H.mp3", "boʔsha_H.mp3", "boʔush_H.mp3", "cheexaʔ_H.mp3", "cheexaʔan_H.mp3", "dadaach'i_H.mp3", "dadach'_H.mp3", "diwdiw_J.mp3", "gaaduʔ_H.mp3", "gaaduʔun_H.mp3", "gosneenot_H.mp3", "gosneenotaʔ_H.mp3", "heedin_H.mp3", "heedina_H.mp3", "k'otiiʔin_H.mp3", "k'ut'_H.mp3", "k'ut'a_H.mp3", "lopis_H.mp3", "lopso_H.mp3", "maamil'_H.mp3", "maamila_H.mp3", "maw'_J.mp3", "monosh_J.mp3", "peeli_H.mp3", "pel'_H.mp3", "saayiʔ_H.mp3", "saayiʔin_H.mp3", "shidgil'_J.mp3", "shoopin_H.mp3", "shoopina_H.mp3", "tew'_J.mp3", "waʔat'_H.mp3", "weheeshit_J.mp3", "woshok'_J.mp3", "xomix_J.mp3", "xoʔ_H.mp3", "xoʔo_H.mp3", "ʔach'ch'it_H.mp3", "ʔach'ich'taʔ_H.mp3", "ʔeeniʔ_H.mp3", "ʔeeniʔin_H.mp3", "ʔutuʔ_H.mp3", "ʔutuʔun_H.mp3"];
-		let image_en_ch = ["dadach'.jpg", "gaaduʔ.jpg", "galshuy.png", "gosneenot.jpg", "heedin'.jpg", "k'ut'.jpg", "lopis.jpg", "maamil'.jpg", "monosh.png", "pel'.jpg", "saayiʔ.jpg", "shidgil'.jpg", "shoopin.jpg", "weheeshit.jpg", "woshok'.png", "xomix.jpg", "xoʔ.jpg", "ʔach'ch'it.jpg", "ʔeeniʔ.jpg", "ʔutuʔ.jpg", "baabas.jpg", "bokbokish.jpg", "boʔush.jpg", "cheexaʔ.jpg"];
-
-
 		// build dictionary
 		let dictionary = new Dictionary(primary_eng, secondary_chk);
 		dictionary.loadData( parse_en_ch_v9(tsv_en_ch_v9) );
@@ -332,15 +331,15 @@
 
 		//// CORE ////
 
-		function capitalize(s) { s=s.toString().toLowerCase(); return (s[0]||'').toUpperCase()+s.substr(1); }
+		function capitalize (s) { s=s.toString().toLowerCase(); return (s[0]||'').toUpperCase()+s.substr(1); }
 
-		function playSound(filename) {
+		function playSound (filename) {
 			soundSettings.player.pause();
 			soundSettings.player.src = 'source/' + filename;
 			soundSettings.player.play();
 		}
 
-		function keydown_search(e) {
+		function keydown_search (e) {
 			switch (e.keyCode) {
 				case 27: // [Esc] to defocus search box
 					e.preventDefault();
@@ -366,43 +365,108 @@
 					break;
 			}
 		}
-		function keyup_search(e) {
+		function keyup_search (e) {
 			switch (e.keyCode) {
 				case 16: // manually track [Shift] for [?] detection
 					searchSettings.shiftDown = false;
 					break;
 			}
 			// run fragment search on searchbar update
-			reloadSearch(resultPanel, searchSettings.elem.value);
+			filterContainer(resultPanel, searchSettings.elem.value);
 		}
 
 		/////////////////////////////////////////////////////////////////////
 
 		//// DISPLAY ////
 
-		function reloadSearch(container, searchFrag) {
-			console.log(searchFrag);
+		function entryHTML (entry, word) {
+			// console.log(entry, word);
 
-			container.innerHTML = '';
+			const chkForm0 = entry.getSecondaryForm(0);
+			const chkForm1 = entry.getSecondaryForm(1);
+			const chkForms = chkForm1 ? (chkForm0[0]+', '+chkForm1[0]) : chkForm0[0];
+			const engForm0 = entry._pForms[0].join(', ');
 
-			let suggestions = dictionary.searchFragment(searchFrag);
-			console.log(suggestions);
-			if (suggestions.length == 0) {
-				container.innerHTML = '<p class="noResultsText">No results...</p>';
-				return;
+			const catg = entry.catg;
+
+			let hasAudio = false;
+			let hasImage = false;
+
+			for (let filename of audio_en_ch) {
+				if (filename.includes(chkForm0) || filename.includes(chkForm1)) {
+					hasAudio = true;
+					console.log('"'+word+'" has audio '+filename);
+				}
 			}
-			for (let suggestion of suggestions) {
-				let entry = dictionary.searchWord(suggestion);
-				let e = document.createElement('div');
-					e.classList.add('searchResult');
-					e.innerHTML = '<p><span class="searchResultText">' + suggestion + '</span></p>';
-					e.onclick = () => {
-						displayEntry(contentPanel, suggestion);
-						console.log('clicked '+suggestion);
-					};
-				container.appendChild(e);
-			}
+
+			let elemStr = '';
+
+			elemStr += '<div id="'+word+'" class="searchResult">';
+				elemStr += '<p><span class="searchResultText">';
+					elemStr += (hasAudio?'A':'.') + (hasImage?'I':'.') + ' ' + word;
+				elemStr += '</span></p>';
+			elemStr += '</div>';
+
+			return elemStr;
 		}
+
+		function populateContainer (container) {
+			const tPop = Date.now();
+
+			let elemStr = '';
+			dictionary.forEachSynonym((entry, word) => { elemStr += entryHTML(entry, word); });
+			elemStr += '<p id="noResultsText" style="display:none">No results...</p>';
+			container.innerHTML = elemStr;
+
+			console.log('DOM elements generated in ' + (Date.now()-tPop) + 'ms.');
+		}
+
+		function filterContainer (container, fragment) {
+			// console.log('Searching "'+fragment+'"');
+			const searchFragFromStart = new RegExp('^'+fragment, 'i'); // case insensitive
+
+			let numResults = 0;
+			let results = [];
+
+			dictionary.forEachSynonym((entry, word) => {
+				const match = searchFragFromStart.test(word);
+				const entryElem = document.getElementById(word);
+
+				if (match) {numResults++; results.push(word);}
+
+				// entryElem.style.backgroundColor = (match) ? '#ffffff' : '#ff0000';
+				entryElem.style.display = (match) ? 'block' : 'none';
+			});
+
+			document.getElementById('noResultsText').style.display = numResults>0 ? 'none' : 'block';
+
+			console.log('Searching "'+fragment+'": '+numResults + ' matches');
+			console.log(results);
+		}
+
+		// function reloadSearch(container, searchFrag) {
+		// 	console.log(searchFrag);
+
+		// 	container.innerHTML = '';
+
+		// 	let suggestions = dictionary.searchFragment(searchFrag);
+		// 	console.log(suggestions);
+		// 	if (suggestions.length == 0) {
+		// 		container.innerHTML = '<p class="noResultsText">No results...</p>';
+		// 		return;
+		// 	}
+		// 	for (let suggestion of suggestions) {
+		// 		let entry = dictionary.searchWord(suggestion);
+		// 		let e = document.createElement('div');
+		// 			e.classList.add('searchResult');
+		// 			e.innerHTML = '<p><span class="searchResultText">' + suggestion + '</span></p>';
+		// 			e.onclick = () => {
+		// 				displayEntry(contentPanel, suggestion);
+		// 				console.log('clicked '+suggestion);
+		// 			};
+		// 		container.appendChild(e);
+		// 	}
+		// }
 		function displayEntry(container, word) {
 			const entry = dictionary.searchWord(word);
 			console.log(entry);
@@ -597,7 +661,7 @@
 				search.value = '';
 			searchPanel.appendChild(search);
 			searchSettings.elem = search;
-			reloadSearch(resultPanel, '');
+			populateContainer(resultPanel);
 			// implement search logic
 			search.addEventListener('keydown', keydown_search);
 			search.addEventListener('keyup', keyup_search);
