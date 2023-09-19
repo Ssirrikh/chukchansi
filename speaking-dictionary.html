@@ -105,7 +105,7 @@
 		.searchResultTranslationText {
 			margin-left: 20px;
 		}
-		.noResultsText {
+		#noResultsText {
 			color: #75544b;
 
 			box-sizing: border-box;
@@ -117,6 +117,22 @@
 
 			font-size: 20px;
 			/*font-style: italic;*/
+		}
+		.searchResultAudioIcon {
+			width:20px;
+			height:20px;
+			float:right;
+			
+			background: url('source/audio.png');
+			background-size: contain;
+		}
+		.searchResultImageIcon {
+			width:20px;
+			height:20px;
+			float:right;
+			
+			background: url('source/image.png');
+			background-size: contain;
 		}
 
 		/* right panel */
@@ -145,7 +161,6 @@
 
 			display: block;
 			padding: 5px;
-			height: 50px;
 		}
 		.entryTitleText {
 			margin-right: 10px;
@@ -306,9 +321,9 @@
 		// 1.5 hrs: connect/test auto-generated audio/image resource list; switch to new system of searching; detect relevant audio per-entry
 		// 0.5 hrs: automate resource detection
 		// 2.0 hrs: rebuild full entry display for v9
+		// 1.5 hrs: finish full entry display, add content icons to search, fix bugs with overlapping text
 
 		//// TODO ////
-		// import image icon; format search entries to use them
 		// automatically determine form of each sentence
 		// add pictures
 
@@ -426,17 +441,15 @@
 
 			let audioResources = findResources(entry, audio_en_ch);
 			let imageResources = findResources(entry, image_en_ch);
-			let hasAudio = audioResources.length > 0;
-			let hasImage = imageResources.length > 0;
-			// for (let [form,file,author] of audioResources) console.log(word+' has audio resource for '+form+': '+file);
-			// for (let [form,file,author] of imageResources) console.log(word+' has image resource for '+form+': '+file);
 
 			let elemStr = '';
 
 			elemStr += '<div id="'+word+'" class="searchResult" onclick="displayEntry(document.getElementById(`contentPanel`), `'+word+'`);">';
-				elemStr += '<p><span class="searchResultText">';
-					elemStr += (hasAudio?'A':'.') + (hasImage?'I':'.') + ' ' + word;
+				elemStr += '<p style="float:left;"><span class="searchResultText">';
+					elemStr += trySubscript(word);
 				elemStr += '</span></p>';
+				if (audioResources.length > 0) elemStr += '<div class="searchResultAudioIcon"></div>';
+				if (imageResources.length > 0) elemStr += '<div class="searchResultImageIcon"></div>';
 			elemStr += '</div>';
 
 			return elemStr;
@@ -521,7 +534,7 @@
 				for (let [synonym,formNum] of extraForms) {
 					elemStr += '<span class="dataRow">';
 						elemStr += '<span class="formName">' + capitalize(dictionary[langToggle?'_pLang':'_sLang'].formStr(catg,formNum)) + ':</span>';
-						elemStr += '<span class="formWord">' + synonym + '</span>';
+						elemStr += '<span class="formWord">' + trySubscript(synonym) + '</span>';
 					elemStr += '</span>';
 				}
 				// audio
@@ -537,7 +550,7 @@
 					const speakerName = soundSettings.speakerNames[ soundSettings.speakerAbbreviations.indexOf(author) ] || 'Unknown Speaker';
 					elemStr += '<span class="dataRow">';
 						elemStr += '<div class="soundFileIcon" onclick="playSound(`' + file + '`)"></div>';
-						elemStr += '<span class="soundFileName">' + form + '</span>';
+						elemStr += '<span class="soundFileName">' + trySubscript(form) + '</span>';
 						elemStr += '<span class="soundFileSpeaker">(Spoken by ' + speakerName + ')</span>';
 					elemStr += '</span>';
 				}
@@ -548,8 +561,8 @@
 					for (let sentence of sentences) {
 						elemStr += '<span class="entrySentence">';
 							// elemStr += '(' + capitalize(dictionary._sLang.formStr(entry.catg,formNum)) + ') ';
-							elemStr += '<span class="entrySentenceText">' + sentence.base + '</span>';
-							elemStr += '<span class="entrySentenceTranslation">' + sentence.trans + '</span>';
+							elemStr += '<span class="entrySentenceText">' + trySubscript(sentence.base) + '</span>';
+							elemStr += '<span class="entrySentenceTranslation">' + trySubscript(sentence.trans) + '</span>';
 						elemStr += '</span>';
 					}
 					if (sentences.length == 0) {
@@ -562,64 +575,19 @@
 				elemStr += '<div id="synonyms">';
 					elemStr += 'Synonymous with:';
 					for (let synonym of synonyms) {
-						elemStr += '<span class="synonym" onclick="displayEntry(contentPanel, `' + synonym + '`)">' + synonym + '</span>';
+						elemStr += '<span class="synonym" onclick="displayEntry(contentPanel, `' + synonym + '`)">' + trySubscript(synonym) + '</span>';
 					}
 				elemStr += '</div>';
 			}
-
-			container.innerHTML = elemStr;
-
-
-			// // synonyms
-			// let synonymsToShow = [];
-			// entry.forEachPrimaryForm((synonyms,formNum) => {
-			// 	for (const synonym of synonyms)
-			// 		if (synonym != word)
-			// 			synonymsToShow.push(synonym);
-			// });
-			// if (synonymsToShow.length > 0) {
-			// 	synonymsToShow.sort();
-			// 	let synonyms = document.createElement('div');
-			// 		synonyms.id = 'synonyms';
-			// 		let synonymsString = '';
-			// 		synonymsString += 'Synonymous with:';
-			// 		for (let synonym of synonymsToShow) {
-			// 			synonymsString += '<span class="synonym" onclick="displayEntry(contentPanel, `' + synonym + '`)">' + synonym + '</span>';
-			// 		}
-			// 		synonyms.innerHTML = synonymsString;
-			// 	container.appendChild(synonyms);
-			// }
-
-
-			// // image
-			// let imageBox = document.createElement('div');
-			// 	imageBox.id = 'imageBox';
-			// 	let foundImage = false;
-			// 	entry.forEachSecondaryForm((synonyms,formNum) => {
-			// 		if (foundImage) return;
-			// 		for (const synonym of synonyms) {
-			// 			console.log('image check: ' + synonym);
-			// 			if (image_en_ch.indexOf(synonym + '.jpg') != -1) {
-			// 				imageBox.innerHTML = '<img src="source/' + synonym + '.jpg" width="200" style="display:block;">'; // display:block to remove inline whitespacing
-			// 				console.log('found "' + synonym + '.jpg"');
-			// 				foundImage = true;
-			// 				break;
-			// 			}
-			// 			if (image_en_ch.indexOf(synonym + '.png') != -1) {
-			// 				imageBox.innerHTML = '<img src="source/' + synonym + '.png" width="200" style="display:block;">'; // display:block to remove inline whitespacing
-			// 				console.log('found "' + synonym + '.png"');
-			// 				foundImage = true;
-			// 				break;
-			// 			}
-			// 		}
-			// 	});
-			// 	if (foundImage) {
-			// 		container.appendChild(imageBox);
-			// 	} else {
-			// 		imageBox.innerHTML = '<img src="source/404.png" width="200">';
-			// 		console.log('no image found');
-			// 	}
+			// images
+			if (imageResources.length > 0) {
+				const [form,file,author] = imageResources[0];
+				elemStr += '<div id="imageBox">';
+					elemStr += '<img src="source/' + file + '" width="200" style="display:block;">'; // display:block to remove inline whitespacing
+				elemStr += '</div>';
+			}
 			
+			container.innerHTML = elemStr;
 			
 			// scroll to top, since we just clicked a new word
 			container.scroll(0,0);
