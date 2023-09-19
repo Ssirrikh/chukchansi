@@ -55,9 +55,9 @@ let secondary_chk = {
 		return 0;
 	},
 	forms: {
-		n:   ['subject', 'object', 'owner',          'owned',   'tool',    'place'],
-		v:   ['recent past', 'remote past', 'yesterday past', 'ongoing', 'command', 'suggestive', 'hypothetical', 'future', 'precedent gerundial'],
-		adj: ['subject', 'object', 'owner',          'owned',   'tool',    'place'],
+		noun:   ['subject', 'object', 'owner',          'owned',   'tool',    'place'],
+		verb:   ['recent past', 'remote past', 'yesterday past', 'ongoing', 'command', 'suggestive', 'hypothetical', 'future', 'precedent gerundial'],
+		adjective: ['subject', 'object', 'owner',          'owned',   'tool',    'place'],
 		default: (i) => 'form '+i
 		// 'n': ['subject', 'object', 'possessive',     'possessed', 'instrumental', 'locative'],
 		// 'v': ['subject', 'object', 'yesterday past', 'ongoing',   'command',      'hypothetical', 'future']

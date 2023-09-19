@@ -304,6 +304,13 @@
 	<script>
 
 		// 1.5 hrs: connect/test auto-generated audio/image resource list; switch to new system of searching; detect relevant audio per-entry
+		// 0.5 hrs: automate resource detection
+		// 2.0 hrs: rebuild full entry display for v9
+
+		//// TODO ////
+		// import image icon; format search entries to use them
+		// automatically determine form of each sentence
+		// add pictures
 
 		/////////////////////////////////////////////////////////////////////
 
@@ -337,6 +344,30 @@
 			soundSettings.player.pause();
 			soundSettings.player.src = 'source/' + filename;
 			soundSettings.player.play();
+		}
+		function findResources (entry, resourceList) {
+			let forms = [];
+			entry.forEachPrimaryForm((synonyms,formNum) => {
+				for (let synonym of synonyms)
+					forms.push(synonym);
+			});
+			entry.forEachSecondaryForm((synonyms,formNum) => {
+				for (let synonym of synonyms)
+					forms.push(synonym);
+			});
+			//
+			let resources = [];
+			for (let filepath of resourceList) {
+				const filename = filepath.split('/').pop().split('.')[0];
+				const word = filename.split('_')[0];
+				const author = filename.split('_')[1] || 'Unknown';
+				for (let form of forms) {
+					if (form == word) {
+						resources.push([form,filepath,author]);
+					}
+				}
+			}
+			return resources;
 		}
 
 		function keydown_search (e) {
@@ -379,6 +410,10 @@
 
 		//// DISPLAY ////
 
+		const subscriptFind = new RegExp('_([0-9]*)', 'ig'); // global, case-insensitive
+		const subscriptReplace = '<sub>$1</sub>';
+		const trySubscript = (text='') => text.replaceAll(subscriptFind, subscriptReplace);
+
 		function entryHTML (entry, word) {
 			// console.log(entry, word);
 
@@ -389,19 +424,16 @@
 
 			const catg = entry.catg;
 
-			let hasAudio = false;
-			let hasImage = false;
-
-			for (let filename of audio_en_ch) {
-				if (filename.includes(chkForm0) || filename.includes(chkForm1)) {
-					hasAudio = true;
-					console.log('"'+word+'" has audio '+filename);
-				}
-			}
+			let audioResources = findResources(entry, audio_en_ch);
+			let imageResources = findResources(entry, image_en_ch);
+			let hasAudio = audioResources.length > 0;
+			let hasImage = imageResources.length > 0;
+			// for (let [form,file,author] of audioResources) console.log(word+' has audio resource for '+form+': '+file);
+			// for (let [form,file,author] of imageResources) console.log(word+' has image resource for '+form+': '+file);
 
 			let elemStr = '';
 
-			elemStr += '<div id="'+word+'" class="searchResult">';
+			elemStr += '<div id="'+word+'" class="searchResult" onclick="displayEntry(document.getElementById(`contentPanel`), `'+word+'`);">';
 				elemStr += '<p><span class="searchResultText">';
 					elemStr += (hasAudio?'A':'.') + (hasImage?'I':'.') + ' ' + word;
 				elemStr += '</span></p>';
@@ -444,195 +476,150 @@
 			console.log(results);
 		}
 
-		// function reloadSearch(container, searchFrag) {
-		// 	console.log(searchFrag);
-
-		// 	container.innerHTML = '';
-
-		// 	let suggestions = dictionary.searchFragment(searchFrag);
-		// 	console.log(suggestions);
-		// 	if (suggestions.length == 0) {
-		// 		container.innerHTML = '<p class="noResultsText">No results...</p>';
-		// 		return;
-		// 	}
-		// 	for (let suggestion of suggestions) {
-		// 		let entry = dictionary.searchWord(suggestion);
-		// 		let e = document.createElement('div');
-		// 			e.classList.add('searchResult');
-		// 			e.innerHTML = '<p><span class="searchResultText">' + suggestion + '</span></p>';
-		// 			e.onclick = () => {
-		// 				displayEntry(contentPanel, suggestion);
-		// 				console.log('clicked '+suggestion);
-		// 			};
-		// 		container.appendChild(e);
-		// 	}
-		// }
-		function displayEntry(container, word) {
+		function displayEntry (container, word) {
 			const entry = dictionary.searchWord(word);
 			console.log(entry);
 			const synonymID = entry.primarySynonymID(word);
 
-			container.innerHTML = '';
+			const chkForm0 = entry.getSecondaryForm(0);
+			const chkForm1 = entry.getSecondaryForm(1);
+			const chkForms = chkForm1 ? (chkForm0[0]+', '+chkForm1[0]) : chkForm0[0];
+			const engForm0 = entry._pForms[0].join(', ');
 
-			// title bar
-			let mainForms = [entry.getSecondaryForm(0),entry.getSecondaryForm(1)].filter((e) => e != undefined);
-			let title = document.createElement('div');
-				title.id = 'entryTitle';
-				title.innerHTML = 
-						'<p>'
-						+ '<span class="entryTitleText">' + word + '</span>'
-						+ '<span class="entryCatgText">' + entry.catg + '</span>'
-						// + '<span class="entryTranslationText">' + ( entry.getSecondaryForm(0)+', '+entry.getSecondaryForm(1) ) + '</span>'
-						+ '<span class="entryTranslationText">' + mainForms.join(', ') + '</span>'
-						+ '</p>';
-			container.appendChild(title);
-			// entry data
-			let data = document.createElement('div');
-				data.id = 'entryData';
-				// additional forms
-				let extraForms = [];
-				entry.forEachSecondaryForm((synonyms,formNum) => {
-					if (formNum <= 1) return; // skip first 2 forms; they're displayed above
-					extraForms.push( [synonyms.join(', '), formNum] );
-				});
-				let formString = '';
+			const title 		= !langToggle	? word			: chkForms;
+			const titleTrans	=  langToggle	? engForm0		: chkForms;
+			const catg			= entry.catg;
+			const extraForms	= [];
+			const sentences		= [];
+			const synonyms		= entry.getPrimaryForm(0).filter(form => form != word);
+
+			if (!langToggle) entry.forEachSecondaryForm( (synonyms,formNum) => {if (formNum > 1) extraForms.push([synonyms[0],formNum])} );
+			entry.forEachSentence( (sent) => sentences.push({base:sent.base, trans:sent.trans}) );
+
+			const audioResources = findResources(entry, audio_en_ch);
+			const imageResources = findResources(entry, image_en_ch);
+			for (let [form,file,author] of audioResources) console.log(word+' has audio resource for '+form+': '+file);
+			for (let [form,file,author] of imageResources) console.log(word+' has image resource for '+form+': '+file);
+
+			let elemStr = '';
+
+			// title
+			elemStr += '<div id="entryTitle">';
+				elemStr += '<p>';
+					elemStr += '<span class="entryTitleText">' + trySubscript(title) + '</span>';
+					elemStr += '<span class="entryCatgText">' + catg + '</span>';
+					elemStr += '<span class="entryTranslationText">' + trySubscript(titleTrans) + '</span>';
+				elemStr += '</p>';
+			elemStr += '</div>';
+			elemStr += '<div id="entryData">';
+				// extra forms
 				if (extraForms.length > 0) {
-					formString += '<span class="dataRow">';
-					formString += '<span class="dataHeader">FORMS</span>';
-					formString += '</span>';
+					elemStr += '<span class="dataRow">';
+						elemStr += '<span class="dataHeader">FORMS</span>';
+					elemStr += '</span>';
 				}
-				for (let i = 0; i < extraForms.length; i++) {
-					const [synonymStr, formNum] = extraForms[i];
-					formString += '<span class="dataRow">';
-					formString += '<span class="formName">' + capitalize(dictionary._sLang.formStr(entry.catg,formNum)) + ':</span>';
-					formString += '<span class="formWord">' + synonymStr + '</span>';
-					formString += '</span>';
+				for (let [synonym,formNum] of extraForms) {
+					elemStr += '<span class="dataRow">';
+						elemStr += '<span class="formName">' + capitalize(dictionary[langToggle?'_pLang':'_sLang'].formStr(catg,formNum)) + ':</span>';
+						elemStr += '<span class="formWord">' + synonym + '</span>';
+					elemStr += '</span>';
 				}
 				// audio
-				let audioString = '';
-				let filenames = [];
-				let soundFiles = [];
-				entry.forEachSecondaryForm((synonyms,formNum) => {
-					for (const synonym of synonyms) {
-						for (const speaker of soundSettings.speakerAbbreviations) {
-							const filename = synonym + '_' + speaker + '.mp3';
-							if (audio_en_ch.indexOf(filename) != -1 && filenames.indexOf(filename) == -1) {
-								filenames.push(filename);
-								soundFiles.push({
-									word: synonym,
-									filename: filename,
-									speaker: soundSettings.speakerNames[soundSettings.speakerAbbreviations.indexOf(speaker)]
-								});
-							}
-						}
+				if (extraForms.length > 0 && audioResources.length > 0) {
+					elemStr += '<br>';
+				}
+				if (audioResources.length > 0) {
+					elemStr += '<span class="dataRow">';
+						elemStr += '<span class="dataHeader">EXAMPLES</span>';
+					elemStr += '</span>';
+				}
+				for (let [form,file,author] of audioResources) {
+					const speakerName = soundSettings.speakerNames[ soundSettings.speakerAbbreviations.indexOf(author) ] || 'Unknown Speaker';
+					elemStr += '<span class="dataRow">';
+						elemStr += '<div class="soundFileIcon" onclick="playSound(`' + file + '`)"></div>';
+						elemStr += '<span class="soundFileName">' + form + '</span>';
+						elemStr += '<span class="soundFileSpeaker">(Spoken by ' + speakerName + ')</span>';
+					elemStr += '</span>';
+				}
+			elemStr += '</div>';
+			// sentences
+			elemStr += '<div id="entrySentences">';
+				elemStr += '<p>';
+					for (let sentence of sentences) {
+						elemStr += '<span class="entrySentence">';
+							// elemStr += '(' + capitalize(dictionary._sLang.formStr(entry.catg,formNum)) + ') ';
+							elemStr += '<span class="entrySentenceText">' + sentence.base + '</span>';
+							elemStr += '<span class="entrySentenceTranslation">' + sentence.trans + '</span>';
+						elemStr += '</span>';
 					}
-				});
-				let spacingString = '';
-				if (extraForms.length > 0 && soundFiles.length > 0) {
-					spacingString += '<br>';
-				}
-				if (soundFiles.length > 0) {
-					audioString += '<span class="dataRow">';
-					audioString += '<span class="dataHeader">EXAMPLES</span>';
-					audioString += '</span>';
-				}
-				for (let soundFile of soundFiles) {
-					audioString += '<span class="dataRow">';
-					audioString += '<div class="soundFileIcon" onclick="playSound(`' + soundFile.filename + '`)"></div>';
-					audioString += '<span class="soundFileName">' + soundFile.word + '</span>';
-					audioString += '<span class="soundFileSpeaker">(Spoken by ' + soundFile.speaker + ')</span>';
-					audioString += '</span>';
-				}
-			data.innerHTML = formString + spacingString + audioString;
-			container.appendChild(data);
-			// image
-			let imageBox = document.createElement('div');
-				imageBox.id = 'imageBox';
-				let foundImage = false;
-				entry.forEachSecondaryForm((synonyms,formNum) => {
-					if (foundImage) return;
-					for (const synonym of synonyms) {
-						console.log('image check: ' + synonym);
-						if (image_en_ch.indexOf(synonym + '.jpg') != -1) {
-							imageBox.innerHTML = '<img src="source/' + synonym + '.jpg" width="200" style="display:block;">'; // display:block to remove inline whitespacing
-							console.log('found "' + synonym + '.jpg"');
-							foundImage = true;
-							break;
-						}
-						if (image_en_ch.indexOf(synonym + '.png') != -1) {
-							imageBox.innerHTML = '<img src="source/' + synonym + '.png" width="200" style="display:block;">'; // display:block to remove inline whitespacing
-							console.log('found "' + synonym + '.png"');
-							foundImage = true;
-							break;
-						}
+					if (sentences.length == 0) {
+						elemStr += '<span class="entrySentenceText">[[ no example sentences ]]</span>';
 					}
-				});
-				if (foundImage) {
-					container.appendChild(imageBox);
-				} else {
-					imageBox.innerHTML = '<img src="source/404.png" width="200">';
-					console.log('no image found');
-				}
-			// example sentences
-			let sentences = document.createElement('div');
-				sentences.id = 'entrySentences';
-				let sentencesString = '';
-				sentencesString += '<p>';
-				let foundSentence = false;
-				entry.forEachSentence((sents,formNum) => {
-					for (const sentPair of sents) {
-						if (!sentPair.sent || !sentPair.trans) continue;
-						//
-						const chkForms = entry._sForms;
-						let trueFormNum = -1;
-						for (let word of sentPair.trans) {
-							if (chkForms.indexOf(word.toLowerCase()) != -1) {
-								trueFormNum = chkForms.indexOf(word.toLowerCase());
-							}
-						}
-						if (entry.getPrimaryForm(0) == 'bite') {
-							console.log('DEBUG :: ' + chkForms);
-							for (let word of sentPair.trans) {
-								if (chkForms.indexOf(word.toLowerCase()) != -1) {
-									console.log( word.toLowerCase(), chkForms.indexOf(word.toLowerCase()) );
-								}
-							}
-						}
-						//
-						foundSentence = true;
-						sentencesString += '<span class="entrySentence">';
-						sentencesString += '(' + capitalize(dictionary._sLang.formStr(entry.catg,formNum)) + ') ';
-						// sentencesString += '(' + capitalize(dictionary._sLang.formStr(entry.catg,trueFormNum)) + ') ';
-						sentencesString += '<span class="entrySentenceText">' + sentPair.sent + '</span>';
-						sentencesString += '<span class="entrySentenceTranslation">' + sentPair.trans + '</span>';
-						sentencesString += '</span>';
-					}
-				});
-				if (!foundSentence) {
-					sentencesString += '<span class="entrySentenceText">[[ no example sentences ]]</span>';
-				}
-				sentencesString += '</p>';
-				sentences.innerHTML = sentencesString;
-			container.appendChild(sentences);
+				elemStr += '</p>';
+			elemStr += '</div>';
 			// synonyms
-			let synonymsToShow = [];
-			entry.forEachPrimaryForm((synonyms,formNum) => {
-				for (const synonym of synonyms)
-					if (synonym != word)
-						synonymsToShow.push(synonym);
-			});
-			if (synonymsToShow.length > 0) {
-				synonymsToShow.sort();
-				let synonyms = document.createElement('div');
-					synonyms.id = 'synonyms';
-					let synonymsString = '';
-					synonymsString += 'Synonymous with:';
-					for (let synonym of synonymsToShow) {
-						synonymsString += '<span class="synonym" onclick="displayEntry(contentPanel, `' + synonym + '`)">' + synonym + '</span>';
+			if (synonyms.length > 0) {
+				elemStr += '<div id="synonyms">';
+					elemStr += 'Synonymous with:';
+					for (let synonym of synonyms) {
+						elemStr += '<span class="synonym" onclick="displayEntry(contentPanel, `' + synonym + '`)">' + synonym + '</span>';
 					}
-					synonyms.innerHTML = synonymsString;
-				container.appendChild(synonyms);
+				elemStr += '</div>';
 			}
+
+			container.innerHTML = elemStr;
+
+
+			// // synonyms
+			// let synonymsToShow = [];
+			// entry.forEachPrimaryForm((synonyms,formNum) => {
+			// 	for (const synonym of synonyms)
+			// 		if (synonym != word)
+			// 			synonymsToShow.push(synonym);
+			// });
+			// if (synonymsToShow.length > 0) {
+			// 	synonymsToShow.sort();
+			// 	let synonyms = document.createElement('div');
+			// 		synonyms.id = 'synonyms';
+			// 		let synonymsString = '';
+			// 		synonymsString += 'Synonymous with:';
+			// 		for (let synonym of synonymsToShow) {
+			// 			synonymsString += '<span class="synonym" onclick="displayEntry(contentPanel, `' + synonym + '`)">' + synonym + '</span>';
+			// 		}
+			// 		synonyms.innerHTML = synonymsString;
+			// 	container.appendChild(synonyms);
+			// }
+
+
+			// // image
+			// let imageBox = document.createElement('div');
+			// 	imageBox.id = 'imageBox';
+			// 	let foundImage = false;
+			// 	entry.forEachSecondaryForm((synonyms,formNum) => {
+			// 		if (foundImage) return;
+			// 		for (const synonym of synonyms) {
+			// 			console.log('image check: ' + synonym);
+			// 			if (image_en_ch.indexOf(synonym + '.jpg') != -1) {
+			// 				imageBox.innerHTML = '<img src="source/' + synonym + '.jpg" width="200" style="display:block;">'; // display:block to remove inline whitespacing
+			// 				console.log('found "' + synonym + '.jpg"');
+			// 				foundImage = true;
+			// 				break;
+			// 			}
+			// 			if (image_en_ch.indexOf(synonym + '.png') != -1) {
+			// 				imageBox.innerHTML = '<img src="source/' + synonym + '.png" width="200" style="display:block;">'; // display:block to remove inline whitespacing
+			// 				console.log('found "' + synonym + '.png"');
+			// 				foundImage = true;
+			// 				break;
+			// 			}
+			// 		}
+			// 	});
+			// 	if (foundImage) {
+			// 		container.appendChild(imageBox);
+			// 	} else {
+			// 		imageBox.innerHTML = '<img src="source/404.png" width="200">';
+			// 		console.log('no image found');
+			// 	}
+			
 			
 			// scroll to top, since we just clicked a new word
 			container.scroll(0,0);
