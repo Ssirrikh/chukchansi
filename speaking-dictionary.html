@@ -50,6 +50,8 @@
 			height: 46px;
 
 			border-bottom: 4px solid #4f3a09;
+
+			overflow: visible;
 		}
 		#searchBar {
 			color: #75544b;
@@ -64,6 +66,64 @@
 			border-radius: 30px;
 
 			font-size: 20px;
+		}
+		#searchBar:focus {
+			margin: 7px;
+			border: 2px solid #75544b;
+			outline: none;
+		}
+		#searchClearButton {
+			cursor: pointer;
+
+			position: absolute;
+			top: calc(50% + 1px);
+			right: 10px;
+			width: 24px;
+			height: 24px;
+			transform: translate(0%, -50%);
+
+			border-radius: 50%;
+		}
+		.searchClearCross {
+			background-color: #826545;
+
+			display: inline-block;
+			position: absolute;
+			top: 50%;
+			right: 50%;
+			width: 2px;
+			height: 18px;
+			/*transform: translate(-50%, -50%);*/
+		}
+		#searchHistoryButton {
+			cursor: pointer;
+
+			position: absolute;
+			top: calc(50% + 1px);
+			right: calc(10px + 24px);
+			width: 24px;
+			height: 24px;
+			transform: translate(0%, -50%);
+
+			border-radius: 50%;
+		}
+		#searchHistoryArrow {
+			position: absolute;
+			padding: 4px;
+			left: 50%;
+
+			border: solid #826545;
+			border-width: 0 3px 3px 0;
+
+			transition: all 0.25s ease;
+		}
+		.arrowDown {
+			top: calc(50% - 2px);
+			transform: translate(-50%,-50%) rotate(45deg);
+		}
+		.arrowUp {
+			top: calc(50% + 1px);
+			transform: translate(-50%,-50%) rotate(225deg);
 		}
 
 		/* left panel search results */
@@ -133,6 +193,32 @@
 			
 			background: url('source/image.png');
 			background-size: contain;
+		}
+
+		/* left panel search history */
+		#historyPanel {
+			background-color: #ffffff;
+
+			position: absolute;
+			left: 23px;
+			top: calc(8px + 30px + 1px);
+			width: calc(25vw - 46px);
+			/* height: 100px; */
+
+			border: 1px solid #bfa07e;
+			
+			z-index: 2;
+		}
+		.historyEntry {
+			color: #75544b;
+			background-color: #ffffff;
+			font-size: 16px;
+
+			padding-left: 10px;
+		}
+		.historyEntry:hover {
+			color: #ffffff;
+			background-color: #75544b;
 		}
 
 		/* right panel */
@@ -322,10 +408,10 @@
 		// 0.5 hrs: automate resource detection
 		// 2.0 hrs: rebuild full entry display for v9
 		// 1.5 hrs: finish full entry display, add content icons to search, fix alignment bugs and overlapping text
+		// 0.5 hrs: host pdf dictionary and prevent auto-download
 
 		//// TODO ////
 		// automatically determine form of each sentence
-		// add clear button to search box
 		// add language toggle
 		
 		// make mobile-friendly version
@@ -340,7 +426,10 @@
 		let langToggle = false;
 		let searchSettings = {
 			shiftDown: false,
-			elem: undefined
+			elem: undefined,
+			HISTORY_MAX_LENGTH: 5,
+			showHistory: false,
+			history: []
 		};
 		let soundSettings = {
 			player: document.createElement('audio'),
@@ -388,6 +477,13 @@
 			return resources;
 		}
 
+		function clearSearch() {
+			searchSettings.elem.value = '';
+			filterContainer(resultPanel, '');
+			resultPanel.scroll(0, 0);
+			document.getElementById('searchBar').focus();
+		}
+
 		function keydown_search (e) {
 			switch (e.keyCode) {
 				case 27: // [Esc] to defocus search box
@@ -431,6 +527,25 @@
 		const subscriptFind = new RegExp('_([0-9]*)', 'ig'); // global, case-insensitive
 		const subscriptReplace = '<sub>$1</sub>';
 		const trySubscript = (text='') => text.replaceAll(subscriptFind, subscriptReplace);
+
+		function refreshHistory () {
+			if (searchSettings.showHistory) {
+				document.getElementById('searchHistoryArrow').classList.remove('arrowDown');
+				document.getElementById('searchHistoryArrow').classList.add('arrowUp');
+			} else {
+				document.getElementById('searchHistoryArrow').classList.remove('arrowUp');
+				document.getElementById('searchHistoryArrow').classList.add('arrowDown');
+			}
+
+			let elemStr = '';
+
+			for (let word of searchSettings.history) {
+				elemStr += '<div class="historyEntry" onclick="displayEntry(contentPanel,`'+word+'`);">' + trySubscript(word) + '</div>';
+			}
+
+			document.getElementById('historyPanel').innerHTML = elemStr;
+			document.getElementById('historyPanel').style.display = searchSettings.showHistory ? 'initial' : 'none';
+		}
 
 		function entryHTML (entry, word) {
 			// console.log(entry, word);
@@ -493,6 +608,14 @@
 		}
 
 		function displayEntry (container, word) {
+			// record word to history
+			searchSettings.history = searchSettings.history.filter(x => x != word);
+			searchSettings.history.push(word);
+			if (searchSettings.history.length > searchSettings.HISTORY_MAX_LENGTH) searchSettings.history.shift();
+			searchSettings.showHistory = false;
+			refreshHistory();
+
+			// prep data
 			const entry = dictionary.searchWord(word);
 			console.log(entry);
 			const synonymID = entry.primarySynonymID(word);
@@ -611,7 +734,7 @@
 			let contentPanel = document.createElement('div');
 				contentPanel.id = 'contentPanel';
 			document.body.appendChild(contentPanel);
-			// initial search
+			// initialize blank search
 			let search = document.createElement('input');
 				search.setAttribute('type', 'text');
 				search.id = 'searchBar';
@@ -620,11 +743,32 @@
 			searchPanel.appendChild(search);
 			searchSettings.elem = search;
 			populateContainer(resultPanel);
-			// implement search logic
+			// add buttons to search box
+			let searchClearButton = document.createElement('div');
+				searchClearButton.id = 'searchClearButton';
+				searchClearButton.innerHTML = '<div class="searchClearCross" style="transform: translate(-50%, -50%) rotate(45deg)"></div>'
+											+ '<div class="searchClearCross" style="transform: translate(-50%, -50%) rotate(-45deg)"></div>';
+				searchClearButton.onclick = clearSearch;
+			searchPanel.appendChild(searchClearButton);
+			let searchHistoryButton = document.createElement('div');
+				searchHistoryButton.id = 'searchHistoryButton';
+				searchHistoryButton.innerHTML = '<div id="searchHistoryArrow" class="arrowDown"></div>';
+				searchHistoryButton.onclick = () => {
+					searchSettings.showHistory = !searchSettings.showHistory;
+					refreshHistory();
+				};
+			searchPanel.appendChild(searchHistoryButton);
+			// initialize empty history
+			let history = document.createElement('div');
+				history.id = 'historyPanel';
+				history.style.display = 'none';
+			searchPanel.appendChild(history);
+			refreshHistory();
+
+			// activate controls and search logic
 			search.addEventListener('keydown', keydown_search);
 			search.addEventListener('keyup', keyup_search);
-
-			// mock entry for debug
+			// display initial entry
 			displayEntry(contentPanel, 'blackberry');
 		}
 

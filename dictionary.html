@@ -54,7 +54,7 @@
 			height: 30px;
 			transform: translate(-50%, -50%);
 		}
-		#searchBox {
+		#searchBar {
 			color: #75544b;
 			background-color: #ffffff;
 
@@ -268,7 +268,7 @@
 			searchSettings.elem.value = '';
 			filterContainer(resultPanel, '');
 			resultPanel.scroll(0, 0);
-			document.getElementById('searchBox').focus();
+			document.getElementById('searchBar').focus();
 		}
 		function togglePrimary() {
 			langToggle = dictionary.togglePrimary();
@@ -282,7 +282,7 @@
 			populateContainer(resultPanel);
 			filterContainer(resultPanel, '');
 			resultPanel.scroll(0, 0);
-			document.getElementById('searchBox').focus();
+			document.getElementById('searchBar').focus();
 		}
 
 		function keydown_search(e) {
@@ -429,7 +429,7 @@
 			navBar.appendChild(searchContainer);
 			let search = document.createElement('input');
 				search.setAttribute('type', 'text');
-				search.id = 'searchBox';
+				search.id = 'searchBar';
 				search.placeholder = 'Search...';
 				search.value = '';
 			searchContainer.appendChild(search);
