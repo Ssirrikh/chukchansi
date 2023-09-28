@@ -25,6 +25,7 @@
 			top: 0px;
 			width: 100%;
 			height: 50px;
+			z-index: 2; /* make sure hanging tabs are on top of other content */
 
 			border-bottom: 1px solid #ffffff;
 		}
@@ -57,9 +58,10 @@
 			color: #75544b;
 			background-color: #ffffff;
 
+			box-sizing: border-box;
 			margin: 8px;
-			padding: 0px 15px;
-			width: calc(25vw - 46px);
+			padding: 0px 50px 0px 15px;
+			width: calc(25vw - 16px);
 			height: 30px;
 
 			border: 1px solid #bfa07e;
@@ -76,7 +78,7 @@
 			cursor: pointer;
 
 			position: absolute;
-			top: calc(50% + 1px);
+			top: calc(50%);
 			right: 10px;
 			width: 24px;
 			height: 24px;
@@ -99,7 +101,7 @@
 			cursor: pointer;
 
 			position: absolute;
-			top: calc(50% + 1px);
+			top: calc(50%);
 			right: calc(10px + 24px);
 			width: 24px;
 			height: 24px;
@@ -122,8 +124,63 @@
 			transform: translate(-50%,-50%) rotate(45deg);
 		}
 		.arrowUp {
-			top: calc(50% + 1px);
+			top: calc(50% + 3px);
 			transform: translate(-50%,-50%) rotate(225deg);
+		}
+
+		/* language toggle */
+		#hangingTab {
+			background-color: #f2e3d3;
+
+			position: absolute;
+			top: 50px;
+			left: calc(100% - 30px);
+			width: 100px;
+			height: 30px;
+			transform: translate(-100%, 0%);
+			
+			border: 3px solid;
+			border-top: none;
+			border-color: #4f3a09;
+			border-radius: 0px 0px 15px 15px;
+		}
+		#langToggleTitle {
+			color: #4f3a09;
+
+			position: absolute;
+			top: calc(50% - 1px);
+			left: 29px;
+			transform: translate(-50%, -50%);
+
+			font-size: 20px;
+		}
+		#langToggle {
+			cursor: pointer;
+			
+			background-color: #ad8e6c;
+
+			position: absolute;
+			top: 50%;
+			left: calc(100% - 7px);
+			width: 30px;
+			height: 16px;
+			transform: translate(-100%, -50%);
+			
+			border: 3px solid;
+			border-color: #4f3a09;
+			border-radius: 15px;
+		}
+		#langToggleSwitch {
+			background-color: #4f3a09;
+
+			position: absolute;
+			top: 50%;
+			left: 1px;
+			width: 18px;
+			height: 14px;
+			transform: translate(0%, -50%);
+
+			border-radius: 7px;
 		}
 
 		/* left panel search results */
@@ -201,9 +258,8 @@
 
 			position: absolute;
 			left: 23px;
-			top: calc(8px + 30px + 1px);
+			top: calc(8px + 30px - 1px);
 			width: calc(25vw - 46px);
-			/* height: 100px; */
 
 			border: 1px solid #bfa07e;
 			
@@ -409,10 +465,12 @@
 		// 2.0 hrs: rebuild full entry display for v9
 		// 1.5 hrs: finish full entry display, add content icons to search, fix alignment bugs and overlapping text
 		// 0.5 hrs: host pdf dictionary and prevent auto-download
+		// 2.5 hrs: add search history and clear search button; add misc gfx improvements
+		// 1.5 hrs: impl lang toggle; minor fixes to search/history
 
 		//// TODO ////
 		// automatically determine form of each sentence
-		// add language toggle
+		// keep separate history for each lang
 		
 		// make mobile-friendly version
 
@@ -476,8 +534,34 @@
 			}
 			return resources;
 		}
-
+		
+		function togglePrimary() {
+			// save current word before toggling lang
+			const currentWord = searchSettings.history[searchSettings.history.length-1];
+			const currentEntry = dictionary.searchWord(currentWord);
+			const wordTranslation = (!langToggle) ? currentEntry.getSecondaryForm(0)[0] : currentEntry.getPrimaryForm(0)[0];
+			langToggle = dictionary.togglePrimary();
+			// ui
+			document.getElementById('pageTitle').innerHTML = (!langToggle) ? `English-Chukchansi Dictionary` : `Chukchansi-English Waayaw Hudaʔhiy'`;
+			document.getElementById('pageTitle').style.fontSize = (!langToggle) ? '25px' : '20px';
+			document.getElementById('langToggleTitle').innerHTML = (!langToggle) ? 'en-ch' : 'ch-en';
+			document.getElementById('langToggleSwitch').style.left = (!langToggle) ? '1px' : '11px';
+			// current entry
+			displayEntry(contentPanel, wordTranslation);
+			// history
+			searchSettings.history = [wordTranslation];
+			refreshHistory();
+			// search
+			searchSettings.elem.value = '';
+			searchSettings.elem.placeholder = (!langToggle) ? 'Search...' : 'Yuhgo...';
+			populateContainer(resultPanel);
+			filterContainer(resultPanel, '');
+			resultPanel.scroll(0,0);
+			document.getElementById('searchBar').focus();
+		}
 		function clearSearch() {
+			searchSettings.showHistory = false;
+			refreshHistory();
 			searchSettings.elem.value = '';
 			filterContainer(resultPanel, '');
 			resultPanel.scroll(0, 0);
@@ -539,7 +623,8 @@
 
 			let elemStr = '';
 
-			for (let word of searchSettings.history) {
+			for (let i = searchSettings.history.length-1; i >= 0; i--) {
+				const word = searchSettings.history[i];
 				elemStr += '<div class="historyEntry" onclick="displayEntry(contentPanel,`'+word+'`);">' + trySubscript(word) + '</div>';
 			}
 
@@ -630,7 +715,7 @@
 			const catg			= entry.catg;
 			const extraForms	= [];
 			const sentences		= [];
-			const synonyms		= entry.getPrimaryForm(0).filter(form => form != word);
+			const synonyms		= ( langToggle ? entry.getSecondaryForm(0) : entry.getPrimaryForm(0) ).filter(form => form != word);
 
 			if (!langToggle) entry.forEachSecondaryForm( (synonyms,formNum) => {if (formNum > 1) extraForms.push([synonyms[0],formNum])} );
 			entry.forEachSentence( (sent) => sentences.push({base:sent.base, trans:sent.trans}) );
@@ -764,6 +849,21 @@
 				history.style.display = 'none';
 			searchPanel.appendChild(history);
 			refreshHistory();
+			// add language toggle
+			let langToggleTab = document.createElement('div');
+				langToggleTab.id = 'hangingTab';
+			navBar.appendChild(langToggleTab);
+			let langToggleTitle = document.createElement('span');
+				langToggleTitle.id = 'langToggleTitle';
+				langToggleTitle.innerHTML = 'en-ch';
+			langToggleTab.appendChild(langToggleTitle);
+			let langToggle = document.createElement('div');
+				langToggle.id = 'langToggle';
+				langToggle.onclick = togglePrimary;
+			langToggleTab.appendChild(langToggle);
+			let langToggleSwitch = document.createElement('div');
+				langToggleSwitch.id = 'langToggleSwitch';
+			langToggle.appendChild(langToggleSwitch);
 
 			// activate controls and search logic
 			search.addEventListener('keydown', keydown_search);
