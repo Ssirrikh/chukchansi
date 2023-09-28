@@ -468,6 +468,7 @@
 		// 2.5 hrs: add search history and clear search button; add misc gfx improvements
 		// 1.5 hrs: impl lang toggle; minor fixes to search/history
 		// 0.5 hrs: keep separate history for each lang
+		// 0.5 hrs: minor ux fixes
 
 		//// TODO ////
 		// automatically determine form of each sentence
@@ -886,9 +887,15 @@
 				langToggleSwitch.id = 'langToggleSwitch';
 			langToggle.appendChild(langToggleSwitch);
 
-			// activate controls and search logic
+			// activate controls and search/history logic
 			search.addEventListener('keydown', keydown_search);
 			search.addEventListener('keyup', keyup_search);
+			window.addEventListener('click', (e) => {
+				if (!searchPanel.contains(e.target)) {
+					searchSettings.showHistory = false;
+					refreshHistory();
+				}
+			});
 			// display initial entry
 			displayEntry(contentPanel, 'blackberry');
 		}
