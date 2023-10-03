@@ -469,6 +469,7 @@
 		// 1.5 hrs: impl lang toggle; minor fixes to search/history
 		// 0.5 hrs: keep separate history for each lang
 		// 0.5 hrs: minor ux fixes
+		// 1.0 hrs: automate identification of word forms in example sentences; sterilize characters in v9 tsv
 
 		//// TODO ////
 		// automatically determine form of each sentence
@@ -629,10 +630,6 @@
 
 			let elemStr = '';
 
-			// for (let i = searchSettings.history.length-1; i >= 0; i--) {
-			// 	const word = searchSettings.history[i];
-			// 	elemStr += '<div class="historyEntry" onclick="displayEntry(contentPanel,`'+word+'`);">' + trySubscript(word) + '</div>';
-			// }
 			for (let i = history.length-1; i >= 0; i--) {
 				const word = history[i];
 				elemStr += '<div class="historyEntry" onclick="displayEntry(contentPanel,`'+word+'`);">' + trySubscript(word) + '</div>';
@@ -705,20 +702,9 @@
 		function displayEntry (container, word) {
 			// record word to history
 			const history = !langToggle ? 'historyEng' : 'historyChk';
-			// searchSettings.history = searchSettings.history.filter(x => x != word);
-			// searchSettings.history.push(word);
-			// if (searchSettings.history.length > searchSettings.HISTORY_MAX_LENGTH) searchSettings.history.shift();
-
-			console.log(searchSettings[history]);
 			searchSettings[history] = searchSettings[history].filter(x => x != word);
 			searchSettings[history].push(word);
-			console.log(searchSettings[history]);
 			if (searchSettings[history].length > searchSettings.HISTORY_MAX_LENGTH) searchSettings[history].shift();
-
-			// searchSettings.history = searchSettings.history.filter(x => x != word);
-			// searchSettings.history.push(word);
-			// if (searchSettings.history.length > searchSettings.HISTORY_MAX_LENGTH) searchSettings.history.shift();
-
 			searchSettings.showHistory = false;
 			refreshHistory();
 
@@ -793,7 +779,15 @@
 				elemStr += '<p>';
 					for (let sentence of sentences) {
 						elemStr += '<span class="entrySentence">';
-							// elemStr += '(' + capitalize(dictionary._sLang.formStr(entry.catg,formNum)) + ') ';
+							const chkWordsSterilized = sentence.trans.toLowerCase().replace(/[^0-9a-z\'ʔ ]/g, '').split(' ');
+							let foundForm = false;
+							for (let word of chkWordsSterilized) {
+								const formNum = entry.searchSecondary(word);
+								// console.log(word,formNum);
+								if (formNum != -1) foundForm = true;
+								if (formNum != -1) elemStr += '(' + capitalize(dictionary._sLang.formStr(entry.catg,formNum)) + ') ';
+							}
+							if (!foundForm) elemStr += '(Unknown) ';
 							elemStr += '<span class="entrySentenceText">' + trySubscript(sentence.base) + '</span>';
 							elemStr += '<span class="entrySentenceTranslation">' + trySubscript(sentence.trans) + '</span>';
 						elemStr += '</span>';

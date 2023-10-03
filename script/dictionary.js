@@ -12,6 +12,7 @@
 // 0.5 hrs: add new batch of sounds/images to speaking dictionary
 
 // 1.5 hrs: spreadsheet fixes in prep for v9, implement Dictionary.forEachEntry, fix Entry.primarySynonymID
+// 0.5 hrs: add ability to search formNum of word in an entry
 
 const SEP_LINES = '\n';
 const SEP_CELLS = '\t';
@@ -276,6 +277,25 @@ class Entry {
 	getPrimaryForm(formNum) { return this._pForms[formNum]; }
 	getSecondaryForm(formNum) { return this._sForms[formNum]; }
 	getSentence(formNum) { return this._sents[formNum]; }
+
+	searchPrimary(word) {
+		for (let i = 0; i < this._pForms.length; i++) {
+			// console.log('   ',i,word,this._pForms[i]);
+			if (this._pForms[i] && this._pForms[i].indexOf(word) != -1) {
+				return i;
+			}
+		}
+		return -1;
+	}
+	searchSecondary(word) {
+		for (let i = 0; i < this._sForms.length; i++) {
+			// console.log('   ',i,word,this._sForms[i]);
+			if (this._sForms[i] && this._sForms[i].indexOf(word) != -1) {
+				return i;
+			}
+		}
+		return -1;
+	}
 
 	forEachPrimaryForm(callback = (synonyms,formNum)=>{}) {
 		for (let i = 0; i < this._pForms.length; i++)
