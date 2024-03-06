@@ -33,7 +33,7 @@
 
 		//// WAVE 3 ////
 
-		// 1.0 hrs: convert existing styling to css3
+		// 2.0 hrs: convert existing styling to css3
 
 		//// TODO ////
 		// clean up css
@@ -284,13 +284,29 @@
 			const title 		= !langToggle	? word			: chkForms;
 			const titleTrans	=  langToggle	? engForm0		: chkForms;
 			const catg			= entry.catg;
-			const extraForms	= [];
+			const wordForms	    = [];
 			const sentences		= [];
+			const sentenceForms = [];
 			const synonyms		= ( langToggle ? entry.getSecondaryForm(0) : entry.getPrimaryForm(0) ).filter(form => form != word);
 
-			if (!langToggle) entry.forEachSecondaryForm( (synonyms,formNum) => {if (formNum > 1) extraForms.push([synonyms[0],formNum])} );
+			if (!langToggle) entry.forEachSecondaryForm( (synonyms,formNum) => {if (formNum > 1) wordForms.push([synonyms[0],formNum])} );
 			entry.forEachSentence( (sent) => sentences.push({base:sent.base, trans:sent.trans}) );
 
+			// scan sentences and try to automatically detect word forms
+			for (let i = 0; i < sentences.length; i++) {
+				const chkWordsSterilized = sentences[i].trans.toLowerCase().replace(/[^0-9a-z\'ʔ ]/g, '').split(' ');
+				for (let word of chkWordsSterilized) {
+					const formNum = entry.searchSecondary(word);
+					const hasForm = dictionary._sLang.hasForm(catg,formNum);
+					if (formNum != -1 && hasForm) {
+						sentenceForms[i] = '(' + capitalize(dictionary._sLang.formStr(entry.catg,formNum)) + ') '; // "(formName)" if form detected and has name defined
+						break;
+					}
+				}
+				if (!sentenceForms[i]) sentenceForms[i] = ''; // blank if no form name detected
+			}
+
+			// scan for additional media resources
 			const audioResources = findResources(entry, audio_en_ch);
 			const imageResources = findResources(entry, image_en_ch);
 			for (let [form,file,author] of audioResources) console.log(word+' has audio resource for '+form+': '+file);
@@ -308,19 +324,19 @@
 			elemStr += '</div>';
 			elemStr += '<div id="entryData">';
 				// extra forms
-				if (extraForms.length > 0) {
+				if (wordForms.length > 0) {
 					elemStr += '<span class="dataRow">';
 						elemStr += '<span class="dataHeader">FORMS</span>';
 					elemStr += '</span>';
 				}
-				for (let [synonym,formNum] of extraForms) {
+				for (let [synonym,formNum] of wordForms) {
 					elemStr += '<span class="dataRow">';
 						elemStr += '<span class="formName">' + capitalize(dictionary[langToggle?'_pLang':'_sLang'].formStr(catg,formNum)) + ':</span>';
 						elemStr += '<span class="formWord">' + trySubscript(synonym) + '</span>';
 					elemStr += '</span>';
 				}
 				// audio
-				if (extraForms.length > 0 && audioResources.length > 0) {
+				if (wordForms.length > 0 && audioResources.length > 0) {
 					elemStr += '<br>';
 				}
 				if (audioResources.length > 0) {
@@ -340,19 +356,11 @@
 			// sentences
 			elemStr += '<div id="entrySentences">';
 				elemStr += '<p>';
-					for (let sentence of sentences) {
+					for (let i = 0; i < sentences.length; i++) {
 						elemStr += '<span class="entrySentence">';
-							const chkWordsSterilized = sentence.trans.toLowerCase().replace(/[^0-9a-z\'ʔ ]/g, '').split(' ');
-							let foundForm = false;
-							for (let word of chkWordsSterilized) {
-								const formNum = entry.searchSecondary(word);
-								// console.log(word,formNum);
-								if (formNum != -1) foundForm = true;
-								if (formNum != -1) elemStr += '(' + capitalize(dictionary._sLang.formStr(entry.catg,formNum)) + ') ';
-							}
-							if (!foundForm) elemStr += '(Unknown) ';
-							elemStr += '<span class="entrySentenceText">' + trySubscript(sentence.base) + '</span>';
-							elemStr += '<span class="entrySentenceTranslation">' + trySubscript(sentence.trans) + '</span>';
+							elemStr += sentenceForms[i];
+							elemStr += '<span class="entrySentenceText">' + trySubscript(sentences[i].base) + '</span>';
+							elemStr += '<span class="entrySentenceTranslation">' + trySubscript(sentences[i].trans) + '</span>';
 						elemStr += '</span>';
 					}
 					if (sentences.length == 0) {

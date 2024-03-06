@@ -32,7 +32,8 @@ let primary_eng = {
 		return 0;
 	},
 	forms: {
-		default: (i) => 'form '+i
+		// default: (i) => 'form '+i
+		default: (i) => ''
 	},
 	formStr: (catg,i) => {
 		return (primary_eng.forms.hasOwnProperty(catg) && i < primary_eng.forms[catg].length)
@@ -59,7 +60,9 @@ let secondary_chk = {
 		noun:   ['subject', 'object', 'owner',          'owned',   'tool',    'place'],
 		verb:   ['recent past', 'remote past', 'yesterday past', 'ongoing', 'command', 'suggestive', 'hypothetical', 'future', 'precedent gerundial'],
 		adjective: ['subject', 'object', 'owner',          'owned',   'tool',    'place'],
-		default: (i) => 'form '+i
+		// default: (i) => 'form '+i
+		default: (i) => ''
+
 		// 'n': ['subject', 'object', 'possessive',     'possessed', 'instrumental', 'locative'],
 		// 'v': ['subject', 'object', 'yesterday past', 'ongoing',   'command',      'hypothetical', 'future']
 	},
@@ -67,6 +70,11 @@ let secondary_chk = {
 		return (secondary_chk.forms.hasOwnProperty(catg) && i < secondary_chk.forms[catg].length)
 			? secondary_chk.forms[catg][i]
 			: secondary_chk.forms.default(i)
+	},
+	hasForm: (catg,i) => {
+		if (!secondary_chk.forms[catg]) return false;
+		if (i && !secondary_chk.forms[catg][i]) return false;
+		return true;
 	}
 };
 
