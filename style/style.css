@@ -1,0 +1,442 @@
+
+* {
+	margin: 0px;
+	padding: 0px;
+	font-family: 'Times New Roman';
+}	
+body {
+	background-color: #000000;
+	overflow: hidden;
+}
+
+/* header bar */
+#navBar {
+	background-color: #461220;
+
+	box-sizing: border-box;
+	position: sticky;
+	padding: 10px;
+	top: 0px;
+	width: 100%;
+	height: 50px;
+	z-index: 2; /* make sure hanging tabs are on top of other content */
+
+	border-bottom: 1px solid #ffffff;
+}
+#pageTitle {
+	color: #ffdab3;
+
+	position: absolute;
+	/*margin: 10px;*/
+	left: 50%;
+
+	transform: translate(-50%, 0%);
+
+	font-size: 25px;
+}
+
+/* left panel search box */
+#searchPanel {
+	background-color: #f2e3d3;
+
+	position: absolute;
+	top: 50px;
+	width: 25%;
+	height: 46px;
+
+	border-bottom: 4px solid #4f3a09;
+
+	overflow: visible;
+}
+#searchBar {
+	color: #75544b;
+	background-color: #ffffff;
+
+	box-sizing: border-box;
+	margin: 8px;
+	padding: 0px 50px 0px 15px;
+	width: calc(25vw - 16px);
+	height: 30px;
+
+	border: 1px solid #bfa07e;
+	border-radius: 30px;
+
+	font-size: 20px;
+}
+#searchBar:focus {
+	margin: 7px;
+	border: 2px solid #75544b;
+	outline: none;
+}
+#searchClearButton {
+	cursor: pointer;
+
+	position: absolute;
+	top: calc(50%);
+	right: 10px;
+	width: 24px;
+	height: 24px;
+	transform: translate(0%, -50%);
+
+	border-radius: 50%;
+}
+.searchClearCross {
+	background-color: #826545;
+
+	display: inline-block;
+	position: absolute;
+	top: 50%;
+	right: 50%;
+	width: 2px;
+	height: 18px;
+	/*transform: translate(-50%, -50%);*/
+}
+#searchHistoryButton {
+	cursor: pointer;
+
+	position: absolute;
+	top: calc(50%);
+	right: calc(10px + 24px);
+	width: 24px;
+	height: 24px;
+	transform: translate(0%, -50%);
+
+	border-radius: 50%;
+}
+#searchHistoryArrow {
+	position: absolute;
+	padding: 4px;
+	left: 50%;
+
+	border: solid #826545;
+	border-width: 0 3px 3px 0;
+
+	transition: all 0.25s ease;
+}
+.arrowDown {
+	top: calc(50% - 2px);
+	transform: translate(-50%,-50%) rotate(45deg);
+}
+.arrowUp {
+	top: calc(50% + 3px);
+	transform: translate(-50%,-50%) rotate(225deg);
+}
+
+/* language toggle */
+#hangingTab {
+	background-color: #f2e3d3;
+
+	position: absolute;
+	top: 50px;
+	left: calc(100% - 30px);
+	width: 100px;
+	height: 30px;
+	transform: translate(-100%, 0%);
+	
+	border: 3px solid;
+	border-top: none;
+	border-color: #4f3a09;
+	border-radius: 0px 0px 15px 15px;
+}
+#langToggleTitle {
+	color: #4f3a09;
+
+	position: absolute;
+	top: calc(50% - 1px);
+	left: 29px;
+	transform: translate(-50%, -50%);
+
+	font-size: 20px;
+}
+#langToggle {
+	cursor: pointer;
+	
+	background-color: #ad8e6c;
+
+	position: absolute;
+	top: 50%;
+	left: calc(100% - 7px);
+	width: 30px;
+	height: 16px;
+	transform: translate(-100%, -50%);
+	
+	border: 3px solid;
+	border-color: #4f3a09;
+	border-radius: 15px;
+}
+#langToggleSwitch {
+	background-color: #4f3a09;
+
+	position: absolute;
+	top: 50%;
+	left: 1px;
+	width: 18px;
+	height: 14px;
+	transform: translate(0%, -50%);
+
+	border-radius: 7px;
+}
+
+/* left panel search results */
+#resultPanel {
+	background-color: #bfa07e;
+	/*background-color: #f2e3d3;*/
+
+	box-sizing: border-box;
+	position: absolute;
+	/*padding: 1px;*/
+	top: 100px;
+	width: 25%;
+	height: calc(100% - 100px);
+
+	overflow: scroll;
+	-ms-overflow-style: none;  /* Hide scrollbar for IE and Edge */
+	scrollbar-width: none;  /* Hide scrollbar for Firefox */
+}
+#resultPanel::-webkit-scrollbar { display: none; } /* Hide scrollbar for Chrome, Safari and Opera */
+.searchResult {
+	cursor: pointer;
+	
+	color: #4f3a09;
+	background-color: #f2e3d3;
+
+	margin: 4px;
+	padding: 2px 10px;
+	height: 20px;
+
+	font-size: 16px;
+
+	overflow: hidden;
+	border: 2px solid #75544b;
+	border-radius: 4px;
+}
+.searchResultText {
+	/*font-weight: bold;*/
+}
+.searchResultTranslationText {
+	margin-left: 20px;
+}
+#noResultsText {
+	color: #75544b;
+
+	box-sizing: border-box;
+	display: inline-block;
+	position: relative;
+	margin: 10px;
+	left: 50%;
+	transform: translate(-50%, 0%);
+
+	font-size: 20px;
+	/*font-style: italic;*/
+}
+.searchResultAudioIcon {
+	width:20px;
+	height:20px;
+	float:right;
+	
+	background: url('source/audio.png');
+	background-size: contain;
+}
+.searchResultImageIcon {
+	width:20px;
+	height:20px;
+	float:right;
+	
+	background: url('source/image.png');
+	background-size: contain;
+}
+
+/* left panel search history */
+#historyPanel {
+	background-color: #ffffff;
+
+	position: absolute;
+	left: 23px;
+	top: calc(8px + 30px - 1px);
+	width: calc(25vw - 46px);
+
+	border: 1px solid #bfa07e;
+	
+	z-index: 2;
+}
+.historyEntry {
+	color: #75544b;
+	background-color: #ffffff;
+	font-size: 16px;
+
+	padding-left: 10px;
+}
+.historyEntry:hover {
+	color: #ffffff;
+	background-color: #75544b;
+}
+
+/* right panel */
+#contentPanel {
+	background-color: #f2e3d3;
+	
+	box-sizing: border-box;
+	position: absolute;
+	padding: 20px;
+	top: 50px;
+	left: 25%;
+	width: 75%;
+	height: calc(100% - 50px);
+
+	border-left: 4px solid #4f3a09;
+
+	overflow: scroll;
+	-ms-overflow-style: none;  /* Hide scrollbar for IE and Edge */
+	scrollbar-width: none;  /* Hide scrollbar for Firefox */
+}
+#contentPanel::-webkit-scrollbar { display: none; } /* Hide scrollbar for Chrome, Safari and Opera */
+
+/* right panel title bar */
+#entryTitle {
+	color: #4f3a09;
+
+	display: block;
+	padding: 5px;
+}
+.entryTitleText {
+	margin-right: 10px;
+	font-size: 40px;
+	font-weight: bold;
+}
+.entryCatgText {
+	margin-right: 10px;
+	font-size: 18px;
+	font-style: italic;
+}
+.entryTranslationText {
+	font-size: 30px;
+}
+
+/* right panel data */
+#entryData {
+	color: #4f3a09;
+
+	display: block;
+	margin-top: 5px;
+	/*height: 200px;*/
+}
+.dataRow {
+	display: block;
+	margin-left: 40px;
+	padding: 5px;
+	height: 30px;
+}
+.dataHeader {
+	font-size: 20px;
+	/*font-weight: bold;*/
+	text-decoration: underline;
+}
+.formName {
+	font-size: 20px;
+	font-weight: bold;
+}
+.formWord {
+	margin-left: 10px;
+	font-size: 20px;
+}
+.soundFileIcon {
+	cursor: pointer;
+	
+	/*background-color: #ffffff;*/
+	background: url('source/audio.png');
+	background-size: contain;
+
+	display: inline-block;
+	width: 30px;
+	height: 30px;
+
+	/*border: 1px solid #000000;*/
+}
+.soundFileName {
+	display: inline-block;
+	position: relative;
+	margin-left: 10px;
+	top: 5px;
+
+	font-size: 20px;
+	font-weight: bold;
+
+	vertical-align: top;
+}
+.soundFileSpeaker {
+	/*color: #bfa07e;*/
+
+	display: inline-block;
+	position: relative;
+	margin-left: 10px;
+	top: 7px;
+
+	font-size: 16px;
+
+	vertical-align: top;
+}
+
+/* right panel floating image */
+#imageBox {
+	background-color: #bfa07e;
+	background-size: 100%;
+
+	box-sizing: border-box;
+	display: inline-block;
+	position: absolute;
+	top: 80px;
+	left: 100%;
+	width: 200px;
+	height: auto;
+
+	overflow: hidden;
+	border: 2px solid #75544b;
+	border-radius: 4px;
+	transform: translate(calc(-100% - 20px), 0%);
+}
+
+/* right panel example sentences */
+#entrySentences {
+	color: #4f3a09;
+	/*background-color: #bfa07e;*/
+	background-color: #dbb78f;
+
+	display: block;
+	margin-top: 20px;
+	padding: 2px 10px;
+
+	border: 2px solid #75544b;
+	border-radius: 4px;
+}
+.entrySentence {
+	display: block;
+	margin: 10px;
+}
+.entrySentenceText {
+	font-size: 20px;
+}
+.entrySentenceTranslation {
+	margin-left: 10px;
+	font-size: 20px;
+	font-style: italic;
+}
+
+/* right panel synonyms */
+#synonyms {
+	color: #4f3a09;
+
+	display: block;
+	margin-top: 5px;
+	padding: 2px;
+
+	font-size: 16px;
+}
+.synonym {
+	cursor: pointer;
+
+	display: inline-block;
+	margin-left: 10px;
+
+	font-weight: bold;
+	text-decoration: underline;
+}
