@@ -1,4 +1,28 @@
 
+:root {
+    --background-nav: #461220; /* navbar */
+    --text-nav: #ffdab3; /* navbar */
+	
+	--background-search: #ffffff; /* searchbar */
+	--icon-search: #826545; /* search clear button, search history button */
+
+    --background-light: #f2e3d3; /* search panel, search results, content panel, hanging tabs */
+	--background-sentences: #dbb78f; /* sentences inset panel */
+    --background-medium: #bfa07e; /* search result panel, unloaded img inset panel */
+	--background-dark: #ad8e6c; /* toggle switch */
+    --text-dark: #4f3a09; /* hanging tabs, search results, content panel, sentences inset panel */
+	--text-medium: #75544b; /* searchbar, no results text, search history */
+
+    --border-dark: #4f3a09; /* panel separators, hanging tabs */
+    --border-medium: #75544b; /* search results, img inset, sentences inset */
+    --border-light: #bfa07e; /* searchbar, search history */
+
+    --tab-layer: 2;
+
+	--icon-image: url('../source/image.png');
+	--icon-audio: url('../source/audio.png');
+}
+
 * {
 	margin: 0px;
 	padding: 0px;
@@ -11,7 +35,7 @@ body {
 
 /* header bar */
 #navBar {
-	background-color: #461220;
+	background-color: var(--background-nav);
 
 	box-sizing: border-box;
 	position: sticky;
@@ -19,12 +43,12 @@ body {
 	top: 0px;
 	width: 100%;
 	height: 50px;
-	z-index: 2; /* make sure hanging tabs are on top of other content */
+	z-index: var(--tab-layer); /* make sure hanging tabs are on top of other content */
 
-	border-bottom: 1px solid #ffffff;
+	border-bottom: 1px solid #ffffff; /* edge highlight to emphasize navbar separation */
 }
 #pageTitle {
-	color: #ffdab3;
+	color: var(--text-nav);
 
 	position: absolute;
 	/*margin: 10px;*/
@@ -37,20 +61,20 @@ body {
 
 /* left panel search box */
 #searchPanel {
-	background-color: #f2e3d3;
+	background-color: var(--background-light);
 
 	position: absolute;
 	top: 50px;
 	width: 25%;
 	height: 46px;
 
-	border-bottom: 4px solid #4f3a09;
+	border-bottom: 4px solid var(--border-dark);
 
 	overflow: visible;
 }
 #searchBar {
-	color: #75544b;
-	background-color: #ffffff;
+	color: var(--text-medium);
+	background-color: var(--background-search);
 
 	box-sizing: border-box;
 	margin: 8px;
@@ -58,14 +82,14 @@ body {
 	width: calc(25vw - 16px);
 	height: 30px;
 
-	border: 1px solid #bfa07e;
+	border: 1px solid var(--border-light);
 	border-radius: 30px;
 
 	font-size: 20px;
 }
 #searchBar:focus {
 	margin: 7px;
-	border: 2px solid #75544b;
+	border: 2px solid var(--text-medium);
 	outline: none;
 }
 #searchClearButton {
@@ -81,7 +105,7 @@ body {
 	border-radius: 50%;
 }
 .searchClearCross {
-	background-color: #826545;
+	background-color: var(--icon-search);
 
 	display: inline-block;
 	position: absolute;
@@ -108,7 +132,7 @@ body {
 	padding: 4px;
 	left: 50%;
 
-	border: solid #826545;
+	border: solid var(--icon-search);
 	border-width: 0 3px 3px 0;
 
 	transition: all 0.25s ease;
@@ -124,7 +148,7 @@ body {
 
 /* language toggle */
 #hangingTab {
-	background-color: #f2e3d3;
+	background-color: var(--background-light);
 
 	position: absolute;
 	top: 50px;
@@ -135,11 +159,11 @@ body {
 	
 	border: 3px solid;
 	border-top: none;
-	border-color: #4f3a09;
+	border-color: var(--border-dark);
 	border-radius: 0px 0px 15px 15px;
 }
 #langToggleTitle {
-	color: #4f3a09;
+	color: var(--text-dark);
 
 	position: absolute;
 	top: calc(50% - 1px);
@@ -151,7 +175,7 @@ body {
 #langToggle {
 	cursor: pointer;
 	
-	background-color: #ad8e6c;
+	background-color: var(--background-dark);
 
 	position: absolute;
 	top: 50%;
@@ -161,11 +185,11 @@ body {
 	transform: translate(-100%, -50%);
 	
 	border: 3px solid;
-	border-color: #4f3a09;
+	border-color: var(--border-dark);
 	border-radius: 15px;
 }
 #langToggleSwitch {
-	background-color: #4f3a09;
+	background-color: var(--border-dark);
 
 	position: absolute;
 	top: 50%;
@@ -179,8 +203,7 @@ body {
 
 /* left panel search results */
 #resultPanel {
-	background-color: #bfa07e;
-	/*background-color: #f2e3d3;*/
+	background-color: var(--background-medium);
 
 	box-sizing: border-box;
 	position: absolute;
@@ -197,8 +220,8 @@ body {
 .searchResult {
 	cursor: pointer;
 	
-	color: #4f3a09;
-	background-color: #f2e3d3;
+	color: var(--text-dark);
+	background-color: var(--background-light);
 
 	margin: 4px;
 	padding: 2px 10px;
@@ -207,7 +230,7 @@ body {
 	font-size: 16px;
 
 	overflow: hidden;
-	border: 2px solid #75544b;
+	border: 2px solid var(--border-medium);
 	border-radius: 4px;
 }
 .searchResultText {
@@ -217,7 +240,7 @@ body {
 	margin-left: 20px;
 }
 #noResultsText {
-	color: #75544b;
+	color: var(--text-medium);
 
 	box-sizing: border-box;
 	display: inline-block;
@@ -234,7 +257,7 @@ body {
 	height:20px;
 	float:right;
 	
-	background: url('source/audio.png');
+	background: var(--icon-audio);
 	background-size: contain;
 }
 .searchResultImageIcon {
@@ -242,38 +265,38 @@ body {
 	height:20px;
 	float:right;
 	
-	background: url('source/image.png');
+	background: var(--icon-image);
 	background-size: contain;
 }
 
 /* left panel search history */
 #historyPanel {
-	background-color: #ffffff;
+	background-color: var(--background-search);
 
 	position: absolute;
 	left: 23px;
 	top: calc(8px + 30px - 1px);
 	width: calc(25vw - 46px);
 
-	border: 1px solid #bfa07e;
+	border: 1px solid var(--border-light);
 	
 	z-index: 2;
 }
 .historyEntry {
-	color: #75544b;
-	background-color: #ffffff;
+	color: var(--text-medium);
+	background-color: var(--background-search);
 	font-size: 16px;
 
 	padding-left: 10px;
 }
 .historyEntry:hover {
-	color: #ffffff;
-	background-color: #75544b;
+	color: var(--background-search);
+	background-color: var(--text-medium);
 }
 
 /* right panel */
 #contentPanel {
-	background-color: #f2e3d3;
+	background-color: var(--background-light);
 	
 	box-sizing: border-box;
 	position: absolute;
@@ -283,7 +306,7 @@ body {
 	width: 75%;
 	height: calc(100% - 50px);
 
-	border-left: 4px solid #4f3a09;
+	border-left: 4px solid var(--border-dark);
 
 	overflow: scroll;
 	-ms-overflow-style: none;  /* Hide scrollbar for IE and Edge */
@@ -293,7 +316,7 @@ body {
 
 /* right panel title bar */
 #entryTitle {
-	color: #4f3a09;
+	color: var(--text-dark);
 
 	display: block;
 	padding: 5px;
@@ -314,7 +337,7 @@ body {
 
 /* right panel data */
 #entryData {
-	color: #4f3a09;
+	color: var(--text-dark);
 
 	display: block;
 	margin-top: 5px;
@@ -342,8 +365,7 @@ body {
 .soundFileIcon {
 	cursor: pointer;
 	
-	/*background-color: #ffffff;*/
-	background: url('source/audio.png');
+	background: var(--icon-audio);
 	background-size: contain;
 
 	display: inline-block;
@@ -364,8 +386,6 @@ body {
 	vertical-align: top;
 }
 .soundFileSpeaker {
-	/*color: #bfa07e;*/
-
 	display: inline-block;
 	position: relative;
 	margin-left: 10px;
@@ -378,7 +398,7 @@ body {
 
 /* right panel floating image */
 #imageBox {
-	background-color: #bfa07e;
+	background-color: var(--background-medium);
 	background-size: 100%;
 
 	box-sizing: border-box;
@@ -390,22 +410,21 @@ body {
 	height: auto;
 
 	overflow: hidden;
-	border: 2px solid #75544b;
+	border: 2px solid var(--border-medium);
 	border-radius: 4px;
 	transform: translate(calc(-100% - 20px), 0%);
 }
 
 /* right panel example sentences */
 #entrySentences {
-	color: #4f3a09;
-	/*background-color: #bfa07e;*/
-	background-color: #dbb78f;
+	color: var(--text-dark);
+	background-color: var(--background-sentences);
 
 	display: block;
 	margin-top: 20px;
 	padding: 2px 10px;
 
-	border: 2px solid #75544b;
+	border: 2px solid var(--border-medium);
 	border-radius: 4px;
 }
 .entrySentence {
@@ -423,7 +442,7 @@ body {
 
 /* right panel synonyms */
 #synonyms {
-	color: #4f3a09;
+	color: var(--text-dark);
 
 	display: block;
 	margin-top: 5px;
