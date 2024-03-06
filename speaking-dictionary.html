@@ -34,6 +34,8 @@
 		//// WAVE 3 ////
 
 		// 2.0 hrs: convert existing styling to css3
+		// 1.0 hrs: remove "Form n" for unnamed forms and "Unknown" for unknown form numbers
+		// 1.0 hrs: use inheritance in css; continue conversion to css3
 
 		//// TODO ////
 		// clean up css
@@ -402,9 +404,11 @@
 			document.body.appendChild(searchPanel);
 			let resultPanel = document.createElement('div');
 				resultPanel.id = 'resultPanel';
+				resultPanel.classList.add('noScrollbar');
 			document.body.appendChild(resultPanel);
 			let contentPanel = document.createElement('div');
 				contentPanel.id = 'contentPanel';
+				contentPanel.classList.add('noScrollbar');
 			document.body.appendChild(contentPanel);
 			// initialize blank search
 			let search = document.createElement('input');
