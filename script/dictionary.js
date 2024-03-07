@@ -1,4 +1,6 @@
 
+//// WAVE 1 ////
+
 // 2.0 hrs: design language data representation format; start v3 parser
 // 0.5 hrs: finish v3 parser
 // 0.5 hrs: lay out skeleton of dictionary framework update
@@ -11,8 +13,15 @@
 // 1.0 hrs: finish updating speaking dictionary
 // 0.5 hrs: add new batch of sounds/images to speaking dictionary
 
+//// WAVE 2 ////
+
 // 1.5 hrs: spreadsheet fixes in prep for v9, implement Dictionary.forEachEntry, fix Entry.primarySynonymID
 // 0.5 hrs: add ability to search formNum of word in an entry
+
+//// WAVE 3 ////
+
+// 1.0 hrs: add v10 parser; supports 2 extra sentences, entry notes, and automatic sentence form detection
+// 2.5 hrs: use map-filter to make automatic form detection GC-proof; begin dev IIFE refactor
 
 const SEP_LINES = '\n';
 const SEP_CELLS = '\t';
@@ -57,9 +66,12 @@ let secondary_chk = {
 		return 0;
 	},
 	forms: {
-		noun:   ['subject', 'object', 'owner',          'owned',   'tool',    'place'],
-		verb:   ['recent past', 'remote past', 'yesterday past', 'ongoing', 'command', 'suggestive', 'hypothetical', 'future', 'precedent gerundial'],
-		adjective: ['subject', 'object', 'owner',          'owned',   'tool',    'place'],
+		'noun'           : ['subject', 'object', 'owner', 'owned',   'tool',    'place'],
+		'adjective'      : ['subject', 'object', 'owner', 'owned',   'tool',    'place'],
+		'demonstrative'  : ['subject', 'object', 'owner', 'owned',   'tool',    'place'],
+		'verb'           : ['recent past', 'remote past', 'yesterday past', 'ongoing', 'command', 'suggestive', 'hypothetical', 'future', 'precedent gerundial'],
+		'auxiliary verb' : ['recent past', 'remote past', 'yesterday past', 'ongoing', 'command', 'suggestive', 'hypothetical', 'future', 'precedent gerundial'],
+		'pronoun'        : ['subject', 'object'],
 		// default: (i) => 'form '+i
 		default: (i) => ''
 
@@ -245,18 +257,107 @@ function parse_en_ch_v9 (tsv) { //// parse for dictionary.js v1.x!!! need to mak
 	return parse;
 }
 
+function parse_en_ch_v10 (tsv) {
+	// input: "eng1   catg   chk1-7   sent1-7 sentN1-N2\n"
+	// output: {catg, sents[], pForms[[synonyms],...], sForms[[synonyms],...]}
+
+	let parse = [];
+
+	const NUM_OF_FORMS = 9;
+	const FORM_START = 2;
+	const SENT_START = 2 + NUM_OF_FORMS;
+	const NOTES_START = SENT_START + 2*NUM_OF_FORMS + 2*2;
+
+	const entries = tsv.split(SEP_LINES);
+	for (let i = 1; i < entries.length; i++) {
+		const line = entries[i].split(SEP_CELLS); // 26 in v9: 1 eng word, 1 catg, 8 chk words, 16 sentences 
+		let e = new Entry();
+		// 0: eng forms
+		e.addPrimaryForm(line[0]);
+		// 1: part of speech
+		e.catg = line[1];
+		// 2-10: chk forms
+		for (let formNum = 0; formNum < NUM_OF_FORMS; formNum++) {
+			if (line[FORM_START+formNum] == '') continue;
+			e.addSecondaryForm(line[FORM_START+formNum], formNum);
+		}
+		// 11-32: sentences
+		for (let sentenceNum = 0; sentenceNum < NOTES_START; sentenceNum++) {
+			let sentTransIndex = SENT_START + 2*sentenceNum;
+			let sentIndex = sentTransIndex + 1;
+			if (line[sentIndex] == '' && line[sentTransIndex] == '') continue;
+			let sent = (line[sentIndex] != '') ? line[sentIndex] : ('[[no '+primary_eng.abbr3+' version of sentence]]');
+			let sentTrans = (line[sentTransIndex]   != '') ? line[sentTransIndex]   : ('[[no '+secondary_chk.abbr3+' version of sentence]]');
+			e.addSentence(sent, sentTrans);
+		}
+		// 33: entry notes
+		e.notes.push(line[NOTES_START]);
+		// log data
+		parse.push(e);
+
+		if (line[0] == 'blackberry') {
+			console.log('Test entry: "blackberry"');
+			console.log(e);
+		}
+	}
+
+	return parse;
+}
+
 
 
 ////////////////////////////
+
+(function () {
+	//// private global methods ////
+
+	// a.map(x => (x>4) ? x.toString() : undefined).filter(x => x)
+
+	function sentenceForms (sentences) {
+		// let sentenceForms = [];
+
+		// for (const sentence of sentences) {
+		// 	let forms = [];
+		// 	const chkWordsSterilized = sentence.trans.toLowerCase().replace(/[^0-9a-z\'ʔ ]/g, '').split(' ');
+		// 	for (const word of chkWordsSterilized) {
+		// 		const formNum = this.searchSecondary(word);
+		// 		if (formNum != -1) forms.push(formNum);
+		// 	}
+		// 	sentenceForms.push(forms);
+		// }
+
+		// console.log(sentenceForms);
+		// return sentenceForms;
+
+		return sentences.map( sentence =>
+			sentence.trans
+				.toLowerCase().replace(/[^0-9a-z\'ʔ ]/g, '').split(' ') // sterilize characters and split up sentence into words
+				.map( word => this.searchSecondary(word) ).filter( formNum => formNum != -1 ) // indentify which form numbers are present
+		);
+	}
+
+	//// public access ////
+
+	function Entry () {
+		let catg = undefined;
+		let pForms = [];
+		let sForms = [];
+		let sentences = [];
+		let sentenceForms = [];
+		let notes = [];
+	}
+})();
 
 const SYNONYM_SPLITTER = '; ';
 
 class Entry {
 	constructor() {
-		this._catg = undefined;
-		this._pForms = [];
-		this._sForms = [];
-		this._sents = [];
+			this._catg = undefined;
+			this._pForms = [];
+			this._sForms = [];
+			this._sents = [];
+			this._sentForms = [];
+			this.notes = [];
 	}
 
 	addPrimaryForm(synonyms, formNum = -1) {
@@ -266,10 +367,34 @@ class Entry {
 	addSecondaryForm(synonyms, formNum = -1) {
 		if (formNum == -1) formNum = this._sForms.length; // if no forms, then order doesn't matter; use next open slot
 		this._sForms[formNum] = synonyms.split(SYNONYM_SPLITTER);
-		// console.log(this._sForms[formNum]);
 	}
 	addSentence(base, trans, formNum = -1) {
 		this._sents.push( {base: base, trans: trans, form: formNum} );
+	}
+
+	labelSents () {
+		// this._sentForms = [];
+		// for (let sentence of this._sents) {
+		// 	let forms = [];
+			
+		// 	const chkWordsSterilized = sentence.trans.toLowerCase().replace(/[^0-9a-z\'ʔ ]/g, '').split(' ');
+		// 	for (let word of chkWordsSterilized) {
+		// 		const formNum = this.searchSecondary(word);
+		// 		if (formNum != -1) forms.push(formNum);
+		// 	}
+
+		// 	this._sentForms.push(forms);
+		// }
+
+		// console.log(this._sentForms);
+
+		this._sentForms = this._sents.map( sentence =>
+			sentence.trans
+				.toLowerCase().replace(/[^0-9a-z\'ʔ ]/g, '').split(' ') // split up sentence into words
+				.map( word => this.searchSecondary(word) ).filter( formNum => formNum != -1 ) // indentify which form numbers are present
+		);
+
+		console.log(this._sentForms);
 	}
 
 	get catg() { return this._catg; }

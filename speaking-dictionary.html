@@ -288,25 +288,33 @@
 			const catg			= entry.catg;
 			const wordForms	    = [];
 			const sentences		= [];
-			const sentenceForms = [];
 			const synonyms		= ( langToggle ? entry.getSecondaryForm(0) : entry.getPrimaryForm(0) ).filter(form => form != word);
 
 			if (!langToggle) entry.forEachSecondaryForm( (synonyms,formNum) => {if (formNum > 1) wordForms.push([synonyms[0],formNum])} );
 			entry.forEachSentence( (sent) => sentences.push({base:sent.base, trans:sent.trans}) );
 
 			// scan sentences and try to automatically detect word forms
-			for (let i = 0; i < sentences.length; i++) {
-				const chkWordsSterilized = sentences[i].trans.toLowerCase().replace(/[^0-9a-z\'ʔ ]/g, '').split(' ');
-				for (let word of chkWordsSterilized) {
-					const formNum = entry.searchSecondary(word);
-					const hasForm = dictionary._sLang.hasForm(catg,formNum);
-					if (formNum != -1 && hasForm) {
-						sentenceForms[i] = '(' + capitalize(dictionary._sLang.formStr(entry.catg,formNum)) + ') '; // "(formName)" if form detected and has name defined
-						break;
-					}
-				}
-				if (!sentenceForms[i]) sentenceForms[i] = ''; // blank if no form name detected
-			}
+			entry.labelSents();
+			const sentenceForms = entry._sentForms.map( x => {
+				const formNum = x[0] ?? -1;
+				const hasForm = dictionary._sLang.hasForm(catg,formNum);
+				return (formNum != -1 && hasForm)
+					? ('(' + capitalize(dictionary._sLang.formStr(entry.catg,formNum)) + ') ')
+					: ''
+				;
+			});
+			// for (let i = 0; i < sentences.length; i++) {
+			// 	const chkWordsSterilized = sentences[i].trans.toLowerCase().replace(/[^0-9a-z\'ʔ ]/g, '').split(' ');
+			// 	for (let word of chkWordsSterilized) {
+			// 		const formNum = entry.searchSecondary(word);
+			// 		const hasForm = dictionary._sLang.hasForm(catg,formNum);
+			// 		if (formNum != -1 && hasForm) {
+			// 			sentenceForms[i] = '(' + capitalize(dictionary._sLang.formStr(entry.catg,formNum)) + ') '; // "(formName)" if form detected and has name defined
+			// 			break;
+			// 		}
+			// 	}
+			// 	if (!sentenceForms[i]) sentenceForms[i] = ''; // blank if no form name detected
+			// }
 
 			// scan for additional media resources
 			const audioResources = findResources(entry, audio_en_ch);
