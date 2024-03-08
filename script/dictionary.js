@@ -22,6 +22,7 @@
 
 // 1.0 hrs: add v10 parser; supports 2 extra sentences, entry notes, and automatic sentence form detection
 // 2.5 hrs: use map-filter to make automatic form detection GC-proof; begin dev IIFE refactor
+// 3.5 hrs: finish IIFE refactor
 
 const SEP_LINES = '\n';
 const SEP_CELLS = '\t';
@@ -311,9 +312,9 @@ function parse_en_ch_v10 (tsv) {
 (function () {
 	//// private global methods ////
 
-	// a.map(x => (x>4) ? x.toString() : undefined).filter(x => x)
+	const SYNONYM_SPLITTER = '; ';
 
-	function sentenceForms (sentences) {
+	function getSentenceForms (sForms, sentences) { //// NEED TO GENERALIZE THIS!!!
 		// let sentenceForms = [];
 
 		// for (const sentence of sentences) {
@@ -329,22 +330,79 @@ function parse_en_ch_v10 (tsv) {
 		// console.log(sentenceForms);
 		// return sentenceForms;
 
+		// a.map(x => (x>4) ? x.toString() : undefined).filter(x => x)
+
 		return sentences.map( sentence =>
 			sentence.trans
 				.toLowerCase().replace(/[^0-9a-z\'ʔ ]/g, '').split(' ') // sterilize characters and split up sentence into words
-				.map( word => this.searchSecondary(word) ).filter( formNum => formNum != -1 ) // indentify which form numbers are present
+				.map( word => getFormNum(sForms, word) ).filter( formNum => formNum != -1 ) // indentify which form numbers are present
 		);
 	}
+	function getSynonyms (forms, word) {
+		for (const form of forms)
+			if (form.some(x => x==word))
+				return form.filter(x => x!=word);
+		return [];
+	}
+	function getFormNum (forms, word) {
+		for (let formNum = 0; formNum < forms.length; formNum++)
+			if (forms[formNum] && forms.some(x => x==word))
+				return formNum;
+		return -1;
+	}
+	// function getSynonymID (forms, word) {
+	// 	for (let formNum = 0; formNum < forms.length; formNum++)
+	// 		if (forms[i] && forms.some(x => x==word))
+	// 			return forms[i].indexOf(word);
+	// 	return -1;
+	// }
 
 	//// public access ////
 
 	function Entry () {
-		let catg = undefined;
 		let pForms = [];
 		let sForms = [];
 		let sentences = [];
 		let sentenceForms = [];
-		let notes = [];
+		return {
+			// data
+			catg : undefined,
+			notes : '',
+			// update
+			labelSents   : () => sentenceForms = getSentenceForms(sForms, sentences),
+			//
+			addPrimary   : (synonymStr, formNum = pForms.length) => pForms[formNum] = synonymStr.split(SYNONYM_SPLITTER),
+			addSecondary : (synonymStr, formNum = sForms.length) => sForms[formNum] = synonymStr.split(SYNONYM_SPLITTER),
+			addSentence  : (primary, secondary) => sentences.push({primary:primary, secondary:secondary}),
+
+			hasPrimary   : (word) => pForms.flat().some(x => x==word),
+			hasSecondary : (word) => sForms.flat().some(x => x==word),
+
+			getPrimary   : (formNum = 0) => pForms[formNum],
+			getSecondary : (formNum = 0) => sForms[formNum],
+			getSentence  : (sentenceNum) => sentences[sentenceNum],
+
+			getPrimaryFormNum   : (word) => getFormNum(pForms, word),
+			getSecondaryFormNum : (word) => getFormNum(sForms, word),
+
+			getPrimarySynonyms : (word) => getSynonyms(pForms,word),
+			getSecondarySynonyms : (word) => getSynonyms(sForms,word),
+
+			forEachPrimaryForm : (callback = (synonyms,formNum)=>{}) => {
+				for (let formNum = 0; formNum < pForms.length; formNum++)
+					if (pForms[formNum])
+						callback(pForms[formNum], formNum);
+			},
+			forEachSecondaryForm : (callback = (synonyms,formNum)=>{}) => {
+				for (let formNum = 0; formNum < sForms.length; formNum++)
+					if (sForms[formNum])
+						callback(sForms[formNum], formNum);
+			},
+			forEachSentence : (callback = (sentence,sentenceForm)=>{}) => {
+				for (let sentNum = 0; sentNum < sentences.length; sentNum++)
+					callback(sentences[sentNum],sentenceForms[sentNum]);
+			}
+		}
 	}
 })();
 
@@ -388,10 +446,22 @@ class Entry {
 
 		// console.log(this._sentForms);
 
+		/////////////////
+
+		function getFormNum (forms, word) {
+			for (let formNum = 0; formNum < forms.length; formNum++){
+				console.log(word, formNum, forms[formNum], forms.some(x => x==word));
+				if (forms[formNum] && forms[formNum].some(x => x==word)) {
+					return formNum;
+				}
+			}
+			return -1;
+		}
+
 		this._sentForms = this._sents.map( sentence =>
 			sentence.trans
 				.toLowerCase().replace(/[^0-9a-z\'ʔ ]/g, '').split(' ') // split up sentence into words
-				.map( word => this.searchSecondary(word) ).filter( formNum => formNum != -1 ) // indentify which form numbers are present
+				.map( word => getFormNum(this._sForms, word) ).filter( formNum => formNum != -1 ) // indentify which form numbers are present
 		);
 
 		console.log(this._sentForms);
@@ -400,35 +470,35 @@ class Entry {
 	get catg() { return this._catg; }
 	set catg(c) { this._catg = c; }
 
-	primarySynonymID(word) {
-		for (const form of this._pForms)
-			for (let i = 0; i < form.length; i++)
-				if (word == form[i]) return i;
-		return -1;
-	}
+	// primarySynonymID(word) {
+	// 	for (const form of this._pForms)
+	// 		for (let i = 0; i < form.length; i++)
+	// 			if (word == form[i]) return i;
+	// 	return -1;
+	// }
 
 	getPrimaryForm(formNum) { return this._pForms[formNum]; }
 	getSecondaryForm(formNum) { return this._sForms[formNum]; }
 	getSentence(formNum) { return this._sents[formNum]; }
 
-	searchPrimary(word) {
-		for (let i = 0; i < this._pForms.length; i++) {
-			// console.log('   ',i,word,this._pForms[i]);
-			if (this._pForms[i] && this._pForms[i].indexOf(word) != -1) {
-				return i;
-			}
-		}
-		return -1;
-	}
-	searchSecondary(word) {
-		for (let i = 0; i < this._sForms.length; i++) {
-			// console.log('   ',i,word,this._sForms[i]);
-			if (this._sForms[i] && this._sForms[i].indexOf(word) != -1) {
-				return i;
-			}
-		}
-		return -1;
-	}
+	// searchPrimary(word) {
+	// 	for (let i = 0; i < this._pForms.length; i++) {
+	// 		// console.log('   ',i,word,this._pForms[i]);
+	// 		if (this._pForms[i] && this._pForms[i].indexOf(word) != -1) {
+	// 			return i;
+	// 		}
+	// 	}
+	// 	return -1;
+	// }
+	// searchSecondary(word) {
+	// 	for (let i = 0; i < this._sForms.length; i++) {
+	// 		// console.log('   ',i,word,this._sForms[i]);
+	// 		if (this._sForms[i] && this._sForms[i].indexOf(word) != -1) {
+	// 			return i;
+	// 		}
+	// 	}
+	// 	return -1;
+	// }
 
 	forEachPrimaryForm(callback = (synonyms,formNum)=>{}) {
 		for (let i = 0; i < this._pForms.length; i++)
