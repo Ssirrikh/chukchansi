@@ -292,44 +292,49 @@ function parse_en_ch_v9 (tsv) { //// parse for dictionary.js v1.x!!! need to mak
 }
 
 function parse_en_ch_v10 (tsv) {
-	// input: "eng1   catg   chk1-7   sent1-7 sentN1-N2\n"
-	// output: {catg, sents[], pForms[[synonyms],...], sForms[[synonyms],...]}
+	// input: "eng1   catg   chk1-9   sent1-9   bonusSent1-2   notes\n"
+	// output: {catg, notes, pForms[[synonyms],...], sForms[[synonyms],...], sents[{eng,chk},...], sentForms[formNum,...]}
 
 	let parse = [];
 
 	const NUM_OF_FORMS = 9;
 	const FORM_START = 2;
 	const SENT_START = 2 + NUM_OF_FORMS;
-	const NOTES_START = SENT_START + 2*NUM_OF_FORMS + 2*2;
+	const NOTES_START = SENT_START + 2*NUM_OF_FORMS + 2*2; // examples for 9 forms + 2 extra sentences
 
 	const entries = tsv.split(SEP_LINES);
 	for (let i = 1; i < entries.length; i++) {
-		const line = entries[i].split(SEP_CELLS); // 26 in v9: 1 eng word, 1 catg, 8 chk words, 16 sentences 
-		let e = new Entry();
+		const line = entries[i].split(SEP_CELLS); // 34 in v10: 1 eng word, 1 catg, 9 chk words, 22 sentences, 1 note
+
+		// if (['blackberry','family','African-American'].indexOf( line[0].split(';')[0] ) == -1) continue; // DEBUG check of [standard,capitalization,synonyms]
+
+		let e = EntryIIFE();;
 		// 0: eng forms
-		e.addPrimaryForm(line[0]);
+		e.addPrimary(line[0]);
 		// 1: part of speech
 		e.catg = line[1];
 		// 2-10: chk forms
 		for (let formNum = 0; formNum < NUM_OF_FORMS; formNum++) {
 			if (line[FORM_START+formNum] == '') continue;
-			e.addSecondaryForm(line[FORM_START+formNum], formNum);
+			e.addSecondary(line[FORM_START+formNum], formNum);
 		}
 		// 11-32: sentences
-		for (let sentenceNum = 0; sentenceNum < NOTES_START; sentenceNum++) {
-			let sentTransIndex = SENT_START + 2*sentenceNum;
-			let sentIndex = sentTransIndex + 1;
-			if (line[sentIndex] == '' && line[sentTransIndex] == '') continue;
-			let sent = (line[sentIndex] != '') ? line[sentIndex] : ('[[no '+primary_eng.abbr3+' version of sentence]]');
-			let sentTrans = (line[sentTransIndex]   != '') ? line[sentTransIndex]   : ('[[no '+secondary_chk.abbr3+' version of sentence]]');
+		for (let sentenceNum = SENT_START; sentenceNum < NOTES_START; sentenceNum += 2) {
+			const sentEngIndex = sentenceNum;
+			const sentChkIndex = sentenceNum + 1;
+			if (line[sentChkIndex] == '' && line[sentEngIndex] == '') continue;
+			const sent = (line[sentChkIndex] != '') ? line[sentChkIndex] : ('[[no '+primary_eng.abbr3+' version of sentence]]');
+			const sentTrans = (line[sentEngIndex]   != '') ? line[sentEngIndex]   : ('[[no '+secondary_chk.abbr3+' version of sentence]]');
 			e.addSentence(sent, sentTrans);
 		}
 		// 33: entry notes
-		e.notes.push(line[NOTES_START]);
+		e.notes= line[NOTES_START];
+		// auto-detect forms in sentences
+		e.labelSents();
 		// log data
 		parse.push(e);
 
-		if (line[0] == 'blackberry') {
+		if (line[0].split(';')[0] == 'blackberry') {
 			console.log('Test entry: "blackberry"');
 			console.log(e);
 		}
@@ -339,6 +344,8 @@ function parse_en_ch_v10 (tsv) {
 }
 
 
+
+// let iifeParse = parse_en_ch_v10(tsv_en_ch_v10);
 
 ////////////////////////////
 
@@ -385,13 +392,13 @@ function parse_en_ch_v10 (tsv) {
 				return formNum;
 		return -1;
 	}
-	// function getSynonymID (forms, word) {
-	// 	word = word.toLowerCase();
-	// 	for (let formNum = 0; formNum < forms.length; formNum++)
-	// 		if (forms[i] && forms.some(x => x.toLowerCase() == word))
-	// 			return forms[i].indexOf(word);
-	// 	return -1;
-	// }
+	function getSynonymID (forms, word) {
+		word = word.toLowerCase();
+		for (let formNum = 0; formNum < forms.length; formNum++)
+			if (forms[i] && forms.some(x => x.toLowerCase() == word))
+				return forms[i].indexOf(word);
+		return -1;
+	}
 
 	//// public access ////
 
@@ -402,7 +409,7 @@ function parse_en_ch_v10 (tsv) {
 		let sentenceForms = [];
 		return {
 			// data
-			catg : undefined,
+			catg : '',
 			notes : '',
 			// update
 			labelSents   : () => sentenceForms = getSentenceForms(sForms, sentences),
@@ -449,12 +456,12 @@ const SYNONYM_SPLITTER = '; ';
 
 class Entry {
 	constructor() {
-			this._catg = undefined;
-			this._pForms = [];
-			this._sForms = [];
-			this._sents = [];
-			this._sentForms = [];
-			this.notes = [];
+		this._catg = undefined;
+		this._pForms = [];
+		this._sForms = [];
+		this._sents = [];
+		this._sentForms = [];
+		this.notes = [];
 	}
 
 	addPrimaryForm(synonyms, formNum = -1) {
@@ -598,9 +605,11 @@ class Dictionary {
 		this._pOrderedEntryWords = [];
 		this._sOrderedEntryWords = [];
 		for (let entryId = 0; entryId < this._data.length; entryId++) {
-			const pForm = this._data[entryId].getPrimaryForm(0);
+			// const pForm = this._data[entryId].getPrimaryForm(0);
+			const pForm = this._data[entryId].getPrimary(0);
 			for (let synonym of pForm) this._pOrderedEntryWords.push([synonym,entryId]);
-			const sForm = this._data[entryId].getSecondaryForm(0);
+			// const sForm = this._data[entryId].getSecondaryForm(0);
+			const sForm = this._data[entryId].getSecondary(0);
 			for (let synonym of sForm) this._sOrderedEntryWords.push([synonym,entryId]);
 		}
 		this._pOrderedEntryWords.sort(this._pLang.alphabetize);
