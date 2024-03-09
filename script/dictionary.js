@@ -23,6 +23,9 @@
 // 1.0 hrs: add v10 parser; supports 2 extra sentences, entry notes, and automatic sentence form detection
 // 2.5 hrs: use map-filter to make automatic form detection GC-proof; begin dev IIFE refactor
 // 3.5 hrs: finish IIFE refactor
+// 0.5 hrs: fix getSentenceForms() failing to correctly auto-label sentences; fix getFormNum() always returning 0 for valid words
+// 0.5 hrs: fix auto sentence form detection not handling capitalized words correctly
+// 1.0 hrs: fix getSynonyms() sometimes throwing error; fully test IIFE Entry(); minor spreadsheet fixes
 
 const SEP_LINES = '\n';
 const SEP_CELLS = '\t';
@@ -243,7 +246,7 @@ function parse_en_ch_v9 (tsv) { //// parse for dictionary.js v1.x!!! need to mak
 			let sentIndex = sentTransIndex + 1;
 			if (line[sentIndex] == '' && line[sentTransIndex] == '') continue;
 			let sent = (line[sentIndex] != '') ? line[sentIndex] : ('[[no '+primary_eng.abbr3+' version of sentence]]');
-			let sentTrans = (line[sentTransIndex]   != '') ? line[sentTransIndex]   : ('[[no '+secondary_chk.abbr3+' version of sentence]]');
+			let sentTrans = (line[sentTransIndex] != '') ? line[sentTransIndex] : ('[[no '+secondary_chk.abbr3+' version of sentence]]');
 			e.addSentence(sent, sentTrans, sentenceNum);
 		}
 		// log data
@@ -252,6 +255,36 @@ function parse_en_ch_v9 (tsv) { //// parse for dictionary.js v1.x!!! need to mak
 		if (line[0] == 'blackberry') {
 			console.log('Test entry: "blackberry"');
 			console.log(e);
+		}
+
+		if (line[0].split(';')[0] == 'family') {
+			var e10 = EntryIIFE();
+			window.e10 = e10;
+			
+			const line = entries[i].split(SEP_CELLS); // 26 in v9: 1 eng word, 1 catg, 8 chk words, 16 sentences
+			// 0: eng forms
+			e10.addPrimary(line[0]);
+			// 1: part of speech
+			e10.catg = line[1];
+			// 2-10: chk forms
+			for (let formNum = 0; formNum < NUM_OF_FORMS; formNum++) {
+				if (line[FORM_START+formNum] == '') continue;
+				e10.addSecondary(line[FORM_START+formNum], formNum);
+			}
+			// 11-28: sentences
+			for (let sentenceNum = 0; sentenceNum < NUM_OF_FORMS; sentenceNum++) {
+				let sentTransIndex = SENT_START + 2*sentenceNum;
+				let sentIndex = sentTransIndex + 1;
+				if (line[sentIndex] == '' && line[sentTransIndex] == '') continue;
+				let sent = (line[sentIndex] != '') ? line[sentIndex] : ('[[no '+primary_eng.abbr3+' version of sentence]]');
+				let sentTrans = (line[sentTransIndex] != '') ? line[sentTransIndex] : ('[[no '+secondary_chk.abbr3+' version of sentence]]');
+				e10.addSentence(sent, sentTrans);
+			}
+			// auto-detect forms in sentences
+			e10.labelSents();
+
+			console.log('Test IIFE entry: "family"');
+			console.log(e10);
 		}
 	}
 
@@ -333,26 +366,29 @@ function parse_en_ch_v10 (tsv) {
 		// a.map(x => (x>4) ? x.toString() : undefined).filter(x => x)
 
 		return sentences.map( sentence =>
-			sentence.trans
+			sentence.secondary
 				.toLowerCase().replace(/[^0-9a-z\'ʔ ]/g, '').split(' ') // sterilize characters and split up sentence into words
 				.map( word => getFormNum(sForms, word) ).filter( formNum => formNum != -1 ) // indentify which form numbers are present
 		);
 	}
 	function getSynonyms (forms, word) {
+		word = word.toLowerCase();
 		for (const form of forms)
-			if (form.some(x => x==word))
-				return form.filter(x => x!=word);
+			if (form && form.some(x => x.toLowerCase() == word))
+				return form.filter(x => x.toLowerCase() != word);
 		return [];
 	}
 	function getFormNum (forms, word) {
+		word = word.toLowerCase();
 		for (let formNum = 0; formNum < forms.length; formNum++)
-			if (forms[formNum] && forms.some(x => x==word))
+			if (forms[formNum] && forms[formNum].some(x => x.toLowerCase() == word))
 				return formNum;
 		return -1;
 	}
 	// function getSynonymID (forms, word) {
+	// 	word = word.toLowerCase();
 	// 	for (let formNum = 0; formNum < forms.length; formNum++)
-	// 		if (forms[i] && forms.some(x => x==word))
+	// 		if (forms[i] && forms.some(x => x.toLowerCase() == word))
 	// 			return forms[i].indexOf(word);
 	// 	return -1;
 	// }
@@ -375,8 +411,8 @@ function parse_en_ch_v10 (tsv) {
 			addSecondary : (synonymStr, formNum = sForms.length) => sForms[formNum] = synonymStr.split(SYNONYM_SPLITTER),
 			addSentence  : (primary, secondary) => sentences.push({primary:primary, secondary:secondary}),
 
-			hasPrimary   : (word) => pForms.flat().some(x => x==word),
-			hasSecondary : (word) => sForms.flat().some(x => x==word),
+			hasPrimary   : (word) => pForms.flat().some(x => x.toLowerCase()==word.toLowerCase()),
+			hasSecondary : (word) => sForms.flat().some(x => x.toLowerCase()==word.toLowerCase()),
 
 			getPrimary   : (formNum = 0) => pForms[formNum],
 			getSecondary : (formNum = 0) => sForms[formNum],
@@ -404,6 +440,9 @@ function parse_en_ch_v10 (tsv) {
 			}
 		}
 	}
+
+	window.EntryIIFE = Entry;
+
 })();
 
 const SYNONYM_SPLITTER = '; ';
@@ -450,7 +489,7 @@ class Entry {
 
 		function getFormNum (forms, word) {
 			for (let formNum = 0; formNum < forms.length; formNum++){
-				console.log(word, formNum, forms[formNum], forms.some(x => x==word));
+				// console.log(word, formNum, forms[formNum], forms.some(x => x==word));
 				if (forms[formNum] && forms[formNum].some(x => x==word)) {
 					return formNum;
 				}
