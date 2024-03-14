@@ -38,10 +38,10 @@
 		// 1.0 hrs: remove "Form n" for unnamed forms and "Unknown" for unknown form numbers
 		// 1.0 hrs: use inheritance in css; continue conversion to css3
 		// 1.5 hrs: fully integrate v10 data with refactored IIFE Entry(); fix displayed sentence order not swapping with lang toggle
+		// 1.0 hrs: add catg/part-of-speech filter logic; minor code cleanup
 
 		//// TODO ////
-		// clean up css
-		// make mobile-friendly version
+		//
 
 		/////////////////////////////////////////////////////////////////////
 
@@ -56,9 +56,30 @@
 			elem: undefined,
 			HISTORY_MAX_LENGTH: 5,
 			showHistory: false,
-			// history: []
+			// history
 			historyEng: [],
-			historyChk: []
+			historyChk: [],
+			// catgs
+			VALID_CATGS: ['all','none','misc',    'noun','adjective','demonstrative','verb','auxiliary verb','pronoun','adverb'],
+			catgStrs: {
+				'all':'ALL', 'none':'NONE', 'misc':'Misc',
+				'noun':'Noun', 'adjective':'Adjective', 'demonstrative':'Demonstrative',
+				'verb':'Verb','auxiliary verb':'Aux Verb','pronoun':'Pronoun','adverb':'Adverb'
+			},
+			catgs: ['noun','adjective','demonstrative','verb','auxiliary verb','pronoun','adverb'],
+			catgMisc: true,
+			hasAllCatgs: () => {
+				for (let catg of ['noun','adjective','demonstrative','verb','auxiliary verb','pronoun','adverb'])
+					if (searchSettings.catgs.indexOf(catg) == -1)
+						return false;
+				return searchSettings.catgMisc;
+			},
+			hasNoCatgs: () => {
+				for (let catg of ['noun','adjective','demonstrative','verb','auxiliary verb','pronoun','adverb'])
+					if (searchSettings.catgs.indexOf(catg) != -1)
+						return false;
+				return !searchSettings.catgMisc;
+			}
 		};
 		let soundSettings = {
 			player: document.createElement('audio'),
@@ -68,7 +89,6 @@
 
 		// build dictionary
 		let dictionary = new Dictionary(primary_eng, secondary_chk);
-		// dictionary.loadData( parse_en_ch_v9(tsv_en_ch_v9) );
 		dictionary.loadData( parse_en_ch_v10(tsv_en_ch_v10) );
 
 		/////////////////////////////////////////////////////////////////////
@@ -107,12 +127,61 @@
 			return resources;
 		}
 		
+		function filterCatgs () {
+			let elemStr = '';
+
+			for (let c of searchSettings.VALID_CATGS) {
+				const selected =
+					(c == 'all')  ? searchSettings.hasAllCatgs() :
+					(c == 'none') ? searchSettings.hasNoCatgs() :
+					(c == 'misc') ? searchSettings.catgMisc : 
+								searchSettings.catgs.indexOf(c) != -1;
+				const classStr = (selected?'catgLabelSelected':'catgLabel');
+				const onclick = 'toggleCatg(`'+c+'`)';
+				const label = searchSettings.catgStrs[c];
+				elemStr += '<div class="'+classStr+'" onclick="'+onclick+'">' + label + '</div>';
+			}
+
+			document.getElementById('catgsPanel').innerHTML = elemStr;
+		}
+		function toggleCatg (catg) {
+			catg = catg.toLowerCase();
+			if (searchSettings.VALID_CATGS.indexOf(catg) == -1) {
+				console.warn('"'+catg+'" is invalid catg.');
+				return;
+			}
+
+			let active;
+			
+			if (catg == 'all') {
+				searchSettings.catgs = ['noun','adjective','demonstrative','verb','auxiliary verb','pronoun','adverb'];
+				searchSettings.catgMisc = true;
+				active = true;
+			} else if (catg == 'none') {
+				searchSettings.catgs = [];
+				searchSettings.catgMisc = false;
+				active = false;
+			} else if (catg == 'misc') {
+				searchSettings.catgMisc = !searchSettings.catgMisc;
+				active = searchSettings.catgMisc;
+			} else if (searchSettings.catgs.indexOf(catg) == -1) {
+				searchSettings.catgs.push(catg);
+				active = true;
+			} else {
+				searchSettings.catgs = searchSettings.catgs.filter(x => x!=catg);
+				active = false;
+			}
+
+			console.log(searchSettings.catgs,'misc',searchSettings.catgMisc);
+			filterCatgs();
+			filterContainer(resultPanel, searchSettings.elem.value);
+			return active;
+		}
 		function togglePrimary() {
 			// save current word before toggling lang
 			const history = !langToggle ? 'historyEng' : 'historyChk';
 			const currentWord = searchSettings[history][searchSettings[history].length-1];
 			const currentEntry = dictionary.searchWord(currentWord);
-			// const wordTranslation = (!langToggle) ? currentEntry.getSecondaryForm(0)[0] : currentEntry.getPrimaryForm(0)[0];
 			const wordTranslation = (!langToggle) ? currentEntry.getSecondary(0)[0] : currentEntry.getPrimary(0)[0];
 			langToggle = dictionary.togglePrimary();
 			// ui
@@ -209,14 +278,9 @@
 		}
 
 		function entryHTML (entry, word) {
-			// console.log(entry, word);
-
-			// const chkForm0 = entry.getSecondaryForm(0);
-			// const chkForm1 = entry.getSecondaryForm(1);
 			const chkForm0 = entry.getSecondary(0);
 			const chkForm1 = entry.getSecondary(1);
 			const chkForms = chkForm1 ? (chkForm0[0]+', '+chkForm1[0]) : chkForm0[0];
-			// const engForm0 = entry._pForms[0].join(', ');
 			const engForm0 = entry.getPrimary().join(', ');
 
 			const catg = entry.catg;
@@ -249,7 +313,6 @@
 		}
 
 		function filterContainer (container, fragment) {
-			// console.log('Searching "'+fragment+'"');
 			const searchFragFromStart = new RegExp('^'+fragment, 'i'); // case insensitive
 
 			let numResults = 0;
@@ -257,12 +320,13 @@
 
 			dictionary.forEachSynonym((entry, word) => {
 				const match = searchFragFromStart.test(word);
+				const catgMatch = (searchSettings.VALID_CATGS.indexOf(entry.catg) == -1 && searchSettings.catgMisc) || searchSettings.catgs.indexOf(entry.catg) != -1;
 				const entryElem = document.getElementById(word);
 
-				if (match) {numResults++; results.push(word);}
+				if (match && catgMatch) {numResults++; results.push(word);}
 
-				// entryElem.style.backgroundColor = (match) ? '#ffffff' : '#ff0000';
-				entryElem.style.display = (match) ? 'block' : 'none';
+				// entryElem.style.backgroundColor = (match && catgMatch) ? '#ffffff' : '#ff0000';
+				entryElem.style.display = (match && catgMatch) ? 'block' : 'none';
 			});
 
 			document.getElementById('noResultsText').style.display = numResults>0 ? 'none' : 'block';
@@ -284,12 +348,9 @@
 			const entry = dictionary.searchWord(word);
 			console.log(entry);
 
-			// const chkForm0 = entry.getSecondaryForm(0);
-			// const chkForm1 = entry.getSecondaryForm(1);
 			const chkForm0 = entry.getSecondary(0);
 			const chkForm1 = entry.getSecondary(1);
 			const chkForms = chkForm1 ? (chkForm0[0]+', '+chkForm1[0]) : chkForm0[0];
-			// const engForm0 = entry._pForms[0].join(', ');
 			const engForm0 = entry.getPrimary().join(', ');
 
 			const title 		= !langToggle	? word			: chkForms;
@@ -298,11 +359,9 @@
 			const wordForms	    = [];
 			const sentences		= [];
 			const sentenceFormStrs = [];
-			// const synonyms		= ( langToggle ? entry.getSecondaryForm(0) : entry.getPrimaryForm(0) ).filter(form => form != word);
 			const synonyms		= entry.getPrimarySynonyms(word);
 
 			if (!langToggle) entry.forEachSecondaryForm( (synonyms,formNum) => {if (formNum > 1) wordForms.push([synonyms[0],formNum])} );
-			// entry.forEachSentence( (sent) => sentences.push({base:sent.base, trans:sent.trans}) );
 
 			entry.forEachSentence( (sentence,formNum) => {
 				console.log(sentence,formNum);
@@ -319,40 +378,6 @@
 			} );
 			console.log(sentences);
 			console.log(sentenceFormStrs);
-
-
-			// scan sentences and try to automatically detect word forms
-			// entry.labelSents();
-
-			// entry.forEachSentence((sentence,formNum) => {
-			// 	sentenceFormStrs.push(
-			// 		(dictionary._sLang.hasForm(catg,formNum))
-			// 			? '(' + capitalize(dictionary._sLang.formStr(entry.catg,formNum)) + ') '
-			// 			: ''
-			// 	);
-			// });
-
-			// const sentenceForms = entry._sentForms.map( x => {
-			// 	const formNum = x[0] ?? -1;
-			// 	const hasForm = dictionary._sLang.hasForm(catg,formNum);
-			// 	return (formNum != -1 && hasForm)
-			// 		? ('(' + capitalize(dictionary._sLang.formStr(entry.catg,formNum)) + ') ')
-			// 		: ''
-			// 	;
-			// });
-			
-			// for (let i = 0; i < sentences.length; i++) {
-			// 	const chkWordsSterilized = sentences[i].trans.toLowerCase().replace(/[^0-9a-z\'ʔ ]/g, '').split(' ');
-			// 	for (let word of chkWordsSterilized) {
-			// 		const formNum = entry.searchSecondary(word);
-			// 		const hasForm = dictionary._sLang.hasForm(catg,formNum);
-			// 		if (formNum != -1 && hasForm) {
-			// 			sentenceForms[i] = '(' + capitalize(dictionary._sLang.formStr(entry.catg,formNum)) + ') '; // "(formName)" if form detected and has name defined
-			// 			break;
-			// 		}
-			// 	}
-			// 	if (!sentenceForms[i]) sentenceForms[i] = ''; // blank if no form name detected
-			// }
 
 			// scan for additional media resources
 			const audioResources = findResources(entry, audio_en_ch);
@@ -406,7 +431,6 @@
 				elemStr += '<p>';
 					for (let i = 0; i < sentences.length; i++) {
 						elemStr += '<span class="entrySentence">';
-							// elemStr += sentenceForms[i];
 							elemStr += sentenceFormStrs[i];
 							elemStr += '<span class="entrySentenceText">' + trySubscript(sentences[i].base) + '</span>';
 							elemStr += '<span class="entrySentenceTranslation">' + trySubscript(sentences[i].trans) + '</span>';
@@ -457,6 +481,12 @@
 				contentPanel.id = 'contentPanel';
 				contentPanel.classList.add('noScrollbar');
 			document.body.appendChild(contentPanel);
+			
+			let catgsPanel = document.createElement('div');
+				catgsPanel.id = 'catgsPanel';
+				catgsPanel.classList.add('noScrollbar');
+			document.body.appendChild(catgsPanel);
+
 			// initialize blank search
 			let search = document.createElement('input');
 				search.setAttribute('type', 'text');
@@ -512,6 +542,7 @@
 					refreshHistory();
 				}
 			});
+			filterCatgs();
 			// display initial entry
 			displayEntry(contentPanel, 'blackberry');
 		}

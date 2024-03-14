@@ -26,6 +26,7 @@
 // 0.5 hrs: fix getSentenceForms() failing to correctly auto-label sentences; fix getFormNum() always returning 0 for valid words
 // 0.5 hrs: fix auto sentence form detection not handling capitalized words correctly
 // 1.0 hrs: fix getSynonyms() sometimes throwing error; fully test IIFE Entry(); minor spreadsheet fixes
+// 1.0 hrs: spreadsheet fixes and voice synth dev
 
 const SEP_LINES = '\n';
 const SEP_CELLS = '\t';

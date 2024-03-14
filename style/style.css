@@ -77,13 +77,12 @@ body {
 /* left panel search box */
 #searchPanel {
 	background-color: var(--background-light);
+	/* border-bottom: 4px solid var(--border-dark); */
 
 	position: absolute;
 	top: 50px;
 	width: 25%;
 	height: 46px;
-
-	border-bottom: 4px solid var(--border-dark);
 
 	overflow: visible;
 }
@@ -216,8 +215,7 @@ body {
 
 	box-sizing: border-box;
 	position: absolute;
-	/*padding: 1px;*/
-	top: 100px;
+	top: 148px;
 	width: 25%;
 	height: calc(100% - 100px);
 }
@@ -295,6 +293,51 @@ body {
 .historyEntry:hover { /* invert colors on hover */
 	color: var(--background-search);
 	background-color: var(--text-medium);
+}
+
+/* left panel catg filters */
+#catgsPanel {
+	box-sizing: border-box;
+
+	/* background-color: var(--background-light);
+	border-bottom: 4px solid var(--border-dark); */
+	background-color: var(--background-light);
+	border-bottom: 4px solid var(--background-medium);
+
+	position: absolute;
+	top: 96px;
+	width: 25%;
+	/* height: 46px; */
+
+	overflow: visible;
+}
+.catgLabel {
+	cursor: pointer;
+
+	box-sizing: border-box;
+
+	color: var(--text-dark);
+	background-color: var(--background-light);
+	/* border: 2px solid var(--text-dark); */
+
+	display: inline-block;
+	padding: 4px 10px;
+
+	font-size: 14px;
+}
+.catgLabelSelected {
+	cursor: pointer;
+	
+	box-sizing: border-box;
+
+	color: var(--background-light);
+	background-color: var(--text-dark);
+	/* border: 2px solid var(--text-dark); */
+
+	display: inline-block;
+	padding: 4px 10px;
+
+	font-size: 14px;
 }
 
 /* right panel */
