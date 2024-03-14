@@ -39,6 +39,8 @@
 		// 1.0 hrs: use inheritance in css; continue conversion to css3
 		// 1.5 hrs: fully integrate v10 data with refactored IIFE Entry(); fix displayed sentence order not swapping with lang toggle
 		// 1.0 hrs: add catg/part-of-speech filter logic; minor code cleanup
+		// 1.5 hrs: add catg/part-of-speech filter UI; minor CSS cleanup
+		// 0.5 hrs: improve catg/part-of-speech filter UI; minor UX changes
 
 		//// TODO ////
 		//
@@ -200,6 +202,7 @@
 			populateContainer(resultPanel);
 			filterContainer(resultPanel, '');
 			resultPanel.scroll(0,0);
+			filterCatgs('all');
 			document.getElementById('searchBar').focus();
 		}
 		function clearSearch() {

@@ -12,6 +12,7 @@
 	--background-dark: #ad8e6c; /* toggle switch */
     --text-dark: #4f3a09; /* hanging tabs, search results, content panel, sentences inset panel */
 	--text-medium: #75544b; /* searchbar, no results text, search history */
+	--text-light: #fdf7ea;
 
     --border-dark: #4f3a09; /* panel separators, hanging tabs */
     --border-medium: #75544b; /* search results, img inset, sentences inset */
@@ -318,10 +319,12 @@ body {
 
 	color: var(--text-dark);
 	background-color: var(--background-light);
-	/* border: 2px solid var(--text-dark); */
+	border: 2px solid var(--text-dark);
+	border-radius: 14px;
 
 	display: inline-block;
-	padding: 4px 10px;
+	margin: 2px;
+	padding: 2px 8px;
 
 	font-size: 14px;
 }
@@ -330,12 +333,14 @@ body {
 	
 	box-sizing: border-box;
 
-	color: var(--background-light);
-	background-color: var(--text-dark);
-	/* border: 2px solid var(--text-dark); */
+	color: var(--text-light);
+	background-color: var(--text-medium);
+	border: 2px solid var(--text-medium);
+	border-radius: 14px;
 
 	display: inline-block;
-	padding: 4px 10px;
+	margin: 2px;
+	padding: 2px 8px;
 
 	font-size: 14px;
 }
