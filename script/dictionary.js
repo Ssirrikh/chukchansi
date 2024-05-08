@@ -309,7 +309,7 @@ function parse_en_ch_v10 (tsv) {
 
 		// if (['blackberry','family','African-American'].indexOf( line[0].split(';')[0] ) == -1) continue; // DEBUG check of [standard,capitalization,synonyms]
 
-		let e = EntryIIFE();;
+		let e = EntryIIFE();
 		// 0: eng forms
 		e.addPrimary(line[0]);
 		// 1: part of speech
@@ -329,6 +329,60 @@ function parse_en_ch_v10 (tsv) {
 			e.addSentence(sent, sentTrans);
 		}
 		// 33: entry notes
+		e.notes= line[NOTES_START];
+		// auto-detect forms in sentences
+		e.labelSents();
+		// log data
+		parse.push(e);
+
+		if (line[0].split(';')[0] == 'blackberry') {
+			console.log('Test entry: "blackberry"');
+			console.log(e);
+		}
+	}
+
+	return parse;
+}
+
+function parse_en_ch_v12 (tsv) {
+	// input: "eng1   catg   chk1-9   sent1-9   bonusSent1-2   notes\n"
+	// output: {catg, notes, pForms[[synonyms],...], sForms[[synonyms],...], sents[{eng,chk},...], sentForms[formNum,...]}
+
+	let parse = [];
+
+	const NUM_OF_FORMS = 9;
+	const FORM_START = 5;
+	const SENT_START = FORM_START + NUM_OF_FORMS;
+	const NOTES_START = SENT_START + 2*NUM_OF_FORMS + 2*2; // examples for 9 forms + 2 extra sentences
+
+	const entries = tsv.split(SEP_LINES);
+	for (let i = 1; i < entries.length; i++) {
+		const line = entries[i].split(SEP_CELLS); // 34 in v10: 1 eng word, 1 catg, 9 chk words, 22 sentences, 1 note
+
+		// if (['blackberry','family','African-American'].indexOf( line[0].split(';')[0] ) == -1) continue; // DEBUG check of [standard,capitalization,synonyms]
+
+		let e = EntryIIFE();
+		// 0: eng forms
+		e.addPrimary(line[0]);
+		// 1: part of speech
+		e.catg = line[1];
+		// 2-4: root and morphemes
+			// [skip]
+		// 5-13: chk forms
+		for (let formNum = 0; formNum < NUM_OF_FORMS; formNum++) {
+			if (line[FORM_START+formNum] == '') continue;
+			e.addSecondary(line[FORM_START+formNum], formNum);
+		}
+		// 14-35: sentences
+		for (let sentenceNum = SENT_START; sentenceNum < NOTES_START; sentenceNum += 2) {
+			const sentEngIndex = sentenceNum;
+			const sentChkIndex = sentenceNum + 1;
+			if (line[sentChkIndex] == '' && line[sentEngIndex] == '') continue;
+			const sent = (line[sentChkIndex] != '') ? line[sentChkIndex] : ('[[no '+primary_eng.abbr3+' version of sentence]]');
+			const sentTrans = (line[sentEngIndex]   != '') ? line[sentEngIndex]   : ('[[no '+secondary_chk.abbr3+' version of sentence]]');
+			e.addSentence(sent, sentTrans);
+		}
+		// 36: entry notes
 		e.notes= line[NOTES_START];
 		// auto-detect forms in sentences
 		e.labelSents();

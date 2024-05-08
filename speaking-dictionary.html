@@ -13,8 +13,8 @@
 
 	<!-- load dependencies -->
 	<script type='text/javascript' src='script/dictionary.js'></script>
-	<script type='text/javascript' src='data/en-ch-v9.js'></script>
 	<script type='text/javascript' src='data/en-ch-v10.js'></script>
+	<script type='text/javascript' src='data/en-ch-v12.js'></script>
 	<script type='text/javascript' src='source/resources.js'></script>
 
 	<script>
@@ -91,7 +91,7 @@
 
 		// build dictionary
 		let dictionary = new Dictionary(primary_eng, secondary_chk);
-		dictionary.loadData( parse_en_ch_v10(tsv_en_ch_v10) );
+		dictionary.loadData( parse_en_ch_v12(tsv_en_ch_v12) );
 
 		/////////////////////////////////////////////////////////////////////
 
