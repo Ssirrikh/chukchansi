@@ -27,6 +27,7 @@
 // 0.5 hrs: fix auto sentence form detection not handling capitalized words correctly
 // 1.0 hrs: fix getSynonyms() sometimes throwing error; fully test IIFE Entry(); minor spreadsheet fixes
 // 1.0 hrs: spreadsheet fixes and voice synth dev
+// 0.5 hrs: add v12 parser (support root/morpheme data); spreadsheet fixes
 
 const SEP_LINES = '\n';
 const SEP_CELLS = '\t';
