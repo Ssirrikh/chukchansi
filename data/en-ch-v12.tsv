@@ -159,7 +159,8 @@ bottle	noun	CVCVVCV			lameedaʔ	lameedaʔan	lameedaʔan	lameedam'	lameedan	lamee
 bounce; bounce something	verb	CVCCV			hon'tet	hon'tetaʔ	hon'tehil				hon'tel	hon'ten'		Hon'tet ʔap'om xoch'ooyow.	The ball bounced on the ground.	Nooch'oʔ hon'tetaʔ ʔap'ooma.	The boy bounced the ball.																			
 bowl; can_1; cup	noun	CVVCV			xaaluʔ	xaaluʔun	xaaluʔun	xaalum'	xaalun	xaaluw				Ch'al'nit xaaluʔ.	The bowl broke.	ʔipistaʔ xaaluʔun.	She threw away the bowl.							Loxit ʔilk'a xaaluw.	He poured water into the cup.											
 box; bin	noun	CVCVVC			gahon'	gahoono	gahoonin	gahoonam'	gahoonan	gahoonow				K'amintaʔ gahon' manaw.	The box dried up outside.	Taʔishtaʔ naʔ k'ot'iiʔin p'alp'alya	They both filled up the big bins.			K'otiiʔin naʔ gahoonam'.	I have a big bin.	Wantaʔ naʔ nooch'oʔon gahoonan.	I gave the boy a box.													
-boy	noun	CVVCV			nooch'oʔ_1	nooch'oʔon_1	nooch'oʔon			nooch'ow				ʔaltit taa nooch'oʔ ʔam bilaasuʔun.	The boy is licking his plate.	Taʔishtaʔ naʔ dishyina nooch'oʔon.	I saw the mean boy.																			
+boy (singular)	noun	CVVCV			nooch'oʔ_1	nooch'oʔon_1	nooch'oʔon			nooch'ow				ʔaltit taa nooch'oʔ ʔam bilaasuʔun.	The boy is licking his plate.	Taʔishtaʔ naʔ dishyina nooch'oʔon.	I saw the mean boy.																			
+boy (plural)	noun				noch'eeʔi																															
 bra	noun	CVCVVC	CVCVVC+hiy'		heley'hiy'	heley'hiya	heley'hiyin	heley'hiyam'	heley'hiyan	heley'hiyaw				Mich hijmaʔ hiʔ heley'hiy'.	These bras are very cheap.	Wantaʔ ʔam noʔom shoopina heley'hiya.	Her mother gave her three bras.																			
 braid	verb	CVCC			wich'nit	wich'intaʔ	wich'inhil	wich'inʔan'	wich'inga	wich'inxa	wich'nal	wich'neʔ		Wich'nit naʔ nim shilshi.	I braided my hair.	Wich'intaʔ ʔamaʔ nim shilshi.	She braided my hair.																			
 brain	noun	CVC			sok'	sok'i	sok'in	sok'am'	sok'an	sok'iw				Sok' Nancy'in k'ot'iʔ.	Nancy's brain is big.	Kishaaletaʔ ganaaduʔun sok'i gosneenoʔ.	The chef cooked the cow's brains.																			
@@ -272,7 +273,7 @@ chopper (person who chops)	noun	CVC			lasach'	lasaach'i	lasaach'in	lasaach'am'	l
 chopping place	noun	CVC			lasaʔhiy'	lasaʔhiya	lasaʔhiyin	lasaʔhiyam'		lasaʔhiyaw				Mich k'ot'iʔ lasaʔhiy'.	The chopping place is very big.	Diʔsheʔ ʔaman lasaʔhiya.	They will build a chopping place.																			
 church	noun	CVVCV			miisaʔhiy'	miisaʔhiya	miisaʔhiyin			miisaʔhiyaw				Moxloʔ hiʔ miisaʔhiy'.	This church is old.	K'eeleʔ ʔaman miisaʔhiya.	They are going to paint the church.																			
 clap	verb	CVCCVC			t'apt'apit	t'apt'aptaʔ	t'apt'aphil	t'apt'apxon'			t'apt'apal	t'apt'apeʔ		T'apt'apit ʔaman ʔam panaataw.	They clapped when he arrived.	T'apt'aptaʔ ʔaman ʔam panaataw.	They clapped when he arrived.																			
-clean	verb	CVCCVC			shek'ewlat	shek'ewlataʔ	shek'ewlahil	shek'ewlaxon'	shek'ewlag	shek'ewlax	shek'ewlal	shek'ewlan'		Shek'ewlat taa ʔam sinya.	She cleaned her blanket.	Shek'ewlataʔ gosneenoʔhiya.	He cleaned the kitchen.																			
+clean; whiten (to cause something to become white)	verb	CVCCVC			shek'ewlat	shek'ewlataʔ	shek'ewlahil	shek'ewlaxon'	shek'ewlag	shek'ewlax	shek'ewlal	shek'ewlan'		Shek'ewlat taa ʔam sinya.	She cleaned her blanket.	Shek'ewlataʔ ʔam sinya.	She made her sheet whiter.							Shek'ewlax may' gosneenoʔhiya.	Let's clean the kitchen.											
 climb	verb	CVCVVCC			halaxnit	halaaxintaʔ	halaaxinhil	halaaxinxon'	halaaxinga	halaaxinxa	halaxnal	halaaxineʔ		Halaxnit shidgil' ʔutuuʔun.	The squirrel climbed the tree.	Halaaxintaʔ dullaw yet' semaaniw.	He climbed the mountain last week.																			
 close	verb	CVC			sunut	suntaʔ	sunhil	sunaʔan'	sunga	sunxa		sunoʔ		Sunut ʔam shashaaʔan.	He closed his eyes.	Suntaʔ ʔaman teseech'i.	They close the door.																			
 closet	noun	CVVC			lulaʔhiy'	lulaʔhiya				lulaʔhiyaw														Bokit naʔ nim shuweedaʔan lulaʔhiyaw.	I found my sweater in the closet.											
@@ -601,7 +602,7 @@ goose bumps (to have those)	verb	CVCVVCV			hach'aach'at	hach'aach'ataʔ	hach'aac
 gooseberry	noun	CVCCVC			sumsux	sumsuxa	sumsuxin	sumsuxam'	sumsuxan	sumsuxaw				K'ashit nan sumsux.	The gooseberry (thorn) poked me.	Xatit ʔamaʔ galjina sumsuxa.	He ate a lot of gooseberries.																			
 gopher	noun	CVVCVC			saamil	saamila	saamilin			saamilaw				ʔamaʔ saamil lihimtaʔ.	The gopher ran.	Yawaltaʔ cheexaʔ saamila.	The dog chased the gopher.																			
 grandfather_1	noun	CVVCVC			ʔeenesh	ʔeeneshi										Taʔshit naʔ nim ʔeeneshi.	I saw my grandfather.																			
-grandfather_2 (diminutive)	noun	CVCCVVC			ʔen'shay'	ʔen'shaayi	ʔen'shayin	ʔen'shayam'		ʔen'shayiw				Panan' 'en'shay' miʔin.	Grandfather will arrive soon.	Gewtaʔ maʔ ʔen'shayi nim.	You have met my grandfather.																			
+grandfather_2 (diminutive)	noun	CVCCVVC			ʔen'shay'	ʔen'shaayi	ʔen'shayin	ʔen'shayam'		ʔen'shayiw				Panan' ʔen'shay' miʔin.	Grandfather will arrive soon.	Gewtaʔ maʔ ʔen'shayi nim.	You have met my grandfather.																			
 grandfather_3	noun	CVCCV			ʔendaʔ	ʔendaʔan										ʔendaʔan naʔ taʔshit.	I saw grandpa.																			
 grandmother_1	noun	CVCC			mugush	mugsha																														
 grandmother_2 (diminutive)	noun	CVCC			mugshay'	mugshaayi	mugshayin	mugshayam'		mugshayiw				Mugshay' ʔamaʔ yoʔ ʔen'shay' yatwishʔan'.	Grandma and grandpa are talking to each other.	Yooyon' ʔam mugshayi.	She's going to call her grandma.																			
@@ -635,7 +636,7 @@ gun	noun	CVCVVC			nok'on'	nok'oono	nok'oonin	nok'oonam'	nok'oonan	nok'oonow				L
 gut_1	verb	CVCVVC			badaalit	badal'taʔ	badal'hil	badal'ʔan'	badal'ga	badal'xa	badaalal			Badaalit naʔ lopso.	I gutted the fish.	Badal'taʔ naʔ lopso.	I gutted the fish.																			
 gut_2	noun	CVC			dosh	dooshi/doosha	doshin	dosham'		doshow				Xayathantaʔ lopsin dosh lameesaw.	The gut of the fish was put on the table.	Yugushtaʔ dooshi.	He washed the gut.															ʔohom' naʔ huych'aʔ taʔaashich' dooshi.	I don't like looking at guts.	Dosh nim taxeetaxon'.	My gut is hurting.	
 hail	noun	CVCC			xowis	xowso				xowsow				Mich k'ot'iʔ xowis.	The hail is very big.	Taʔshit naʔ xowso xoch'ooyow.	I saw hail on the ground.																			
-hair	noun	CVCC			shilish	shilshi	shilshin	shilsham'	shilshan	shilshiw				Dameek'ataʔ ʔam shilish.	Her hair smelled sweet.	Heddaʔ beenaxon' ʔam shilshi.	She is still combing her hair.							‘ilik' ch'iwch'iwit ‘am shilshiw.	Water dripped on her hair.											
+hair	noun	CVCC			shilish	shilshi	shilshin	shilsham'	shilshan	shilshiw				Dameek'ataʔ ʔam shilish.	Her hair smelled sweet.	Heddaʔ beenaxon' ʔam shilshi.	She is still combing her hair.							ʔilik' ch'iwch'iwit ʔam shilshiw.	Water dripped on her hair.											
 hairy	adjective	CVCC			shilshiyin	shilshiyna								Mich taa shilshiyin.	That person is really hairy.	Taʔshit naʔ shilshiyna noonoʔon.	I saw the hairy man.																			
 half	noun	CVCCV			nalt'iʔ									Taa nalt'iʔ lopis.	There is a half fish there.																					
 hammer	noun	CVVCV			haamaʔ	haamaʔan	haamaʔan	haamam'	haaman	haamaw				Sasyintaʔ nim haamaʔ hijmaʔ.	My cheap hammer broke.	Shawighil naʔ hach'aamiʔin haamaʔan lagyiw.	Yesterday I bought a new hammer.																			
@@ -865,7 +866,7 @@ mountain lion	noun	CVCVVCVC			weheeshit	weheeshita	weheeshitin			weheeshitaw				
 mourn	verb	CVCVVC			p'axaatit	p'axattaʔ	p'axathil	p'axatʔan'			p'axaatal	p'axaateʔ																								
 mouse	noun	CVCVVC			k'osoy'	k'osooyi	k'osooyin			k'osooyiw				ʔamaʔ gadyaʔ k'osoy' xon' xoch'ooyow.	That hungry mouse lives in the ground.	Gaaduʔ yawaalit k'osooyi ʔam shoyxow.	The cat chased the mouse into its hole.																			
 mouth	noun	CVCVV			shamaʔ	shamaaʔan	shamaaʔan	shamam'	shaman	shamaw				K'amnit nim shamaʔ.	My mouth is dry.	Somgo min shamaaʔan!	Cover your mouth!																			
-move something	verb	CVCVV			ʔoyet	ʔoyeetaʔ	ʔoyeehil		ʔoyeg	ʔoyex	ʔoyel	ʔoyen'		ʔoyet ʔaman hulushhuya.	They moved the chairs.	ʔoyeetaʔ 'am 'otmobiila.	He moved his car.																			
+move something	verb	CVCVV			ʔoyet	ʔoyeetaʔ	ʔoyeehil		ʔoyeg	ʔoyex	ʔoyel	ʔoyen'		ʔoyet ʔaman hulushhuya.	They moved the chairs.	ʔoyeetaʔ ʔam ʔotmobiila.	He moved his car.																			
 move_1	verb	CVC			ʔoyut	ʔoytoʔ	ʔoyhul							ʔoyut ʔaman xoʔow dullaw.	They moved to the house in the mountain.	ʔoytoʔ ʔalit Pelesnow.	He moved to Fresno a while ago.																			
 move_2	verb	CVCC			wuk'yut	wuk'uytaʔ	wuk'uyhil				wuk'yal	wuk'yoʔ		Holkiʔ wukyut.	The earth is moving. (Or, earthquake)	ʔamaʔ p'ay' wuk'uytaʔ balk'iw.	The baby moved in her belly.																			
 mud	noun	CVCV			loxaʔ	loxaʔan	loxaʔan			loxaw																										
@@ -915,7 +916,7 @@ ogre	noun	CVCCVCV			san'wawaʔ	san'wawaaʔan	san'wawaaʔan			san'wawaw				Mosto�
 oil	noun	CVVCV			heexaʔ_2	heexaʔan_2	heexaʔan	heexam'	heexan	heexaw_2				Xap'eelat heexaʔ.	The oil was heating up.	Loxtoʔ ʔamaʔ heexaʔan keewishaw.	She poured oil into the cooking pot.																			
 old	adjective	CVCC			moxloʔ	moxloʔon								Heyeemaʔ ʔalit, hew xootoʔ moxloʔ k'oliswaʔ mokeela.	A long time ago, there lived an old small woman.	Xayaawushit moxloʔon gamiisha.	She wore an old shirt.																			
 old (to become)	verb	CVCC			moxlit	moxiltaʔ	moxilhil					moxleʔ		Moxlit noonoʔ.	The man is getting old.	Moxiltaʔ ʔam gamiishaʔ.	Her shirt was old.																			
-old people	noun	CVCC			moxolhoy'	moxolhoyi	moxolhoyin			moxolhoyiw				Moxolhoy' 'yokuch' yalk'it ʔooch'iy' ʔoshto.	The old people stood near the fire.	Taʔishtaʔ naʔ moxolhoyi yokooch'i.	I saw the old people.																			
+old people	noun	CVCC			moxolhoy'	moxolhoyi	moxolhoyin			moxolhoyiw				Moxolhoy' yokuch' yalk'it ʔooch'iy' ʔoshto.	The old people stood near the fire.	Taʔishtaʔ naʔ moxolhoyi yokooch'i.	I saw the old people.																			
 old person	noun	CVCCV			mostoʔ	mostoʔon	mostoʔon			mostow				Wil' xon' taa mostoʔ hew.	That old person used to live here.	ʔamiltaʔ ʔaman mostoʔon hospitlaw.	They helped the old person in the hospital.																			
 once	adverb	CVVC			yeech'at									Yeech'at naʔ tantaʔ ʔapaashaw.	I went to Oakhurst once.	Miʔin ch'adbeʔ duldiiyaʔan yeech'at.	Then he will flip the tortilla once.																			
 one	noun	CVVC			yet'	yeet'a		yeet'am'	yeet'an	yeet'aw				Yet' nim gaaduʔ.	I have one cat.	Tishag yeet'a bilaasuʔun!	Take out one plate!																			
@@ -1481,8 +1482,8 @@ walk	verb				heweetit	hewettaʔ	hewethil	hewetʔan'			heweetal	heweeteʔ		Heweet
 walk around	verb				hew'hew'tat	hew'hew'tataʔ	hew'hew'tahil				hew'hew'tal	hew'hew'tan'		Hew'hew'tat.	He walked around.																					
 walk fast	verb				hiw'hiwit	hiw'hiwtaʔ	hiw'hiwhil				hiw'hiwal			Hiw'hiwit.	She's walking fast.	Hiw'hiwtaʔ ʔaman.	They walked fast.																			
 wallet; purse; pocket; pouch	noun				wonish	won'shi	won'shin	won'sham'	won'shan	won'shiw				ʔoshhantaʔ nim wonish.	My wallet was stolen.	Shawigtaʔ hablik'ya won'shi.	She bought a red purse.																			
-want; like_1; need	verb				hoych'it	hoyuch'taʔ	hoyuch'hil				hoych'ol	hoych'an'		Hoych'it kandeʔen.	She wanted a candy.	Nopop nim hoyuch'taʔ hach'aamiʔin xoʔo.	My father wanted a new house.											Bonyo liiyaʔan naʔ hoych'an'.	I need twenty cents.							
-like_2	noun				hoyuch'									Mich' maʔ nim hoyuch'.	I like you a lot.																					
+want; like_3; need	verb				hoych'it	hoyuch'taʔ	hoyuch'hil				hoych'ol	hoych'an'		Hoych'it kandeʔen.	She wanted a candy.	Nopop nim hoyuch'taʔ hach'aamiʔin xoʔo.	My father wanted a new house.											Bonyo liiyaʔan naʔ hoych'an'.	I need twenty cents.							
+like_4	noun				hoyuch'									Mich' maʔ nim hoyuch'.	I like you a lot.																					
 warm (to become)	verb				yunuuk'at	yunuuk'ataʔ	yunuuk'ahil	yunuuk'axon'			yunuuk'al	yunuuk'an'		Yunuuk'at ʔamaʔ.	He got warm.	Yunuuk'ataʔ manaw.	It warmed up outside.																			
 warm up something	verb				yunuk'tat	yunuk'tataʔ	yunuk'tahil	yunuk'taxon'	yunuk'tag	yunuk'tax	yunuk'tal	yunuk'tan'		Yunuk'tat xataashi.	He warmed up the food.	Yunuk'tataʔ ʔam kapeeʔen.	She warmed up her coffee.																			
 warm_1	adjective				nomik'	nomk'i								ʔohom' daʔ nomik' kapeʔ shit'eeyan'.	Warm coffee does not taste good.	ʔopixtaʔ ʔamak' nomk'i ʔilk'a.	They two poured out the warm water.																			
@@ -1525,7 +1526,6 @@ whistle	verb				woshoy'not		woshoy'nohil	woshoy'noxon'	woshoy'nog	woshoy'nol	wos
 white	adjective				shik'win	shik'wina								Taaneʔ shik'win som'.	The white cloud will leave.	ʔamaʔ taʔshit shik'wina soomi waʔlaw.	He looked at the white cloud in the sky.																			
 white (to become)	verb				sheek'eewat	sheek'eewataʔ	sheek'eewahil	sheek'eewaxon'			sheek'eewal	sheek'eewan'		Sheek'eewat paaxish.	The spring turned white.	Sheek'eewataʔ ʔilk'aw gamiishaʔ nim.	My shirt turned white in the water.																			
 white person	noun				migaanaʔ	migaanaʔan	migaanaʔan			migaanaw				ʔeptaʔ migaanaʔ wakaayaw.	The white man swam in the river.	Yooyotoʔ ʔaman migaanaʔan.	They called the white man.																			
-whiten (to cause something to become white)	verb				shek'ewlat	shek'ewlataʔ	shek'ewlahil	shek'ewlaxon'			shek'ewlal	shek'ewlan'				Shek'ewlataʔ ʔam sinya.	She made her sheet whiter.																			
 who	noun				wat	waata	waatin			waataw				Wat daʔ hiʔ?	Who is this?	Waata daʔ Kaʔyuʔ jogoogut?	Who did Coyote point to?	Waatin daʔ hiʔ shuyun?	Whose moccasins are these?													ʔohom' naʔ yathil waata.	I didn't talk to anyone.			
 whup; beat_2	verb				xap'it	xap'taʔ	xap'hil	xap'aʔan'	xap'ga	xap'xa	xap'al	xap'eʔ		Xap'it ʔamaʔ ʔam.	He whupped him.																					
 why	verb				hawit_2	hawtaʔ_2	hawhil_2	hawaʔan'_2			hawal_2	haweʔ_2		Hawit daʔ naʔat nim taanit xoʔow min?	Why did my older sister go to your house?	Hawtaʔ daʔ ʔamaʔ xattaʔ nim gayeedaʔan?	Why did she eat my cookie?	Hawaʔan' daʔ jellaxon' nan?	Why is she staring at me?																	
