@@ -62,6 +62,7 @@
 			elem: undefined,
 			HISTORY_MAX_LENGTH: 5,
 			showHistory: false,
+			showFilters: false,
 			// history
 			historyEng: [],
 			historyChk: [],
@@ -294,6 +295,20 @@
 		const subscriptReplace = '<sub>$1</sub>';
 		const trySubscript = (text='') => text.replaceAll(subscriptFind, subscriptReplace);
 
+		function refreshFilters () {
+			if (searchSettings.showFilters) {
+				document.getElementById('filterCatgArrow').classList.remove('arrowDown');
+				document.getElementById('filterCatgArrow').classList.add('arrowUp');
+				document.getElementById('catgsPanel').style.visibility = 'visible';
+				// catgsPanel can't have sliding animation since it has dynamic height and css doesn't allow transitions to/from "auto"
+			} else {
+				document.getElementById('filterCatgArrow').classList.remove('arrowUp');
+				document.getElementById('filterCatgArrow').classList.add('arrowDown');
+				document.getElementById('catgsPanel').style.visibility = 'hidden';
+			}
+
+			console.log('toggle');
+		}
 		function refreshHistory () {
 			if (searchSettings.showHistory) {
 				document.getElementById('searchHistoryArrow').classList.remove('arrowDown');
@@ -530,9 +545,14 @@
 				contentPanel.classList.add('noScrollbar');
 			document.body.appendChild(contentPanel);
 			
+			let filterPanel = document.createElement('div');
+				filterPanel.id = 'filterPanel';
+				filterPanel.innerHTML = '<p id="filterCatgText">Filter by part of speech</p><div id="filterCatgButton"><div id="filterCatgArrow" class="arrowDown"></div></div>';
+			document.body.appendChild(filterPanel);
+			let filterText = document.getElementById('filterCatgText');
+			let filterButton = document.getElementById('filterCatgButton');
 			let catgsPanel = document.createElement('div');
 				catgsPanel.id = 'catgsPanel';
-				catgsPanel.classList.add('noScrollbar');
 			document.body.appendChild(catgsPanel);
 
 			// initialize blank search
@@ -554,10 +574,6 @@
 			let searchHistoryButton = document.createElement('div');
 				searchHistoryButton.id = 'searchHistoryButton';
 				searchHistoryButton.innerHTML = '<div id="searchHistoryArrow" class="arrowDown"></div>';
-				searchHistoryButton.onclick = () => {
-					searchSettings.showHistory = !searchSettings.showHistory;
-					refreshHistory();
-				};
 			searchPanel.appendChild(searchHistoryButton);
 			// initialize empty history
 			let history = document.createElement('div');
@@ -585,9 +601,25 @@
 			search.addEventListener('keydown', keydown_search);
 			search.addEventListener('keyup', keyup_search);
 			window.addEventListener('click', (e) => {
-				if (!searchPanel.contains(e.target)) {
+				if (searchHistoryButton.contains(e.target)) {
+					searchSettings.showHistory = !searchSettings.showHistory;
+					refreshHistory();
+				} else if (!searchPanel.contains(e.target)) {
 					searchSettings.showHistory = false;
 					refreshHistory();
+				}
+				// console.log(e.target, catgsPanel.contains(e.target));
+				if (filterButton.contains(e.target) || filterText.contains(e.target)) {
+					// console.log('filter dropdown arrow/text');
+					searchSettings.showFilters = !searchSettings.showFilters;
+					refreshFilters();
+				} else if (!catgsPanel.contains(e.target)) {
+					// console.log('outside filter dropdown and catg filter panel');
+					// // this is broken because filterCatgs() rebuilds catgsPanel from scratch, so old button element is no longer part of catgsPanel
+					// searchSettings.showFilters = false;
+					// refreshFilters();
+				} else {
+					// console.log('inside catg filter panel');
 				}
 			});
 			filterCatgs();

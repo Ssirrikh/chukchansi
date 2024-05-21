@@ -216,10 +216,10 @@ body {
 
 	box-sizing: border-box;
 	position: absolute;
-	top: 148px;
+	top: 124px;
 	width: 25%;
 	height: calc(100% - 100px);
-	padding-top: 7px; /* need a more stable/permanent fix for word catg selection covering top entry on small screens */
+	padding-top: 2px;
 }
 .searchResult {
 	cursor: pointer;
@@ -310,20 +310,75 @@ body {
 }
 
 /* left panel catg filters */
-#catgsPanel {
-	box-sizing: border-box;
-
-	/* background-color: var(--background-light);
-	border-bottom: 4px solid var(--border-dark); */
+/* .hiddenHeight0 {
+	height: 0px;
+}
+.visibleHeightAuto {
+	height: auto;
+} */
+/* @keyframes slideHidden {
+	  0% { height: auto; }
+	100% { height: 0px; }
+}
+@keyframes slideVisible {
+	0% { height: 0px; }
+  100% { height: auto; }
+} */
+#filterPanel {
 	background-color: var(--background-light);
-	border-bottom: 4px solid var(--background-medium);
+	border-bottom: 4px solid var(--border-dark);
 
 	position: absolute;
 	top: 96px;
 	width: 25%;
-	/* height: 46px; */
+	display: flex;
+	flex-direction: row;
+	justify-content: flex-end;
+}
+#filterCatgText {
+	cursor: pointer;
+	color: var(--text-dark);
 
-	overflow: visible;
+	float: right;
+	font-size: 16px;
+}
+#filterCatgButton {
+	cursor: pointer;
+	
+	width: 24px;
+	height: 24px;
+
+	border-radius: 50%;
+}
+#filterCatgArrow {
+	border: solid var(--text-dark);
+	border-width: 0 3px 3px 0;
+
+	position: relative;
+	padding: 4px;
+	top: 33%;
+	left: 50%;
+	width: 0;
+	height: 0;
+	margin-top: 2px;
+
+	transition: all 0.25s ease;
+}
+#catgsPanel {
+	box-sizing: border-box;
+
+	background-color: var(--background-light);
+	border-bottom: 4px solid var(--border-dark);
+
+	position: absolute;
+	top: 120px;
+	/* height: 0px; */
+	width: 25%;
+
+	overflow: hidden;
+	visibility: hidden; /* start hidden; button click toggles visibility */
+	/* can't have smooth animation, since css doesn't allow transitions to/from "auto" */
+	/* transition: all 0.25s ease; */
 }
 .catgLabel {
 	cursor: pointer;
