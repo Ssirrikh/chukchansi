@@ -16,6 +16,8 @@
 	<script type='text/javascript' src='data/en-ch-v10.js'></script>
 	<script type='text/javascript' src='data/en-ch-v12.js'></script>
 	<script type='text/javascript' src='source/resources.js'></script>
+	<!-- temp resource list for jasmine's demo -->
+	<script type='text/javascript' src='source/resources-jasmine.js'></script>
 
 	<script>
 
@@ -41,6 +43,8 @@
 		// 1.0 hrs: add catg/part-of-speech filter logic; minor code cleanup
 		// 1.5 hrs: add catg/part-of-speech filter UI; minor CSS cleanup
 		// 0.5 hrs: improve catg/part-of-speech filter UI; minor UX changes
+		// 0.5 hrs: spreadsheet corrections; update to v12 data
+		// 1.0 hrs: set up jasmine's demo; spreadsheet corrections
 
 		//// TODO ////
 		//
@@ -127,6 +131,38 @@
 				}
 			}
 			return resources;
+		}
+		function findJasmineResources (entry) {
+			const resourceList = image_jasmine; // english only, images only
+			let forms = [];
+			entry.forEachPrimaryForm((synonyms,formNum) => {
+				for (let synonym of synonyms)
+					forms.push(synonym);
+			});
+			let resources = [];
+			for (let filepath of resourceList) {
+				const filename = filepath.split('/').pop().split('.')[0];
+				const word = filename.split('_')[0];
+				const author = filename.split('_')[1] || 'Unknown';
+				for (let form of forms) {
+					if (form == word) {
+						resources.push([form,filepath,author]);
+					}
+				}
+			}
+			return resources;
+		}
+		let jasmineWords = [];
+		let jasmineBadNames = 0;
+		for (const image of image_jasmine) {
+			const word = [...image.matchAll(/(?<=\/)[^\/]+(?=\.)/g)][0][0]; // use lookahead/lookbehind to isolate word in filename
+			if (!word) continue;
+			if (dictionary.searchWord(word)) {
+				jasmineWords.push(word);
+			} else {
+				jasmineBadNames++;
+				console.log('"' + word + '" not found in dictionary');
+			}
 		}
 		
 		function filterCatgs () {
@@ -290,6 +326,7 @@
 
 			let audioResources = findResources(entry, audio_en_ch);
 			let imageResources = findResources(entry, image_en_ch);
+			let imageResourcesJasmine = findJasmineResources(entry);
 
 			let elemStr = '';
 
@@ -299,6 +336,7 @@
 				elemStr += '</span></p>';
 				if (audioResources.length > 0) elemStr += '<div class="searchResultAudioIcon"></div>';
 				if (imageResources.length > 0) elemStr += '<div class="searchResultImageIcon"></div>';
+				if (imageResourcesJasmine.length > 0) elemStr += '<div class="jasmineImageIcon"></div>';
 			elemStr += '</div>';
 
 			return elemStr;
@@ -308,7 +346,14 @@
 			const tPop = Date.now();
 
 			let elemStr = '';
-			dictionary.forEachSynonym((entry, word) => { elemStr += entryHTML(entry, word); });
+			// temp, put jasmine's words first for her demo
+			dictionary.forEachSynonym((entry, word) => {
+				if (jasmineWords.indexOf(word) != -1) elemStr += entryHTML(entry, word);
+			});
+			dictionary.forEachSynonym((entry, word) => {
+				if (jasmineWords.indexOf(word) == -1) elemStr += entryHTML(entry, word);
+			});
+			// dictionary.forEachSynonym((entry, word) => { elemStr += entryHTML(entry, word); });
 			elemStr += '<p id="noResultsText" style="display:none">No results...</p>';
 			container.innerHTML = elemStr;
 

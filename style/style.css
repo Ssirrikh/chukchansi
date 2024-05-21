@@ -219,6 +219,7 @@ body {
 	top: 148px;
 	width: 25%;
 	height: calc(100% - 100px);
+	padding-top: 7px; /* need a more stable/permanent fix for word catg selection covering top entry on small screens */
 }
 .searchResult {
 	cursor: pointer;
@@ -269,6 +270,18 @@ body {
 	float:right;
 	
 	background: var(--icon-image);
+	background-size: contain;
+}
+/* temp styling for jasmine's demo */
+.jasmineImageIcon {
+	width:20px;
+	height:20px;
+	float:right;
+	
+	/* background-color: black;
+	border-radius: 50%; */
+
+	background: url('../source/j.png');
 	background-size: contain;
 }
 
