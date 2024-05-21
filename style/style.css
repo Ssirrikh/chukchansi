@@ -218,7 +218,7 @@ body {
 	position: absolute;
 	top: 124px;
 	width: 25%;
-	height: calc(100% - 100px);
+	height: calc(100% - 124px);
 	padding-top: 2px;
 }
 .searchResult {
@@ -411,6 +411,20 @@ body {
 	padding: 2px 8px;
 
 	font-size: 14px;
+}
+.catgSpecial {
+	color: var(--border-dark);
+	background-color: var(--background-medium);
+	border: 2px solid var(--border-dark);
+	/* border-radius: 0px 14px 14px 0px; */
+	border-radius: 4px;
+}
+.catgSpecialSelected {
+	color: var(--background-medium);
+	background-color: var(--border-dark);
+	border: 2px solid var(--border-dark);
+	/* border-radius: 0px 14px 14px 0px; */
+	border-radius: 4px;
 }
 
 /* right panel */

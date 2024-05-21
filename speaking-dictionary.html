@@ -45,6 +45,9 @@
 		// 0.5 hrs: improve catg/part-of-speech filter UI; minor UX changes
 		// 0.5 hrs: spreadsheet corrections; update to v12 data
 		// 1.0 hrs: set up jasmine's demo; spreadsheet corrections
+		// 2.0 hrs: refactor part-of-speech filters as dropdown menu
+		// 0.5 hrs: research modal design
+		// 1.0 hrs: switch filters to more intuitive single-select behavior; minor ui/ux fixes
 
 		//// TODO ////
 		//
@@ -67,11 +70,17 @@
 			historyEng: [],
 			historyChk: [],
 			// catgs
-			VALID_CATGS: ['all','none','misc',    'noun','adjective','demonstrative','verb','auxiliary verb','pronoun','adverb'],
+			// VALID_CATGS: ['all','none','misc',    'noun','adjective','demonstrative','verb','auxiliary verb','pronoun','adverb'],
+			// catgStrs: {
+			// 	'all':'ALL', 'none':'NONE', 'misc':'Misc',
+			// 	'noun':'Noun', 'adjective':'Adjective', 'demonstrative':'Demonstrative',
+			// 	'verb':'Verb','auxiliary verb':'Aux Verb','pronoun':'Pronoun','adverb':'Adverb'
+			// },
+			VALID_CATGS: ['all','noun','adjective','demonstrative','verb','auxiliary verb','pronoun','adverb','misc'],
 			catgStrs: {
-				'all':'ALL', 'none':'NONE', 'misc':'Misc',
-				'noun':'Noun', 'adjective':'Adjective', 'demonstrative':'Demonstrative',
-				'verb':'Verb','auxiliary verb':'Aux Verb','pronoun':'Pronoun','adverb':'Adverb'
+				'all':'SHOW ALL', 'none':'NONE', 'misc':'Misc',
+				'noun':'Noun', 'adjective':'Adj', 'demonstrative':'Dem',
+				'verb':'Verb','auxiliary verb':'Aux Verb','pronoun':'Pronoun','adverb':'Adv'
 			},
 			catgs: ['noun','adjective','demonstrative','verb','auxiliary verb','pronoun','adverb'],
 			catgMisc: true,
@@ -175,7 +184,7 @@
 					(c == 'none') ? searchSettings.hasNoCatgs() :
 					(c == 'misc') ? searchSettings.catgMisc : 
 								searchSettings.catgs.indexOf(c) != -1;
-				const classStr = (selected?'catgLabelSelected':'catgLabel');
+				const classStr = (selected?'catgLabelSelected':'catgLabel') + ((c=='all') ? (selected?' catgSpecialSelected':' catgSpecial') : '');
 				const onclick = 'toggleCatg(`'+c+'`)';
 				const label = searchSettings.catgStrs[c];
 				elemStr += '<div class="'+classStr+'" onclick="'+onclick+'">' + label + '</div>';
@@ -183,7 +192,7 @@
 
 			document.getElementById('catgsPanel').innerHTML = elemStr;
 		}
-		function toggleCatg (catg) {
+		function toggleCatg (catg, multiselect=false) {
 			catg = catg.toLowerCase();
 			if (searchSettings.VALID_CATGS.indexOf(catg) == -1) {
 				console.warn('"'+catg+'" is invalid catg.');
@@ -192,6 +201,27 @@
 
 			let active;
 			
+			// // multiselect (click to toggle inclusion)
+			// if (catg == 'all') {
+			// 	searchSettings.catgs = ['noun','adjective','demonstrative','verb','auxiliary verb','pronoun','adverb'];
+			// 	searchSettings.catgMisc = true;
+			// 	active = true;
+			// } else if (catg == 'none') {
+			// 	searchSettings.catgs = [];
+			// 	searchSettings.catgMisc = false;
+			// 	active = false;
+			// } else if (catg == 'misc') {
+			// 	searchSettings.catgMisc = !searchSettings.catgMisc;
+			// 	active = searchSettings.catgMisc;
+			// } else if (searchSettings.catgs.indexOf(catg) == -1) {
+			// 	searchSettings.catgs.push(catg);
+			// 	active = true;
+			// } else {
+			// 	searchSettings.catgs = searchSettings.catgs.filter(x => x!=catg);
+			// 	active = false;
+			// }
+
+			// single select (click to exclude everything else)
 			if (catg == 'all') {
 				searchSettings.catgs = ['noun','adjective','demonstrative','verb','auxiliary verb','pronoun','adverb'];
 				searchSettings.catgMisc = true;
@@ -201,14 +231,13 @@
 				searchSettings.catgMisc = false;
 				active = false;
 			} else if (catg == 'misc') {
-				searchSettings.catgMisc = !searchSettings.catgMisc;
-				active = searchSettings.catgMisc;
-			} else if (searchSettings.catgs.indexOf(catg) == -1) {
-				searchSettings.catgs.push(catg);
+				searchSettings.catgs = [];
+				searchSettings.catgMisc = true;
 				active = true;
 			} else {
-				searchSettings.catgs = searchSettings.catgs.filter(x => x!=catg);
-				active = false;
+				searchSettings.catgs = [catg];
+				searchSettings.catgMisc = false;
+				active = true;
 			}
 
 			console.log(searchSettings.catgs,'misc',searchSettings.catgMisc);
