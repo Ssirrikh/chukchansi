@@ -20,6 +20,7 @@
 
     --layer-front: 2; /* elems that hover over content (hanging tabs, search history) */
 	--layer-nav: 3; /* nav elements are always topmost [currently unused] */
+	--layer-overlay: 5; /* modal overlays */
 
 	--icon-image: url('../source/image.png');
 	--icon-audio: url('../source/audio.png');
@@ -530,11 +531,94 @@ body {
 	position: absolute;
 	top: 80px;
 	left: 100%;
-	width: 200px;
+	/* width: 200px; */
+	width: auto;
 	height: auto;
 
-	overflow: hidden;
+	/* overflow: hidden; */
 	transform: translate(calc(-100% - 20px), 0%);
+}
+.imageEnlargeText {
+	position:absolute;
+	top:-18px;
+	font-size:12px;
+}
+.imageHoverBackground {
+	cursor: pointer;
+	background-color: #00000055;
+	border: 2px solid transparent;
+	border-radius: 4px;
+	opacity: 0%;
+
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%,-50%);
+}
+.imageHoverBackground:hover {
+	opacity: 100%;
+}
+.imageHoverPlus {
+	/* https://css-tip.com/css-plus-symbol/ */
+	--b: 4px;   /* the thickness*/
+	--c: #0000 90deg,#ffffff 0; /* the coloration */
+	width: 40px; /* the size */
+	aspect-ratio: 1;
+	background:
+	  conic-gradient(from 90deg at var(--b) var(--b),var(--c)) 
+	  calc(100% + var(--b)/2) calc(100% + var(--b)/2)/
+	  calc(50%  + var(--b))   calc(50%  + var(--b));
+	
+	cursor: pointer;
+	opacity: 80%;
+
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%,-50%);
+  }
+.modalOverlay {
+	background-color: #00000088;
+	z-index: var(--layer-overlay);
+
+	display: block;
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	top: 0;
+}
+.modalWrapper {
+	background-color: transparent;
+
+	display: inline-block;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%,-50%);
+}
+.modalCloseButton {
+	/* https://css-tip.com/css-plus-symbol/ */
+	--b: 4px;   /* the thickness*/
+	--c: #0000 90deg,#ffffff 0; /* the coloration */
+	width: 40px; /* the size */
+	aspect-ratio: 1;
+	background:
+	  conic-gradient(from 90deg at var(--b) var(--b),var(--c)) 
+	  calc(100% + var(--b)/2) calc(100% + var(--b)/2)/
+	  calc(50%  + var(--b))   calc(50%  + var(--b));
+	
+	cursor: pointer;
+	/* border: 1px solid red; */
+	border-radius: 50%;
+	opacity: 80%;
+
+	position: absolute;
+	top: 20px;
+	right: -80px;
+	transform: translate(-50%,-50%) rotate(45deg);
+	padding: 2px;
 }
 
 /* right panel example sentences */

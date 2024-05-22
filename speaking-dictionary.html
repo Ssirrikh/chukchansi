@@ -48,6 +48,7 @@
 		// 2.0 hrs: refactor part-of-speech filters as dropdown menu
 		// 0.5 hrs: research modal design
 		// 1.0 hrs: switch filters to more intuitive single-select behavior; minor ui/ux fixes
+		// 0.5 hrs: research cross-platform elastic scrolling (infeasible without laggy JS, or smt like GSAP)
 
 		//// TODO ////
 		//
@@ -546,7 +547,9 @@
 			if (imageResources.length > 0) {
 				const [form,file,author] = imageResources[0];
 				elemStr += '<div id="imageBox">';
-					elemStr += '<img src="source/' + file + '" width="200" style="display:block;">'; // display:block to remove inline whitespacing
+					elemStr += '<img src="source/' + file + '" style="display:block;max-width:200px;max-height:130px;">'; // display:block to remove inline whitespacing
+					elemStr += '<p class="imageEnlargeText">Click to enlarge</p>';
+					elemStr += '<div class="imageHoverBackground" onclick="displayModalImage(`'+file+'`)"><div class="imageHoverPlus"></div></div>'
 				elemStr += '</div>';
 			}
 			
@@ -554,6 +557,25 @@
 			
 			// scroll to top, since we just clicked a new word
 			container.scroll(0,0);
+		}
+
+		function displayModalImage (file) {
+			// modal overlay (transparent background)
+			let modalOverlay = document.createElement('div');
+			modalOverlay.classList.add('modalOverlay');
+			modalOverlay.onclick = () => {
+				console.log('close');
+				document.body.removeChild(modalOverlay);
+			};
+			document.body.appendChild(modalOverlay);
+			// modal
+			let modalWrapper = document.createElement('div');
+			modalWrapper.classList.add('modalWrapper');
+			modalOverlay.appendChild(modalWrapper);
+			modalWrapper.innerHTML = '<img src="source/' + file + '" style="display:block;border-radius:12px;max-width:500px;max-height:500px;">';
+			let modalCloseButton = document.createElement('div');
+			modalCloseButton.classList.add('modalCloseButton');
+			modalWrapper.appendChild(modalCloseButton);
 		}
 
 		function init(dictionary) {
@@ -649,6 +671,14 @@
 					// refreshFilters();
 				} else {
 					// console.log('inside catg filter panel');
+				}
+			});
+			window.addEventListener('keydown', (e) => {
+				switch (e.key) {
+				case '`': // [`] for dev action
+					console.log('dev action');
+					displayModalImage();
+					break;
 				}
 			});
 			filterCatgs();
