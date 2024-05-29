@@ -28,6 +28,7 @@
 // 1.0 hrs: fix getSynonyms() sometimes throwing error; fully test IIFE Entry(); minor spreadsheet fixes
 // 1.0 hrs: spreadsheet fixes and voice synth dev
 // 0.5 hrs: add v12 parser (support root/morpheme data); spreadsheet fixes
+// 2.0 hrs: add support for multi-word forms when auto-labeling sentences; minor related bugfixes
 
 const SEP_LINES = '\n';
 const SEP_CELLS = '\t';
@@ -83,6 +84,7 @@ let secondary_chk = {
 
 		// 'n': ['subject', 'object', 'possessive',     'possessed', 'instrumental', 'locative'],
 		// 'v': ['subject', 'object', 'yesterday past', 'ongoing',   'command',      'hypothetical', 'future']
+		// precedent gerundial of "arrived": "He arrived when I was eating." [did precedent gerundial during main action]
 	},
 	formStr: (catg,i) => {
 		return (secondary_chk.forms.hasOwnProperty(catg) && i < secondary_chk.forms[catg].length)
@@ -390,10 +392,10 @@ function parse_en_ch_v12 (tsv) {
 		// log data
 		parse.push(e);
 
-		if (line[0].split(';')[0] == 'blackberry') {
-			console.log('Test entry: "blackberry"');
-			console.log(e);
-		}
+		// if (line[0].split(';')[0] == 'blackberry') {
+		// 	console.log('Test entry: "blackberry"');
+		// 	console.log(e);
+		// }
 	}
 
 	return parse;
@@ -410,30 +412,68 @@ function parse_en_ch_v12 (tsv) {
 
 	const SYNONYM_SPLITTER = '; ';
 
-	function getSentenceForms (sForms, sentences) { //// NEED TO GENERALIZE THIS!!!
-		// let sentenceForms = [];
+	// function arrayEqual (a,b) {
+	// 	if (a.length !== b.length) return false;
+	// 	for (let i = 0; i < a.length; i++) {
+	// 		if (a[i] !== b[i]) {
+	// 			return false;
+	// 		}
+	// 	}
+	// 	return true;
+	// }
+	// function getFormNumSterilized (forms, word) { // excludes subscript numbering
+	// 	word = word.toLowerCase();
+	// 	for (let formNum = 0; formNum < forms.length; formNum++)
+	// 		if (forms[formNum] && forms[formNum].some(x => x.toLowerCase().replace(/_.*/g,'') == word))
+	// 			return formNum;
+	// 	return -1;
+	// }
+	function debugLabelSents (sForms,sentences) {
+		let labels = [];
+		for (const sentence of sentences) {
+			// discard non-alphanumeric characters and underscore annotation from each sentence
+			let sentenceLabels = [];
+			const words = sentence.secondary.toLowerCase().replace(/_.*/g,'').replace(/[^0-9a-z\'ʔ ]/g, '').split(' '); // sterilize chars
+			for (let formNum = 0; formNum < sForms.length; formNum++) {
+				// if word doesn't have data for a form, skip it
+				if (!sForms[formNum]) {
+					// labels.push(undefined);
+					continue;
+				}
+				// else check if form is in sentence, accounting for multi-word forms
+				for (const synonym of sForms[formNum]) {
+					const form = synonym.toLowerCase().replace(/_.*/g,'');
+					const numWords = form.split(' ').length;
+					for (let i = 0; i < words.length-numWords+1; i++) {
+						// console.log('"'+form+'" VS "'+words.slice(i,i+numWords).join(' ')+'"');
+						if (words.slice(i,i+numWords).join(' ') == form) {
+							// console.log('MATCH');
+							sentenceLabels.push(formNum);
+						}
+					}
+				}
+				
+			}
+			labels.push(sentenceLabels);
+		}
+		return labels;
 
-		// for (const sentence of sentences) {
-		// 	let forms = [];
-		// 	const chkWordsSterilized = sentence.trans.toLowerCase().replace(/[^0-9a-z\'ʔ ]/g, '').split(' ');
-		// 	for (const word of chkWordsSterilized) {
-		// 		const formNum = this.searchSecondary(word);
-		// 		if (formNum != -1) forms.push(formNum);
-		// 	}
-		// 	sentenceForms.push(forms);
-		// }
-
-		// console.log(sentenceForms);
-		// return sentenceForms;
-
-		// a.map(x => (x>4) ? x.toString() : undefined).filter(x => x)
-
-		return sentences.map( sentence =>
-			sentence.secondary
-				.toLowerCase().replace(/[^0-9a-z\'ʔ ]/g, '').split(' ') // sterilize characters and split up sentence into words
-				.map( word => getFormNum(sForms, word) ).filter( formNum => formNum != -1 ) // indentify which form numbers are present
-		);
+		// return sentences.map( sentence => {
+		// 	console.log(sentence.secondary.toLowerCase().replace(/_.*/g,'').replace(/[^0-9a-z\'ʔ ]/g, '').split(' '));
+		// 	console.log(sentence.secondary.toLowerCase().replace(/_.*/g,'').replace(/[^0-9a-z\'ʔ ]/g, '').split(' ').map( word => getFormNumSterilized(sForms, word) ));
+		// 	return sentence.secondary
+		// 		.toLowerCase().replace(/_.*/g,'').replace(/[^0-9a-z\'ʔ ]/g, '').split(' ') // sterilize characters and split up sentence into words
+		// 		.map( word => getFormNumSterilized(sForms, word) ).filter( formNum => formNum != -1 ) // indentify which form numbers are present
+		// });
 	}
+
+	// function getSentenceForms (sForms, sentences) { //// NEED TO GENERALIZE THIS!!!
+	// 	return sentences.map( sentence => {
+	// 		return sentence.secondary
+	// 			.toLowerCase().replace(/_.*/g,'').replace(/[^0-9a-z\'ʔ ]/g, '').split(' ') // sterilize characters and split up sentence into words; ignores subscript for now
+	// 			.map( word => getFormNumSterilized(sForms, word) ).filter( formNum => formNum != -1 ) // indentify which form numbers are present; ignores subscript for now
+	// 	});
+	// }
 	function getSynonyms (forms, word) {
 		word = word.toLowerCase();
 		for (const form of forms)
@@ -468,7 +508,9 @@ function parse_en_ch_v12 (tsv) {
 			catg : '',
 			notes : '',
 			// update
-			labelSents   : () => sentenceForms = getSentenceForms(sForms, sentences),
+			// labelSents   : () => sentenceForms = getSentenceForms(sForms, sentences),
+			// debugLabelSents : () => console.log('DBG',debugLabelSents(sForms,sentences)),
+			labelSents   : () => sentenceForms = debugLabelSents(sForms, sentences),
 			//
 			addPrimary   : (synonymStr, formNum = pForms.length) => pForms[formNum] = synonymStr.split(SYNONYM_SPLITTER),
 			addSecondary : (synonymStr, formNum = sForms.length) => sForms[formNum] = synonymStr.split(SYNONYM_SPLITTER),

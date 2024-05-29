@@ -49,6 +49,8 @@
 		// 0.5 hrs: research modal design
 		// 1.0 hrs: switch filters to more intuitive single-select behavior; minor ui/ux fixes
 		// 0.5 hrs: research cross-platform elastic scrolling (infeasible without laggy JS, or smt like GSAP)
+		// 2.5 hrs: major spreadsheet fixes, script to ensure sentences contain at least one word from their entry
+		// 0.5 hrs: improve sentence-checker script and allow download .txt of results
 
 		//// TODO ////
 		//
@@ -107,6 +109,43 @@
 		// build dictionary
 		let dictionary = new Dictionary(primary_eng, secondary_chk);
 		dictionary.loadData( parse_en_ch_v12(tsv_en_ch_v12) );
+
+
+
+		// debug
+		let badSentenceWordList = [];
+		function checkSentencesContainForm () {
+			let numBadSentences = 0;
+			dictionary.forEachEntry(entry => {
+				entry.forEachSentence((sentence,sentenceForms) => {
+					// console.log(entry.getPrimary(), sentence, sentenceForms.length);
+					if (sentenceForms.length == 0) {
+						// console.log(entry.getPrimary(), sentence);
+						if (badSentenceWordList.indexOf(entry.getPrimary().join('; ')) == -1) badSentenceWordList.push(entry.getPrimary().join('; '));
+						numBadSentences++;
+					}
+				});
+			});
+			console.log(numBadSentences + ' chukchansi sentences did not contain any listed form.');
+			console.log('Hit dev key [`] to download the list as a text file.');
+		}
+		function download(filename, text) {
+			let a = document.createElement('a');
+			a.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+			a.setAttribute('download', filename);
+
+			a.style.display = 'none';
+			document.body.appendChild(a);
+
+			a.click();
+
+			document.body.removeChild(a);
+		}
+
+		checkSentencesContainForm();
+		
+
+
 
 		/////////////////////////////////////////////////////////////////////
 
@@ -172,7 +211,7 @@
 				jasmineWords.push(word);
 			} else {
 				jasmineBadNames++;
-				console.log('"' + word + '" not found in dictionary');
+				// console.log('"' + word + '" not found in dictionary');
 			}
 		}
 		
@@ -439,7 +478,7 @@
 
 			// prep data
 			const entry = dictionary.searchWord(word);
-			console.log(entry);
+			// console.log(entry);
 
 			const chkForm0 = entry.getSecondary(0);
 			const chkForm1 = entry.getSecondary(1);
@@ -457,18 +496,19 @@
 			if (!langToggle) entry.forEachSecondaryForm( (synonyms,formNum) => {if (formNum > 1) wordForms.push([synonyms[0],formNum])} );
 
 			entry.forEachSentence( (sentence,formNum) => {
-				console.log(sentence,formNum);
+				// console.log(sentence,formNum);
 				sentences.push(
 					(!langToggle)
 						? {base:sentence.primary, trans:sentence.secondary}
 						: {base:sentence.secondary, trans:sentence.primary}
 				);
 				sentenceFormStrs.push(
-					(dictionary._sLang.hasForm(catg,formNum))
-						? '(' + capitalize(dictionary._sLang.formStr(catg,formNum)) + ') '
+					(dictionary._sLang.hasForm(catg,formNum[0]))
+						? '(' + capitalize(dictionary._sLang.formStr(catg,formNum[0])) + ') '
 						: ''
 				);
 			} );
+			console.log('Found ' + sentences.length + ' sentences for entry "' + word + '".');
 			console.log(sentences);
 			console.log(sentenceFormStrs);
 
@@ -677,7 +717,7 @@
 				switch (e.key) {
 				case '`': // [`] for dev action
 					console.log('dev action');
-					displayModalImage();
+					download('sentence-corrections.txt', badSentenceWordList.length + ' entries need corrections:\n\n' + badSentenceWordList.join('\n'));
 					break;
 				}
 			});
