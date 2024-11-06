@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset = 'utf-8'>
+	<title>Chukchansi Story Reader</title>
+	<style>
+		:root {
+			--background-nav: #461220; /* navbar */
+			--text-nav: #ffdab3; /* navbar */
+			
+			--background-search: #ffffff; /* searchbar */
+			--icon-search: #826545; /* search clear button, search history button */
+
+			--background-light: #f2e3d3; /* search panel, search results, content panel, hanging tabs */
+			--background-sentences: #dbb78f; /* sentences inset panel */
+			--background-medium: #bfa07e; /* search result panel, unloaded img inset panel */
+			--background-dark: #ad8e6c; /* toggle switch */
+			--text-dark: #4f3a09; /* hanging tabs, search results, content panel, sentences inset panel */
+			--text-medium: #75544b; /* searchbar, no results text, search history */
+			--text-light: #fdf7ea;
+
+			--border-dark: #4f3a09; /* panel separators, hanging tabs */
+			--border-medium: #75544b; /* search results, img inset, sentences inset */
+			--border-light: #bfa07e; /* searchbar, search history */
+
+			--layer-front: 2; /* elems that hover over content (hanging tabs, search history) */
+			--layer-nav: 3; /* nav elements are always topmost [currently unused] */
+			--layer-overlay: 5; /* modal overlays */
+
+            --nav-height: calc(max(3.5vmin, 20px) + 10px + 10px); /* ref height for content anchors */
+
+			--icon-image: url('../source/image.png');
+			--icon-audio: url('../source/audio.png');
+		}
+
+		* {
+			margin: 0px;
+			padding: 0px;
+			box-sizing: border-box;
+			font-family: 'Times New Roman';
+		}
+		body {
+			/* background-color: #222222; */
+			background-color: var(--background-nav);
+            /* background-color: var(--background-light); */
+		}
+
+		.flex-sep {
+			width: 0;
+			flex-grow: 1;
+		}
+		.flex-row {
+			display: flex;
+			flex-direction: row;
+			align-items: start;
+		}
+		.flex-col {
+			display: flex;
+			flex-direction: column;
+		}
+		@media (min-aspect-ratio: 1/1) {
+			.flex-adapt {
+				display: flex;
+				flex-direction: row;
+				justify-content: center;
+				align-items: center;
+			}
+		}
+		@media (max-aspect-ratio: 1/1) {
+			.flex-adapt {
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				align-items: center;
+			}
+		}
+
+		/* nav/header bar */
+		#nav-bar {
+			color: var(--text-nav);
+			background-color: var(--background-nav);
+            border-bottom: 1px solid #ffffff; /* edge highlight to emphasize navbar separation */
+
+			position: sticky;
+			padding: 10px;
+			top: 0px;
+			width: 100%;
+            font-size: max(3.5vmin, 20px);
+            text-align: center;
+
+			z-index: var(--layer-front); /* make sure nav elems and hanging tabs are on top of other content */
+		}
+
+        /* layout */
+        #content {
+            background-color: var(--background-light);
+            padding: 1em;
+            gap: 1em;
+            min-height: calc(100vh - var(--nav-height));
+        }
+		#selection-panel {
+            color: var(--text-dark);
+            background-color: transparent;
+            border: 0.2em solid var(--border-dark);
+            border-radius: 1em;
+
+            display: inline-block;
+            position: sticky;
+            padding: 1em;
+            width: 33vw;
+        }
+        #reader-panel {
+            color: var(--text-dark);
+            background-color: transparent;
+            border: 1px solid red;
+
+            position: sticky;
+            padding: 1em;
+            /* white-space: pre; */
+
+            flex-grow: 1;
+        }
+
+        /* story reader */
+        .reader-title {
+            font-size: 3rem;
+            text-decoration: underline;
+            text-align: center;
+        }
+        .reader-highlight {
+            /* color: var(--text-medium); */
+            background-color: var(--background-sentences);
+        }
+
+		
+	</style>
+</head>
+<body>
+
+<div id='nav-bar'><span id='nav-title'>English-Chukchansi Dictionary</span></div>
+<div id='content' class='flex-row'>
+    <div id='selection-panel'>selection</div>
+    <div id='reader-panel'>reader</div>
+</div>
+
+<script type='text/javascript'>
+
+    //// WAVE 3 ////
+
+    // 1.5 hrs: set up basic page layout, audio player, and story reader
+
+
+    
+    const storySelectionPanel = document.getElementById('selection-panel');
+    const storyReaderPanel = document.getElementById('reader-panel');
+
+    let storyReader = {
+        currentStory : undefined,
+        currentClause : 0,
+        player : document.createElement('audio'),
+        wrap : false,
+
+        setSrc : (src) => {
+            storyReader.player.pause();
+            storyReader.player.src = src;
+            storyReader.player.currentTime = 0;
+            storyReader.currentClause = 0;
+        },
+        playFrom : (t) => {
+            // if (storyReader.player.readyState < 2) {
+            //     console.warn('Cannot play audio, file still loading.');
+            //     return false;
+            // } else {
+            //     storyReader.player.pause();
+            //     storyReader.player.currentTime = t;
+            //     storyReader.player.play();
+            //     return true;
+            // }
+            console.log(`STUB Playing audio from ${storyReader.currentStory[2*i]}`);
+        },
+        setClause : (i) => {
+            if (!storyReader.currentStory || i < 0 || i >= storyReader.currentStory.length/2) {
+                console.error(`Section ${i} does not exist in current story, which has ${storyReader.currentStory.length/2} sections.`);
+                return false;
+            }
+
+            const timestamp = storyReader.currentStory[2*i];
+            const text = storyReader.currentStory[2*i + 1];
+            document.getElementById(`reader-section-${storyReader.currentClause}`).classList.remove('reader-highlight');
+            document.getElementById(`reader-section-${i}`).classList.add('reader-highlight');
+            storyReader.currentClause = i;
+            // storyReader.player.currentTime = timestamp;
+            return true;
+        },
+        nextClause : () => {
+            storyReader.setClause((storyReader.currentClause + 1) % (storyReader.currentStory.length/2));
+        },
+        prevClause : () => {
+            storyReader.setClause((storyReader.currentClause == 0) ? (storyReader.currentStory.length/2 - 1) : (storyReader.currentClause-1));
+        },
+        playClause : (i = storyReader.currentClause) => {
+            if (storyReader.setClause(i)) {
+                // storyReader.player.play();
+                console.log(`STUB Playing audio from ${storyReader.currentStory[2*i]}`);
+            }
+        }
+    };
+
+    function loadStory (title, storyData, audioSrc) {
+        // storyReader.setSrc(audioSrc);
+        console.log(`STUB Setting audio src to "${audioSrc}".`);
+
+        let eStr = `<div class='reader-title'>${title}</div>`;
+        for (let i = 0; i < storyData.length; i+=2) {
+            const clause = i / 2;
+            const timestamp = storyData[i];
+            const text = storyData[i+1];
+            if (i > 0) eStr += ' ';
+            eStr += `<span id='reader-section-${clause}' class='reader-clause' onClick='storyReader.setClause(${clause});'>${text}</span>`;
+        }
+
+        storyReaderPanel.innerHTML = eStr;
+        storyReader.currentStory = storyData;
+        storyReader.setClause(0);
+    }
+
+    /////////////////////
+
+    function keydown (e) {
+        // console.log(e.key);
+        // e.preventDefault();
+        switch (e.key) {
+            case 'ArrowLeft':
+            case 'j':
+                storyReader.prevClause();
+                break;
+            case 'ArrowRight':
+            case 'l':
+                storyReader.nextClause();
+                break;
+        }
+    }
+    window.addEventListener('keydown', keydown);
+
+    //////////////////////
+
+    const stubStory = [
+        0, 'The man went to the store.',
+        3.6, 'He tried to buy some grapes,',
+        7.1, 'but the shop keeper shouted something about a duck',
+        12.3, 'and would not sell.'
+    ];
+
+    loadStory('The Man and the Grapes', stubStory, 'dummysrc.wav');
+
+</script>
+
+</body>
+</html>
