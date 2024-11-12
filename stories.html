@@ -330,9 +330,11 @@
     // 1.5 hrs: refactor media player for new data format, partially bugfix broken section transitions
     // 1.0 hrs: finish UI and bugfix bad scrolling behavior
     // 0.5 hrs: slap bandaid on broken things to fake correct behavior for the demo
+    // 0.5 hrs: fix underlying issues that broke player.ontimeupdate() and media player seeking 
 
 
     
+    // DOM anchors
     const storySelectionPanel = document.getElementById('selection-panel');
     const storyReaderPanel = document.getElementById('reader-panel');
     const playPauseButton = document.getElementById('play-pause');
@@ -357,7 +359,7 @@
         currentStory : undefined,
         currentSectionId : 0,
         player : document.createElement('audio'),
-        wrap : false,
+        // wrap : false,
         readMode : READ_BY_CLAUSE,
         id2lineSection : [],
         lineSection2id : [],
@@ -411,7 +413,7 @@
             return true;
         },
         setSectionId : (id) => {
-            console.log(`setting section to ${id}`);
+            console.log(`>> setting section from ${storyReader.currentSectionId} to ${id}`);
             if (!storyReader.highlightSection(id)) return false; // performs input validation
             storyReader.currentSectionId = id;
             const start = storyReader.currentStory[storyReader.readMode][0][0];
@@ -423,7 +425,6 @@
         nextSection : () => {
             // storyReader.setSectionId((storyReader.currentSectionId + 1) % (storyReader.currentStory[storyReader.readMode].length/3));
             if (storyReader.currentSectionId < storyReader.id2lineSection.length - 1) {
-                // console.log(`section ${storyReader.currentSectionId} -> section ${storyReader.currentSectionId + 1}`);
                 storyReader.setSectionId(storyReader.currentSectionId + 1);
             } else if (storyReader.currentSectionId == storyReader.id2lineSection.length - 1) {
                 storyReader.player.currentTime = storyReader.player.duration; // triggers player.onended()
@@ -442,22 +443,16 @@
     storyReader.player.ontimeupdate = () => {
         // update highlighting if we started a new clause
         const nextSectionId = storyReader.currentSectionId + 1;
-        console.log(`player.currentTime changed, try highlight new section ${nextSectionId}`);
+        // console.log(`>> player.currentTime changed, try highlight new section ${nextSectionId}`);
+        // console.log(`currently in section ${storyReader.currentSectionId} at time ${storyReader.player.currentTime}`);
         if (nextSectionId < storyReader.id2lineSection.length) {
             const [nextLine,nextSection] = storyReader.id2lineSection[nextSectionId];
-            console.log(storyReader.player.currentTime, storyReader.currentStory[storyReader.readMode][nextLine][3*nextSection]);
             if (storyReader.player.currentTime > storyReader.currentStory[storyReader.readMode][nextLine][3*nextSection]) {
                 storyReader.highlightSection(nextSectionId);
-                // console.log(`section ${storyReader.currentSectionId} -> section ${nextSectionId}`);
                 storyReader.currentSectionId = nextSectionId;
             }
         } else if (nextSectionId == storyReader.id2lineSection.length) {
-            console.log(`last section ${nextSectionId}, special highlight`);
-            storyReader.highlightSection(nextSectionId);
-            // console.log(`section ${storyReader.currentSectionId} -> section ${nextSectionId}`);
-
-            // shit's broken under the hood, but as long as we comment this out, it visually *looks* like it functions correctly
-            // storyReader.currentSectionId = nextSectionId;
+            console.log(`in last section, don't scan for later sections`);
         } else {
             storyReader.player.currentTime = storyReader.player.duration; // triggers player.onended()
         }
@@ -519,29 +514,27 @@
     /////////////////////
 
     function seekTo (p = 0.0) {
-        // p = Math.min(Math.max(0,p),1);
+        p = Math.min(Math.max(0,p),1);
         
-        // const start = storyReader.currentStory[storyReader.readMode][0][0];
-        // const duration = storyReader.player.duration;
-        // const t = start + p*(duration-start);
-        // for (let sectionId = 0; sectionId < storyReader.id2lineSection.length; sectionId++) {
-        //     const [line,section] = storyReader.id2lineSection[sectionId];
-            
-        //     console.log(`${sectionId} -> [${line},${section}]`);
-
-        //     const [nextLine,nextSection] = storyReader.id2lineSection[sectionId+1] ?? [];
-        //     const t0 = storyReader.currentStory[storyReader.readMode][line][section];
-        //     const t1 = (nextLine!=undefined) ? storyReader.currentStory[storyReader.readMode][nextLine][nextSection] : duration;
-        //     if (t > t0 && t < t1) {
-        //         storyReader.highlightSection(sectionId);
-        //         storyReader.currentSectionId = sectionId;
-        //         storyReader.player.currentTime = t;
-        //         console.log(`${(100*p).toFixed(2)}% - section ${sectionId} at time ${t}`);
-        //         return;
-        //     }
-        // }
-        // console.log(`ERR Unable to seek to ${(100*p).toFixed(2)}% (time ${t})`);
-        console.log(`STUB Seek broken by new data format, fix coming soon.`);
+        const start = storyReader.currentStory[storyReader.readMode][0][0];
+        const duration = storyReader.player.duration;
+        const t = start + p*(duration-start);
+        for (let sectionId = 0; sectionId < storyReader.id2lineSection.length; sectionId++) {
+            const [line,section] = storyReader.id2lineSection[sectionId];
+            const [nextLine,nextSection] = storyReader.id2lineSection[sectionId+1] ?? [];
+            const t0 = storyReader.currentStory[storyReader.readMode][line][3*section];
+            const t1 = (nextLine!=undefined) ? storyReader.currentStory[storyReader.readMode][nextLine][3*nextSection] : duration;
+            // console.log(`checking t=${t} against (t0,t1)=(${t0},${t1})`);
+            if (t > t0 && t < t1) {
+                storyReader.highlightSection(sectionId);
+                storyReader.currentSectionId = sectionId;
+                storyReader.player.currentTime = t;
+                console.log(`${(100*p).toFixed(2)}% - section ${sectionId} at time ${t}`);
+                return;
+            }
+        }
+        console.log(`ERR Unable to seek to ${(100*p).toFixed(2)}% (time ${t})`);
+        // console.log(`STUB Seek broken by new data format, fix coming soon.`);
     }
 
     let dragPlayer = false;
