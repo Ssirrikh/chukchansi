@@ -27,7 +27,8 @@
 			--layer-nav: 3; /* nav elements are always topmost [currently unused] */
 			--layer-overlay: 5; /* modal overlays */
 
-            --nav-height: calc(max(3.5vmin, 20px) + 10px + 10px); /* ref height for content anchors */
+            --content-pad: 1rem;
+            --nav-height: calc(max(3.5vmin, 20px) + 10px + 10px + var(--content-pad)); /* ref height for content anchors */
 
 			--icon-image: url('../source/image.png');
 			--icon-audio: url('../source/audio.png');
@@ -44,6 +45,16 @@
 			background-color: var(--background-nav);
             /* background-color: var(--background-light); */
 		}
+        button {
+            color: var(--text-dark);
+            background-color: transparent;
+            border: none;
+            outline: none;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
 
 		.flex-sep {
 			width: 0;
@@ -58,21 +69,29 @@
 			display: flex;
 			flex-direction: column;
 		}
-		@media (min-aspect-ratio: 1/1) {
+		@media (min-aspect-ratio: 1/1) { /* desktop mode */
 			.flex-adapt {
 				display: flex;
 				flex-direction: row;
 				justify-content: center;
-				align-items: center;
+				/* align-items: center; */
 			}
+            #selection-panel {
+                position: sticky;
+                top: var(--nav-height);
+                width: 33vw;
+            }
 		}
-		@media (max-aspect-ratio: 1/1) {
+		@media (max-aspect-ratio: 1/1) { /* mobile mode */
 			.flex-adapt {
 				display: flex;
 				flex-direction: column;
-				justify-content: center;
+				/* justify-content: center; */
 				align-items: center;
 			}
+            #selection-panel {
+                width: 100%;
+            }
 		}
 
 		/* nav/header bar */
@@ -94,42 +113,141 @@
         /* layout */
         #content {
             background-color: var(--background-light);
-            padding: 1em;
-            gap: 1em;
-            min-height: calc(100vh - var(--nav-height));
+            padding: var(--content-pad);
+            gap: var(--content-pad);
+            min-height: calc(100vh + var(--content-pad) - var(--nav-height));
         }
 		#selection-panel {
             color: var(--text-dark);
             background-color: transparent;
-            border: 0.2em solid var(--border-dark);
+            /* border: 0.2em solid var(--border-dark); */
             border-radius: 1em;
 
-            display: inline-block;
-            position: sticky;
+            display: block;
             padding: 1em;
-            width: 33vw;
         }
         #reader-panel {
             color: var(--text-dark);
             background-color: transparent;
-            border: 1px solid red;
-
-            position: sticky;
-            padding: 1em;
-            /* white-space: pre; */
 
             flex-grow: 1;
         }
 
+        /* selection panel */
+        .selection-panel-title {
+            margin-bottom: 0.5em;
+            font-size: 2.0em;
+            /* text-align: center; */
+            /* font-weight: bold; */
+            text-decoration: underline;
+        }
+        .selection-panel-story {
+            border-left: 0.2em solid var(--border-medium);
+            margin-left: 1em;
+            padding: 0.2em 0.5em;
+            font-size: 1.25em;
+        }
+
         /* story reader */
-        .reader-title {
-            font-size: 3rem;
+        #reader-title {
+            font-size: 2.0em;
             text-decoration: underline;
             text-align: center;
         }
+        #reader-subtitle {
+            /*margin-top: -0.5em; /* negate flexbox gap between title/subtitle */
+            font-size: 1.0em;
+            text-align: center;
+        }
+        #reader-content {
+            margin-top: 1.0em;
+            font-size: 1.5rem;
+            /* white-space: pre; */
+            text-wrap: wrap;
+            text-align: center;
+
+            gap: 1em;
+        }
+        .reader-section + .reader-section {
+            margin-top: 0.5em;
+        }
+        .reader-section {
+            display: inline-block;
+        }
+        .reader-section-translation {
+            display: inline-block;
+            font-size: 0.8em;
+            font-style: italic;
+        }
         .reader-highlight {
-            /* color: var(--text-medium); */
             background-color: var(--background-sentences);
+        }
+
+        /* audio player controls */
+        .player-panel {
+            color: var(--text-dark);
+            background-color: var(--background-sentences);
+            border: 0.2em solid var(--border-dark);
+            border-radius: 1em;
+
+            position: sticky;
+            padding: 0.5em 4em;
+            top: var(--nav-height);
+
+            /* gap: 0.5em; */
+            justify-content: center;
+            align-items: center;
+        }
+        .player-controls {
+            margin-top: 1.0em;
+            gap: 1.5em;
+            justify-content: center;
+            align-items: center;
+        }
+        .player-button {
+            cursor: pointer;
+        }
+        .player-progress-text {
+            width: 12em;
+        }
+        #player-progress {
+            background-color: transparent;
+
+            display: inline-block;
+            position: relative;
+            width: 12em;
+            height: 0.8em;
+        }
+        #player-progress-background {
+            background-color: var(--background-medium);
+
+            display: block;
+            position: absolute;
+            width: 100%;
+            height: 0.2em;
+            top: 50%;
+            transform: translate(0,-50%);
+        }
+        #player-progress-bar {
+            background-color: var(--text-dark);
+
+            display: block; /* if not set to display:block, element will appear outside of parent, offset down by 3x its height; no clue why; chatgpt says flexbox doesn't play nice with display:inline-block and I should just avoid using them together */
+            position: relative;
+            width: 50%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+        #player-progress-slider {
+            background-color: var(--background-nav);
+
+            display: inline-block;
+            position: absolute;
+            width: 0.5em;
+            height: 0.5em;
+            top: 50%;
+            right: 0;
+            transform: translate(50%,-50%) rotate(45deg);
         }
 
 		
@@ -138,120 +256,332 @@
 <body>
 
 <div id='nav-bar'><span id='nav-title'>English-Chukchansi Dictionary</span></div>
-<div id='content' class='flex-row'>
-    <div id='selection-panel'>selection</div>
-    <div id='reader-panel'>reader</div>
+<div id='content' class='flex-adapt'>
+    <div> <!-- need wrapper div so position:sticky plays nice with flexbox -->
+        <div id='selection-panel' class='flex-col'>
+            <p class='selection-panel-title'>Story Catalogue</p>
+            <p class='selection-panel-story'>Hawitmi Siksika’ Limeek’ata’</p>
+            <br>
+            <p style='margin-left:1.0em;font-style:italic;'>[more coming soon]</p>
+        </div>
+    </div>
+        
+    <div id='reader-panel'>
+        <div class='flex-col player-panel'>
+            <div id='reader-title'>Chukchansi Title</div>
+            <div id='reader-subtitle'>English Subtitle</div>
+            <div class='flex-row player-controls'>
+                <!-- SVG icons from Tabler: https://tablericons.com/ -->
+                <button role='button' onclick='storyReader.prevClause()' aria-keyshortcuts="j" title="Jump to previous section (j)" aria-label="Jump to previous section keyboard shortcut j">
+                    <svg id='prev-section' xmlns="http://www.w3.org/2000/svg" x-bind:width="size" x-bind:height="size" viewBox="0 0 24 24" fill="currentColor" width="2.0em" height="2.0em">
+                        <path d="M20.341 4.247l-8 7a1 1 0 0 0 0 1.506l8 7c.647 .565 1.659 .106 1.659 -.753v-14c0 -.86 -1.012 -1.318 -1.659 -.753z"></path>
+                        <path d="M9.341 4.247l-8 7a1 1 0 0 0 0 1.506l8 7c.647 .565 1.659 .106 1.659 -.753v-14c0 -.86 -1.012 -1.318 -1.659 -.753z"></path>
+                    </svg>
+                </button>
+                <button role='button' onclick='storyReader.togglePlayPause()' aria-keyshortcuts="k" title="Play/Pause (k)" aria-label="Play or pause story keyboard shortcut k">
+                    <svg id='play-pause' xmlns="http://www.w3.org/2000/svg" x-bind:width="size" x-bind:height="size" viewBox="0 0 24 24" fill="currentColor" width="2.5em" height="2.5em">
+                        <path d="M6 4v16a1 1 0 0 0 1.524 .852l13 -8a1 1 0 0 0 0 -1.704l-13 -8a1 1 0 0 0 -1.524 .852z"></path>
+                    </svg>
+                </button>
+                <button role='button' onclick='storyReader.nextSection()' aria-keyshortcuts="l" title="Jump to next section (l)" aria-label="Jump to next section keyboard shortcut l">
+                    <svg id='next-section' xmlns="http://www.w3.org/2000/svg" x-bind:width="size" x-bind:height="size" viewBox="0 0 24 24" fill="currentColor" width="2.0em" height="2.0em">
+                        <path d="M2 5v14c0 .86 1.012 1.318 1.659 .753l8 -7a1 1 0 0 0 0 -1.506l-8 -7c-.647 -.565 -1.659 -.106 -1.659 .753z"></path>
+                        <path d="M13 5v14c0 .86 1.012 1.318 1.659 .753l8 -7a1 1 0 0 0 0 -1.506l-8 -7c-.647 -.565 -1.659 -.106 -1.659 .753z"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class='flex-row player-progress-text' aria-hidden='true'>
+                <div id='player-time'>0:00</div>
+                <div class='flex-sep'></div>
+                <div id='player-duration'>0:00</div>
+            </div>
+            <div id='player-progress'>
+                <div id='player-progress-background'>
+                    <div id='player-progress-bar'>
+                        <div id='player-progress-slider'></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id='reader-content' class='flex-col' aria-hidden='true'></div>
+    </div>
 </div>
+
+<!-- load story data -->
+<script type='text/javascript' src="source/story-0/sox-siksika'-data-annotated.js"></script>
+
+
+
+
+
+
 
 <script type='text/javascript'>
 
     //// WAVE 3 ////
 
     // 1.5 hrs: set up basic page layout, audio player, and story reader
+    // 2.0 hrs: annotate sox-siksika' story by sentence and integrate into story reader
+    // 1.0 hrs: add story reader controls w/ partial ARIA-integration
+    // 2.0 hrs: annotate sox-siksika' story by clause and add full media player functionality
+    // 1.0 hrs: finish ARIA-integration for accessibility access
+    // 1.5 hrs: add touch contols to media player UI, re-annotate sox-siksika' to new data format
+    // 1.0 hrs: refactor dynamic page builder for new data format
+    // 1.5 hrs: refactor media player for new data format, partially bugfix broken section transitions
+    // 1.0 hrs: finish UI and bugfix bad scrolling behavior
+    // 0.5 hrs: slap bandaid on broken things to fake correct behavior for the demo
 
 
     
     const storySelectionPanel = document.getElementById('selection-panel');
     const storyReaderPanel = document.getElementById('reader-panel');
+    const playPauseButton = document.getElementById('play-pause');
+    const readerTitle = document.getElementById('reader-title');
+    const readerSubtitle = document.getElementById('reader-subtitle');
+    const readerContent = document.getElementById('reader-content');
+    const playerTime = document.getElementById('player-time');
+    const playerDuration = document.getElementById('player-duration');
+    const playerProgressContiner = document.getElementById('player-progress');
+    const playerProgressBar = document.getElementById('player-progress-bar');
+
+    // SVG icons from Tabler: https://tablericons.com/
+    const SVG_PLAY = `<path d="M6 4v16a1 1 0 0 0 1.524 .852l13 -8a1 1 0 0 0 0 -1.704l-13 -8a1 1 0 0 0 -1.524 .852z"></path>`;
+    const SVG_PAUSE = `<path d="M9 4h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h2a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2z"></path><path d="M17 4h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h2a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2z"></path>`;
+    // const SVG_REPEAT = `<path d="M19.933 13.041a8 8 0 1 1 -9.925 -8.788c3.899 -1 7.935 1.007 9.425 4.747"></path><path d="M20 4v5h-5"></path>`;
+    const SVG_REPEAT = `<g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="0.2em"><path d="M19.933 13.041a8 8 0 1 1 -9.925 -8.788c3.899 -1 7.935 1.007 9.425 4.747"></path><path d="M20 4v5h-5"></path></g>`;
+
+    const READ_BY_SENTENCE = 'timestampsBySentence';
+    const READ_BY_CLAUSE = 'timestampsByClause';
 
     let storyReader = {
         currentStory : undefined,
-        currentClause : 0,
+        currentSectionId : 0,
         player : document.createElement('audio'),
         wrap : false,
+        readMode : READ_BY_CLAUSE,
+        id2lineSection : [],
+        lineSection2id : [],
 
+        getCurrentTime : () => {
+            const time =  storyReader.player.currentTime - storyReader.currentStory[storyReader.readMode][0][0];
+            const m = Math.floor(time / 60);
+            const ss = Math.floor(time % 60).toString().padStart(2,'0');
+            return `${m}:${ss}`;
+        },
+        getDuration : () => {
+            const time = storyReader.player.duration - storyReader.currentStory[storyReader.readMode][0][0];
+            const m = Math.floor(time / 60);
+            const ss = Math.floor(time % 60).toString().padStart(2,'0');
+            return `${m}:${ss}`;
+        },
         setSrc : (src) => {
             storyReader.player.pause();
             storyReader.player.src = src;
             storyReader.player.currentTime = 0;
-            storyReader.currentClause = 0;
+            storyReader.currentSectionId = 0;
+        },
+        togglePlayPause : () => {
+            if (storyReader.player.paused && storyReader.player.currentTime >= storyReader.player.duration-0.5) {
+                // if finished playing, reset to earliest timestamp
+                storyReader.setSectionId(0,0);
+            }
+            (storyReader.player.paused) ? storyReader.player.play() : storyReader.player.pause();
+            playPauseButton.innerHTML = (storyReader.player.paused) ? SVG_PLAY : SVG_PAUSE;
         },
         playFrom : (t) => {
-            // if (storyReader.player.readyState < 2) {
-            //     console.warn('Cannot play audio, file still loading.');
-            //     return false;
-            // } else {
-            //     storyReader.player.pause();
-            //     storyReader.player.currentTime = t;
-            //     storyReader.player.play();
-            //     return true;
-            // }
-            console.log(`STUB Playing audio from ${storyReader.currentStory[2*i]}`);
+            if (storyReader.player.readyState < 2) {
+                console.warn('Cannot play audio, file still loading.');
+                return false;
+            } else {
+                storyReader.player.pause();
+                storyReader.player.currentTime = t;
+                storyReader.player.play();
+                return true;
+            }
+            console.log(`Playing audio from ${storyReader.currentStory[storyReader.readMode][3*i]}`);
         },
-        setClause : (i) => {
-            if (!storyReader.currentStory || i < 0 || i >= storyReader.currentStory.length/2) {
-                console.error(`Section ${i} does not exist in current story, which has ${storyReader.currentStory.length/2} sections.`);
+
+        highlightSection : (id) => {
+            if (!storyReader.currentStory || id < 0 || id >= storyReader.id2lineSection.length) {
+                console.error(`Section ${id} does not exist in current story, which has ${storyReader.id2lineSection.length} sections (zero-indexed).`);
                 return false;
             }
-
-            const timestamp = storyReader.currentStory[2*i];
-            const text = storyReader.currentStory[2*i + 1];
-            document.getElementById(`reader-section-${storyReader.currentClause}`).classList.remove('reader-highlight');
-            document.getElementById(`reader-section-${i}`).classList.add('reader-highlight');
-            storyReader.currentClause = i;
-            // storyReader.player.currentTime = timestamp;
+            document.getElementById(`reader-section-${storyReader.currentSectionId}`).classList.remove('reader-highlight');
+            document.getElementById(`reader-section-${id}`).classList.add('reader-highlight');
             return true;
         },
-        nextClause : () => {
-            storyReader.setClause((storyReader.currentClause + 1) % (storyReader.currentStory.length/2));
+        setSectionId : (id) => {
+            console.log(`setting section to ${id}`);
+            if (!storyReader.highlightSection(id)) return false; // performs input validation
+            storyReader.currentSectionId = id;
+            const start = storyReader.currentStory[storyReader.readMode][0][0];
+            const [line,section] = storyReader.id2lineSection[id];
+            storyReader.player.currentTime = storyReader.currentStory[storyReader.readMode][line][section*3];
+            console.log(`Jumping to section ${id}: apparent time ${storyReader.player.currentTime-start}, actual time ${storyReader.player.currentTime}`);
+            return true;
+        },
+        nextSection : () => {
+            // storyReader.setSectionId((storyReader.currentSectionId + 1) % (storyReader.currentStory[storyReader.readMode].length/3));
+            if (storyReader.currentSectionId < storyReader.id2lineSection.length - 1) {
+                // console.log(`section ${storyReader.currentSectionId} -> section ${storyReader.currentSectionId + 1}`);
+                storyReader.setSectionId(storyReader.currentSectionId + 1);
+            } else if (storyReader.currentSectionId == storyReader.id2lineSection.length - 1) {
+                storyReader.player.currentTime = storyReader.player.duration; // triggers player.onended()
+                console.log('last section');
+            }
         },
         prevClause : () => {
-            storyReader.setClause((storyReader.currentClause == 0) ? (storyReader.currentStory.length/2 - 1) : (storyReader.currentClause-1));
-        },
-        playClause : (i = storyReader.currentClause) => {
-            if (storyReader.setClause(i)) {
-                // storyReader.player.play();
-                console.log(`STUB Playing audio from ${storyReader.currentStory[2*i]}`);
+            // storyReader.setSectionId((storyReader.currentSectionId == 0) ? (storyReader.id2lineSection.length - 1) : (storyReader.currentSectionId-1));
+            if (storyReader.currentSectionId > 0) {
+                storyReader.setSectionId(storyReader.currentSectionId - 1);
+            } else {
+                console.log('first section');
             }
         }
     };
+    storyReader.player.ontimeupdate = () => {
+        // update highlighting if we started a new clause
+        const nextSectionId = storyReader.currentSectionId + 1;
+        console.log(`player.currentTime changed, try highlight new section ${nextSectionId}`);
+        if (nextSectionId < storyReader.id2lineSection.length) {
+            const [nextLine,nextSection] = storyReader.id2lineSection[nextSectionId];
+            console.log(storyReader.player.currentTime, storyReader.currentStory[storyReader.readMode][nextLine][3*nextSection]);
+            if (storyReader.player.currentTime > storyReader.currentStory[storyReader.readMode][nextLine][3*nextSection]) {
+                storyReader.highlightSection(nextSectionId);
+                // console.log(`section ${storyReader.currentSectionId} -> section ${nextSectionId}`);
+                storyReader.currentSectionId = nextSectionId;
+            }
+        } else if (nextSectionId == storyReader.id2lineSection.length) {
+            console.log(`last section ${nextSectionId}, special highlight`);
+            storyReader.highlightSection(nextSectionId);
+            // console.log(`section ${storyReader.currentSectionId} -> section ${nextSectionId}`);
 
-    function loadStory (title, storyData, audioSrc) {
-        // storyReader.setSrc(audioSrc);
-        console.log(`STUB Setting audio src to "${audioSrc}".`);
-
-        let eStr = `<div class='reader-title'>${title}</div>`;
-        for (let i = 0; i < storyData.length; i+=2) {
-            const clause = i / 2;
-            const timestamp = storyData[i];
-            const text = storyData[i+1];
-            if (i > 0) eStr += ' ';
-            eStr += `<span id='reader-section-${clause}' class='reader-clause' onClick='storyReader.setClause(${clause});'>${text}</span>`;
+            // shit's broken under the hood, but as long as we comment this out, it visually *looks* like it functions correctly
+            // storyReader.currentSectionId = nextSectionId;
+        } else {
+            storyReader.player.currentTime = storyReader.player.duration; // triggers player.onended()
         }
 
-        storyReaderPanel.innerHTML = eStr;
+        // adjust player display
+        playerTime.innerHTML = storyReader.getCurrentTime();
+        playerDuration.innerHTML = storyReader.getDuration();
+        const time = storyReader.player.currentTime - storyReader.currentStory[storyReader.readMode][0][0];
+        const duration = storyReader.player.duration - storyReader.currentStory[storyReader.readMode][0][0];
+        playerProgressBar.style.width = `${100 * Math.min(Math.max(0, time/duration), 1)}%`;
+    };
+    storyReader.player.onended = () => {
+        playPauseButton.innerHTML = SVG_REPEAT;
+    };
+
+    function loadStory (storyData) {
+        storyReader.setSrc(storyData.audio);
+
+        console.log(storyData[storyReader.readMode]);
+        
+        let id = 0;
+        storyReader.id2lineSection = [];
+        storyReader.lineSection2id = [];
+        for (let line = 0; line < storyData[storyReader.readMode].length; line++) {
+            storyReader.lineSection2id[line] = [];
+            for (let i = 0; i < storyData[storyReader.readMode][line].length; i+=3) {
+                const section = i / 3;
+                storyReader.id2lineSection.push([line,section]);
+                storyReader.lineSection2id[line].push(id);
+                id++;
+            }
+        }
+        // console.log(storyReader.id2lineSection);
+        // console.log(storyReader.lineSection2id);
+
+        let textStr = '';
+        for (let line = 0; line < storyData[storyReader.readMode].length; line++) {
+            textStr += `<div>`;
+            for (let i = 0; i < storyData[storyReader.readMode][line].length; i+=3) {
+                const section = i / 3;
+                const id = storyReader.lineSection2id[line][section];
+                const timestamp = storyData[storyReader.readMode][line][i];
+                const textCHK = storyData[storyReader.readMode][line][i+1];
+                const textENG = storyData[storyReader.readMode][line][i+2];
+                textStr += `<p><span id='reader-section-${id}' class='reader-section' onClick='storyReader.setSectionId(${id})'>${textCHK}</span></p>`;
+                textStr += '\n';
+                textStr += `<p><span id='reader-section-translation-${id}' class='reader-section-translation' onClick='storyReader.setSectionId(${id})'>${textENG}</span></p>`;
+            }
+            textStr += `</div>`;
+        }
+
+        readerTitle.innerHTML = storyData.titleCHK;
+        readerSubtitle.innerHTML = storyData.titleENG;
+        readerContent.innerHTML = textStr;
         storyReader.currentStory = storyData;
-        storyReader.setClause(0);
+        storyReader.setSectionId(0);
     }
 
     /////////////////////
 
-    function keydown (e) {
+    function seekTo (p = 0.0) {
+        // p = Math.min(Math.max(0,p),1);
+        
+        // const start = storyReader.currentStory[storyReader.readMode][0][0];
+        // const duration = storyReader.player.duration;
+        // const t = start + p*(duration-start);
+        // for (let sectionId = 0; sectionId < storyReader.id2lineSection.length; sectionId++) {
+        //     const [line,section] = storyReader.id2lineSection[sectionId];
+            
+        //     console.log(`${sectionId} -> [${line},${section}]`);
+
+        //     const [nextLine,nextSection] = storyReader.id2lineSection[sectionId+1] ?? [];
+        //     const t0 = storyReader.currentStory[storyReader.readMode][line][section];
+        //     const t1 = (nextLine!=undefined) ? storyReader.currentStory[storyReader.readMode][nextLine][nextSection] : duration;
+        //     if (t > t0 && t < t1) {
+        //         storyReader.highlightSection(sectionId);
+        //         storyReader.currentSectionId = sectionId;
+        //         storyReader.player.currentTime = t;
+        //         console.log(`${(100*p).toFixed(2)}% - section ${sectionId} at time ${t}`);
+        //         return;
+        //     }
+        // }
+        // console.log(`ERR Unable to seek to ${(100*p).toFixed(2)}% (time ${t})`);
+        console.log(`STUB Seek broken by new data format, fix coming soon.`);
+    }
+
+    let dragPlayer = false;
+    playerProgressContiner.addEventListener('mousedown', e => {
+        dragPlayer = true;
+        const b = playerProgressContiner.getBoundingClientRect();
+        seekTo( (e.clientX - b.left) / b.width );
+    });
+    playerProgressContiner.addEventListener('mousemove', e => {
+        if (dragPlayer) {
+            const b = playerProgressContiner.getBoundingClientRect();
+            seekTo( (e.clientX - b.left) / b.width );
+        }
+    });
+    playerProgressContiner.addEventListener('mouseup', e => {
+        dragPlayer = false;
+    });
+
+    window.addEventListener('keydown', e => {
         // console.log(e.key);
         // e.preventDefault();
         switch (e.key) {
+            case ' ': // [Spacebar]
+            case 'k':
+                storyReader.togglePlayPause();
+                break;
             case 'ArrowLeft':
             case 'j':
                 storyReader.prevClause();
                 break;
             case 'ArrowRight':
             case 'l':
-                storyReader.nextClause();
+                storyReader.nextSection();
                 break;
         }
-    }
-    window.addEventListener('keydown', keydown);
+    });
 
     //////////////////////
-
-    const stubStory = [
-        0, 'The man went to the store.',
-        3.6, 'He tried to buy some grapes,',
-        7.1, 'but the shop keeper shouted something about a duck',
-        12.3, 'and would not sell.'
-    ];
-
-    loadStory('The Man and the Grapes', stubStory, 'dummysrc.wav');
+    
+    loadStory(story_sox_siksika);
 
 </script>
 
