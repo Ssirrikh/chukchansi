@@ -44,6 +44,8 @@
 			/* background-color: #222222; */
 			background-color: var(--background-nav);
             /* background-color: var(--background-light); */
+            /* font-size: 1.5vmax; */
+            /* font-size: 4vmin; */
 		}
         button {
             color: var(--text-dark);
@@ -260,7 +262,7 @@
     <div> <!-- need wrapper div so position:sticky plays nice with flexbox -->
         <div id='selection-panel' class='flex-col'>
             <p class='selection-panel-title'>Story Catalogue</p>
-            <p class='selection-panel-story'>Hawitmi Siksika’ Limeek’ata’</p>
+            <p class='selection-panel-story'>Hawitmi Siksikaʔ Limeek’ataʔ</p>
             <br>
             <p style='margin-left:1.0em;font-style:italic;'>[more coming soon]</p>
         </div>
@@ -330,7 +332,8 @@
     // 1.5 hrs: refactor media player for new data format, partially bugfix broken section transitions
     // 1.0 hrs: finish UI and bugfix bad scrolling behavior
     // 0.5 hrs: slap bandaid on broken things to fake correct behavior for the demo
-    // 0.5 hrs: fix underlying issues that broke player.ontimeupdate() and media player seeking 
+    // 0.5 hrs: fix underlying issues that broke player.ontimeupdate() and media player seeking
+    // 0.5 hrs: correct loading bug on slow devices and add minor graphical fixes
 
 
     
@@ -420,6 +423,7 @@
             const [line,section] = storyReader.id2lineSection[id];
             storyReader.player.currentTime = storyReader.currentStory[storyReader.readMode][line][section*3];
             console.log(`Jumping to section ${id}: apparent time ${storyReader.player.currentTime-start}, actual time ${storyReader.player.currentTime}`);
+            playPauseButton.innerHTML = (storyReader.player.paused) ? SVG_PLAY : SVG_PAUSE; // reset media player icon when user changes sections, to clear replay icon if previously ended
             return true;
         },
         nextSection : () => {
@@ -467,6 +471,9 @@
     storyReader.player.onended = () => {
         playPauseButton.innerHTML = SVG_REPEAT;
     };
+    storyReader.player.onloadedmetadata = () => {
+        storyReader.setSectionId(0);
+    };
 
     function loadStory (storyData) {
         storyReader.setSrc(storyData.audio);
@@ -508,7 +515,7 @@
         readerSubtitle.innerHTML = storyData.titleENG;
         readerContent.innerHTML = textStr;
         storyReader.currentStory = storyData;
-        storyReader.setSectionId(0);
+        // storyReader.setSectionId(0);
     }
 
     /////////////////////

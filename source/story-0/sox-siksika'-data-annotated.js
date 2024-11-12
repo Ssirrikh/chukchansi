@@ -2,7 +2,7 @@
 let story_sox_siksika = {
 	audio : `source/story-0/sox-siksika'-audio.wav`,
 	titleENG : `How Stinkbug Became Black`,
-	titleCHK : `Hawitmi Siksika’ Limeek’ata’`,
+	titleCHK : `Hawitmi Siksikaʔ Limeek’ataʔ`,
 	timestampsBySentence : [
 		15.5,
 		`Sox himichtaʔ ʔoshto waʔaw shoyxow.`,
