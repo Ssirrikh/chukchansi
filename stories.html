@@ -29,7 +29,7 @@
 
             --fluid-font-size: max(3vh, calc(1rem + 1.0vw));
             --content-pad: 1rem;
-            --nav-height: calc(1.5 * var(--fluid-font-size)); /* ref height for content anchors */
+            --nav-height: calc(1.65 * var(--fluid-font-size)); /* ref height for content anchors; is actually 1.5*font, but position:sticky doesn't work properly for some reason unless this value is >= 0.15em bigger than the actual nav height */
 
 			--icon-image: url('../source/image.png');
 			--icon-audio: url('../source/audio.png');
@@ -353,6 +353,7 @@
     // 0.5 hrs: correct loading bug on slow devices and add minor graphical fixes
     // 4.0 hrs: research fluid typography and apply to site
     // 2.5 hrs: reconstruct fluid typography after data loss
+    // 0.5 hrs: fix visual bug where position:sticky didn't stick at correct height
 
 
     
