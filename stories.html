@@ -27,8 +27,9 @@
 			--layer-nav: 3; /* nav elements are always topmost [currently unused] */
 			--layer-overlay: 5; /* modal overlays */
 
+            --fluid-font-size: max(3vh, calc(1rem + 1.0vw));
             --content-pad: 1rem;
-            --nav-height: calc(max(3.5vmin, 20px) + 10px + 10px + var(--content-pad)); /* ref height for content anchors */
+            --nav-height: calc(1.5 * var(--fluid-font-size)); /* ref height for content anchors */
 
 			--icon-image: url('../source/image.png');
 			--icon-audio: url('../source/audio.png');
@@ -46,16 +47,13 @@
             /* background-color: var(--background-light); */
             /* font-size: 1.5vmax; */
             /* font-size: 4vmin; */
+            font-size: var(--fluid-font-size);
 		}
         button {
             color: var(--text-dark);
             background-color: transparent;
             border: none;
             outline: none;
-
-            display: flex;
-            justify-content: center;
-            align-items: center;
         }
 
 		.flex-sep {
@@ -79,9 +77,11 @@
 				/* align-items: center; */
 			}
             #selection-panel {
+                border-right: 0.1em solid var(--border-light);
                 position: sticky;
                 top: var(--nav-height);
                 width: 33vw;
+                height: calc(100vh - var(--nav-height));
             }
 		}
 		@media (max-aspect-ratio: 1/1) { /* mobile mode */
@@ -92,7 +92,9 @@
 				align-items: center;
 			}
             #selection-panel {
-                width: 100%;
+                border-bottom: 0.1em solid var(--border-light);
+/*                width: 100%;*/
+                width: 100vw;
             }
 		}
 
@@ -100,13 +102,13 @@
 		#nav-bar {
 			color: var(--text-nav);
 			background-color: var(--background-nav);
-            border-bottom: 1px solid #ffffff; /* edge highlight to emphasize navbar separation */
+            /*border-bottom: 1px solid #ffffff; /* edge highlight to emphasize navbar separation */
 
 			position: sticky;
-			padding: 10px;
+			padding: 0.25em;
 			top: 0px;
 			width: 100%;
-            font-size: max(3.5vmin, 20px);
+            font-size: 1.0em;
             text-align: center;
 
 			z-index: var(--layer-front); /* make sure nav elems and hanging tabs are on top of other content */
@@ -115,15 +117,16 @@
         /* layout */
         #content {
             background-color: var(--background-light);
-            padding: var(--content-pad);
-            gap: var(--content-pad);
-            min-height: calc(100vh + var(--content-pad) - var(--nav-height));
+/*            padding: var(--content-pad);*/
+/*            gap: var(--content-pad);*/
+            min-height: calc(100vh - var(--nav-height));
         }
 		#selection-panel {
             color: var(--text-dark);
-            background-color: transparent;
+/*            background-color: transparent;*/
+/*            background-color: var(--background-medium);*/
             /* border: 0.2em solid var(--border-dark); */
-            border-radius: 1em;
+/*            border-radius: 1em;*/
 
             display: block;
             padding: 1em;
@@ -138,7 +141,7 @@
         /* selection panel */
         .selection-panel-title {
             margin-bottom: 0.5em;
-            font-size: 2.0em;
+            font-size: 1.2em;
             /* text-align: center; */
             /* font-weight: bold; */
             text-decoration: underline;
@@ -146,38 +149,38 @@
         .selection-panel-story {
             border-left: 0.2em solid var(--border-medium);
             margin-left: 1em;
-            padding: 0.2em 0.5em;
-            font-size: 1.25em;
+            padding: 0.1em 0.25em;
+            font-size: 1.0em;
         }
 
         /* story reader */
         #reader-title {
-            font-size: 2.0em;
+            font-size: 1.2em;
             text-decoration: underline;
             text-align: center;
         }
         #reader-subtitle {
             /*margin-top: -0.5em; /* negate flexbox gap between title/subtitle */
-            font-size: 1.0em;
+            font-size: 0.8em;
             text-align: center;
         }
         #reader-content {
             margin-top: 1.0em;
-            font-size: 1.5rem;
+            font-size: 1.0em;
             /* white-space: pre; */
             text-wrap: wrap;
             text-align: center;
 
-            gap: 1em;
+            gap: 0.5em;
         }
         .reader-section + .reader-section {
             margin-top: 0.5em;
         }
         .reader-section {
-            display: inline-block;
+            display: inline;
         }
         .reader-section-translation {
-            display: inline-block;
+            display: inline;
             font-size: 0.8em;
             font-style: italic;
         }
@@ -193,24 +196,35 @@
             border-radius: 1em;
 
             position: sticky;
-            padding: 0.5em 4em;
-            top: var(--nav-height);
+            margin: 0.5em;
+            padding: 0.5em;
+            top: calc(0.5em + var(--nav-height));
 
             /* gap: 0.5em; */
             justify-content: center;
             align-items: center;
         }
         .player-controls {
-            margin-top: 1.0em;
+            margin-top: 0.5em;
             gap: 1.5em;
             justify-content: center;
             align-items: center;
         }
-        .player-button {
-            cursor: pointer;
+        .player-button-small {
+            /* mobile browsers mess w/ buttons to "make them big enought to click" but fail epically; need to set both height and font-size to override */
+            width: 1.1em;
+            height: 1.1em;
+            font-size: 1.1em;
+        }
+        .player-button-large {
+            /* mobile browsers mess w/ buttons to "make them big enought to click" but fail epically; need to set both height and font-size to override */
+            width: 1.2em;
+            height: 1.2em;
+            font-size: 1.2em;
         }
         .player-progress-text {
             width: 12em;
+            font-size: 0.8em;
         }
         #player-progress {
             background-color: transparent;
@@ -218,7 +232,8 @@
             display: inline-block;
             position: relative;
             width: 12em;
-            height: 0.8em;
+            height: 0.4em;
+            font-size: 0.8em;
         }
         #player-progress-background {
             background-color: var(--background-medium);
@@ -257,7 +272,9 @@
 </head>
 <body>
 
-<div id='nav-bar'><span id='nav-title'>English-Chukchansi Dictionary</span></div>
+<div id='nav-bar'>
+    <span id='nav-title'>English-Chukchansi Story Reader</span>
+</div>
 <div id='content' class='flex-adapt'>
     <div> <!-- need wrapper div so position:sticky plays nice with flexbox -->
         <div id='selection-panel' class='flex-col'>
@@ -274,19 +291,19 @@
             <div id='reader-subtitle'>English Subtitle</div>
             <div class='flex-row player-controls'>
                 <!-- SVG icons from Tabler: https://tablericons.com/ -->
-                <button role='button' onclick='storyReader.prevClause()' aria-keyshortcuts="j" title="Jump to previous section (j)" aria-label="Jump to previous section keyboard shortcut j">
-                    <svg id='prev-section' xmlns="http://www.w3.org/2000/svg" x-bind:width="size" x-bind:height="size" viewBox="0 0 24 24" fill="currentColor" width="2.0em" height="2.0em">
+                <button class='player-button-small' role='button' onclick='storyReader.prevClause()' aria-keyshortcuts="j" title="Jump to previous section (j)" aria-label="Jump to previous section keyboard shortcut j">
+                    <svg id='prev-section' xmlns="http://www.w3.org/2000/svg" x-bind:width="size" x-bind:height="size" viewBox="0 0 24 24" fill="currentColor" width="100%" height="100%">
                         <path d="M20.341 4.247l-8 7a1 1 0 0 0 0 1.506l8 7c.647 .565 1.659 .106 1.659 -.753v-14c0 -.86 -1.012 -1.318 -1.659 -.753z"></path>
                         <path d="M9.341 4.247l-8 7a1 1 0 0 0 0 1.506l8 7c.647 .565 1.659 .106 1.659 -.753v-14c0 -.86 -1.012 -1.318 -1.659 -.753z"></path>
                     </svg>
                 </button>
-                <button role='button' onclick='storyReader.togglePlayPause()' aria-keyshortcuts="k" title="Play/Pause (k)" aria-label="Play or pause story keyboard shortcut k">
-                    <svg id='play-pause' xmlns="http://www.w3.org/2000/svg" x-bind:width="size" x-bind:height="size" viewBox="0 0 24 24" fill="currentColor" width="2.5em" height="2.5em">
+                <button class='player-button-large' role='button' onclick='storyReader.togglePlayPause()' aria-keyshortcuts="k" title="Play/Pause (k)" aria-label="Play or pause story keyboard shortcut k">
+                    <svg id='play-pause' xmlns="http://www.w3.org/2000/svg" x-bind:width="size" x-bind:height="size" viewBox="0 0 24 24" fill="currentColor" width="100%" height="100%">
                         <path d="M6 4v16a1 1 0 0 0 1.524 .852l13 -8a1 1 0 0 0 0 -1.704l-13 -8a1 1 0 0 0 -1.524 .852z"></path>
                     </svg>
                 </button>
-                <button role='button' onclick='storyReader.nextSection()' aria-keyshortcuts="l" title="Jump to next section (l)" aria-label="Jump to next section keyboard shortcut l">
-                    <svg id='next-section' xmlns="http://www.w3.org/2000/svg" x-bind:width="size" x-bind:height="size" viewBox="0 0 24 24" fill="currentColor" width="2.0em" height="2.0em">
+                <button class='player-button-small' role='button' onclick='storyReader.nextSection()' aria-keyshortcuts="l" title="Jump to next section (l)" aria-label="Jump to next section keyboard shortcut l">
+                    <svg id='next-section' xmlns="http://www.w3.org/2000/svg" x-bind:width="size" x-bind:height="size" viewBox="0 0 24 24" fill="currentColor" width="100%" height="100%">
                         <path d="M2 5v14c0 .86 1.012 1.318 1.659 .753l8 -7a1 1 0 0 0 0 -1.506l-8 -7c-.647 -.565 -1.659 -.106 -1.659 .753z"></path>
                         <path d="M13 5v14c0 .86 1.012 1.318 1.659 .753l8 -7a1 1 0 0 0 0 -1.506l-8 -7c-.647 -.565 -1.659 -.106 -1.659 .753z"></path>
                     </svg>
@@ -334,10 +351,13 @@
     // 0.5 hrs: slap bandaid on broken things to fake correct behavior for the demo
     // 0.5 hrs: fix underlying issues that broke player.ontimeupdate() and media player seeking
     // 0.5 hrs: correct loading bug on slow devices and add minor graphical fixes
+    // 4.0 hrs: research fluid typography and apply to site
+    // 2.5 hrs: reconstruct fluid typography after data loss
 
 
     
     // DOM anchors
+    const navTitle = document.getElementById('nav-title');
     const storySelectionPanel = document.getElementById('selection-panel');
     const storyReaderPanel = document.getElementById('reader-panel');
     const playPauseButton = document.getElementById('play-pause');
@@ -578,6 +598,11 @@
                 break;
         }
     });
+
+    window.addEventListener('resize', e => {
+        navTitle.innerHTML = (window.innerWidth < window.innerHeight) ? 'Eng-Chk Story Reader' : 'English-Chukchansi Story Reader';
+    });
+    navTitle.innerHTML = (window.innerWidth < window.innerHeight) ? 'Eng-Chk Story Reader' : 'English-Chukchansi Story Reader';
 
     //////////////////////
     
