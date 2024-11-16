@@ -9,19 +9,19 @@
 			--text-nav: #ffdab3; /* navbar */
 			
 			--background-search: #ffffff; /* searchbar */
-			--icon-search: #826545; /* search clear button, search history button */
+			--icon-search: #826545; /* searchbar inset icons */
 
-			--background-light: #f2e3d3; /* search panel, search results, content panel, hanging tabs */
-			--background-sentences: #dbb78f; /* sentences inset panel */
-			--background-medium: #bfa07e; /* search result panel, unloaded img inset panel */
-			--background-dark: #ad8e6c; /* toggle switch */
-			--text-dark: #4f3a09; /* hanging tabs, search results, content panel, sentences inset panel */
-			--text-medium: #75544b; /* searchbar, no results text, search history */
+			--background-light: #f2e3d3; /* main content bg */
+			--background-inset: #dbb78f; /* inset panels; vibrant bg */
+			--background-medium: #bfa07e; /* side panels; muted bg */
+			--background-dark: #ad8e6c; /* fractionally darker interactibles bg */
+			--text-dark: #4f3a09; /* main content text */
+			--text-medium: #75544b; /* interactible text */
 			--text-light: #fdf7ea;
 
-			--border-dark: #4f3a09; /* panel separators, hanging tabs */
-			--border-medium: #75544b; /* search results, img inset, sentences inset */
-			--border-light: #bfa07e; /* searchbar, search history */
+			--border-dark: #4f3a09; /* content separation */
+			--border-medium: #75544b; /* inset panel border */
+			--border-light: #bfa07e; /* interactible textbox border */
 
 			--layer-front: 2; /* elems that hover over content (hanging tabs, search history) */
 			--layer-nav: 3; /* nav elements are always topmost [currently unused] */
@@ -42,11 +42,7 @@
 			font-family: 'Times New Roman';
 		}
 		body {
-			/* background-color: #222222; */
 			background-color: var(--background-nav);
-            /* background-color: var(--background-light); */
-            /* font-size: 1.5vmax; */
-            /* font-size: 4vmin; */
             font-size: var(--fluid-font-size);
 		}
         button {
@@ -69,6 +65,23 @@
 			display: flex;
 			flex-direction: column;
 		}
+
+        /* mobile-first for better load times on less-powerful devices */
+        @media (max-aspect-ratio: 1/1) { /* mobile mode */
+            .flex-adapt {
+                display: flex;
+                flex-direction: column;
+                /* justify-content: center; */
+                align-items: center;
+            }
+            #selection-panel {
+                border-bottom: 0.1em solid var(--border-light);
+                width: 100vw;
+            }
+            .player-panel {
+                width: calc(100vw - 0.5em - 0.5em); /* prevent panel from shrinking horizontally on mobile if content is skinny */
+            }
+        }
 		@media (min-aspect-ratio: 1/1) { /* desktop mode */
 			.flex-adapt {
 				display: flex;
@@ -84,25 +97,11 @@
                 height: calc(100vh - var(--nav-height));
             }
 		}
-		@media (max-aspect-ratio: 1/1) { /* mobile mode */
-			.flex-adapt {
-				display: flex;
-				flex-direction: column;
-				/* justify-content: center; */
-				align-items: center;
-			}
-            #selection-panel {
-                border-bottom: 0.1em solid var(--border-light);
-/*                width: 100%;*/
-                width: 100vw;
-            }
-		}
 
 		/* nav/header bar */
 		#nav-bar {
 			color: var(--text-nav);
 			background-color: var(--background-nav);
-            /*border-bottom: 1px solid #ffffff; /* edge highlight to emphasize navbar separation */
 
 			position: sticky;
 			padding: 0.25em;
@@ -117,8 +116,6 @@
         /* layout */
         #content {
             background-color: var(--background-light);
-/*            padding: var(--content-pad);*/
-/*            gap: var(--content-pad);*/
             min-height: calc(100vh - var(--nav-height));
         }
 		#selection-panel {
@@ -167,7 +164,6 @@
         #reader-content {
             margin-top: 1.0em;
             font-size: 1.0em;
-            /* white-space: pre; */
             text-wrap: wrap;
             text-align: center;
 
@@ -185,13 +181,13 @@
             font-style: italic;
         }
         .reader-highlight {
-            background-color: var(--background-sentences);
+            background-color: var(--background-inset);
         }
 
         /* audio player controls */
         .player-panel {
             color: var(--text-dark);
-            background-color: var(--background-sentences);
+            background-color: var(--background-inset);
             border: 0.2em solid var(--border-dark);
             border-radius: 1em;
 
@@ -200,7 +196,6 @@
             padding: 0.5em;
             top: calc(0.5em + var(--nav-height));
 
-            /* gap: 0.5em; */
             justify-content: center;
             align-items: center;
         }
@@ -212,15 +207,17 @@
         }
         .player-button-small {
             /* mobile browsers mess w/ buttons to "make them big enought to click" but fail epically; need to set both height and font-size to override */
-            width: 1.1em;
-            height: 1.1em;
-            font-size: 1.1em;
+            --button-size-small: 1.1em;
+            width: var(--button-size-small);
+            height: var(--button-size-small);
+            font-size: var(--button-size-small);
         }
         .player-button-large {
             /* mobile browsers mess w/ buttons to "make them big enought to click" but fail epically; need to set both height and font-size to override */
-            width: 1.2em;
-            height: 1.2em;
-            font-size: 1.2em;
+            --button-size-large: 1.2em;
+            width: var(--button-size-large);
+            height: var(--button-size-large);
+            font-size: var(--button-size-large);
         }
         .player-progress-text {
             width: 12em;
@@ -248,7 +245,7 @@
         #player-progress-bar {
             background-color: var(--text-dark);
 
-            display: block; /* if not set to display:block, element will appear outside of parent, offset down by 3x its height; no clue why; chatgpt says flexbox doesn't play nice with display:inline-block and I should just avoid using them together */
+            display: block; /* if not set to display:block, element will appear outside of parent, offset down by 3x its height; no clue why; google/gpt says flexbox doesn't play nice with display:inline-block and I should just avoid using them together */
             position: relative;
             width: 50%;
             height: 100%;
@@ -267,10 +264,10 @@
             transform: translate(50%,-50%) rotate(45deg);
         }
 
+        /* loading screen */
         #player-loading-screen {
-            background-color: var(--background-sentences);
+            background-color: var(--background-inset);
 
-/*            display: inline-block;*/
             position: absolute;
             padding: 0.25em;
             width: calc(100% - 0.25em - 0.25em);
@@ -301,14 +298,15 @@
             animation: loading-left 1.5s ease infinite;
         }
         .loading-icon-empty {
-            background-color: var(--background-sentences);
+            background-color: var(--background-inset);
             border: 0.1em solid var(--background-nav);
             left: 100%;
 
             animation: loading-right 1.5s ease infinite;
         }
-
+        /* loading animation: 2 diamonds slide past each other, changing which one is on top */
         @keyframes loading-left {
+            /* z-index changes at midpoint between keyframes, use fractional keyframes to set midpoint where diamonds don't overlap */
             0%   { left:0%;   z-index:1; }
             49%  { left:100%; z-index:1; }
             50%  { left:100%; z-index:2; }
@@ -316,6 +314,7 @@
             100% { left:0%;   z-index:1; }
         }
         @keyframes loading-right {
+            /* z-index changes at midpoint between keyframes, use fractional keyframes to set midpoint where diamonds don't overlap */
             0%   { left:100%; z-index:2; }
             49%  { left:0%;   z-index:2; }
             50%  { left:0%;   z-index:1; }
@@ -337,7 +336,7 @@
             <p class='selection-panel-title'>Story Catalogue</p>
             <p class='selection-panel-story'>Hawitmi Siksikaʔ Limeek’ataʔ</p>
             <br>
-            <p style='margin-left:1.0em;font-style:italic;'>[more coming soon]</p>
+            <p style='margin-left:1.0em;font-style:italic;'>More coming soon!</p>
         </div>
     </div>
         
@@ -421,6 +420,7 @@
     // 1.5 hrs: create loading anim and partially integrate loading screen
     // 1.0 hrs: SEO research
     // 2.0 hrs: finalize loading sequence, fix inconsistent load order and seekability on some devices
+    // 1.0 hrs: visual fixes and code cleanup
 
 
     
@@ -442,7 +442,7 @@
     const SVG_PLAY = `<path d="M6 4v16a1 1 0 0 0 1.524 .852l13 -8a1 1 0 0 0 0 -1.704l-13 -8a1 1 0 0 0 -1.524 .852z"></path>`;
     const SVG_PAUSE = `<path d="M9 4h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h2a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2z"></path><path d="M17 4h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h2a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2z"></path>`;
     // const SVG_REPEAT = `<path d="M19.933 13.041a8 8 0 1 1 -9.925 -8.788c3.899 -1 7.935 1.007 9.425 4.747"></path><path d="M20 4v5h-5"></path>`;
-    const SVG_REPEAT = `<g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="0.2em"><path d="M19.933 13.041a8 8 0 1 1 -9.925 -8.788c3.899 -1 7.935 1.007 9.425 4.747"></path><path d="M20 4v5h-5"></path></g>`;
+    const SVG_REPEAT = `<g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="calc(0.1vh + 0.1vw)"><path d="M19.933 13.041a8 8 0 1 1 -9.925 -8.788c3.899 -1 7.935 1.007 9.425 4.747"></path><path d="M20 4v5h-5"></path></g>`;
 
     const READ_BY_SENTENCE = 'timestampsBySentence';
     const READ_BY_CLAUSE = 'timestampsByClause';
@@ -451,7 +451,6 @@
         currentStory : undefined,
         currentSectionId : 0,
         player : document.createElement('audio'),
-        // wrap : false,
         readMode : READ_BY_CLAUSE,
         id2lineSection : [],
         lineSection2id : [],
@@ -539,8 +538,6 @@
     storyReader.player.ontimeupdate = () => {
         // update highlighting if we started a new clause
         const nextSectionId = storyReader.currentSectionId + 1;
-        // console.log(`>> player.currentTime changed, try highlight new section ${nextSectionId}`);
-        // console.log(`currently in section ${storyReader.currentSectionId} at time ${storyReader.player.currentTime}`);
         if (nextSectionId < storyReader.id2lineSection.length) {
             const [nextLine,nextSection] = storyReader.id2lineSection[nextSectionId];
             if (storyReader.player.currentTime > storyReader.currentStory[storyReader.readMode][nextLine][3*nextSection]) {
@@ -588,8 +585,6 @@
                 id++;
             }
         }
-        // console.log(storyReader.id2lineSection);
-        // console.log(storyReader.lineSection2id);
         console.log(`LOAD Story data indexed after ${(performance.now()-storyReader.loadStart).toFixed(0)} ms.`);
 
         // construct dynamic content (is independent of audio, but don't render until audio playable)
