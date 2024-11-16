@@ -154,7 +154,7 @@
         }
 
         /* story reader */
-        #reader-title {
+        #reader-title, #player-loading-text {
             font-size: 1.2em;
             text-decoration: underline;
             text-align: center;
@@ -267,6 +267,62 @@
             transform: translate(50%,-50%) rotate(45deg);
         }
 
+        #player-loading-screen {
+            background-color: var(--background-sentences);
+
+/*            display: inline-block;*/
+            position: absolute;
+            padding: 0.25em;
+            width: calc(100% - 0.25em - 0.25em);
+            height: calc(100% - 0.25em - 0.25em);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%,-50%);
+
+            gap: 2.0em;
+            align-items: center;
+        }
+        .loading-animation-track {
+            display: inline-block;
+            position: relative;
+            width: 2em;
+        }
+        .loading-icon-full, .loading-icon-empty {
+            display: inline-block;
+            position: absolute;
+            width: 1.0em;
+            height: 1.0em;
+            transform: translate(-50%,-50%) rotate(45deg);
+        }
+        .loading-icon-full {
+            background-color: var(--background-nav);
+            left: 0%;
+
+            animation: loading-left 1.5s ease infinite;
+        }
+        .loading-icon-empty {
+            background-color: var(--background-sentences);
+            border: 0.1em solid var(--background-nav);
+            left: 100%;
+
+            animation: loading-right 1.5s ease infinite;
+        }
+
+        @keyframes loading-left {
+            0%   { left:0%;   z-index:1; }
+            49%  { left:100%; z-index:1; }
+            50%  { left:100%; z-index:2; }
+            99%  { left:0%;   z-index:2; }
+            100% { left:0%;   z-index:1; }
+        }
+        @keyframes loading-right {
+            0%   { left:100%; z-index:2; }
+            49%  { left:0%;   z-index:2; }
+            50%  { left:0%;   z-index:1; }
+            99%  { left:100%; z-index:1; }
+            100% { left:100%; z-index:2; }
+        }
+
 		
 	</style>
 </head>
@@ -321,6 +377,14 @@
                     </div>
                 </div>
             </div>
+
+            <div id='player-loading-screen' class='flex-col'>
+                <p id='player-loading-text'>Loading Story...</p>
+                <div class='loading-animation-track'>
+                    <div class='loading-icon-full'></div>
+                    <div class='loading-icon-empty'></div>
+                </div>
+            </div>
         </div>
         <div id='reader-content' class='flex-col' aria-hidden='true'></div>
     </div>
@@ -354,6 +418,9 @@
     // 4.0 hrs: research fluid typography and apply to site
     // 2.5 hrs: reconstruct fluid typography after data loss
     // 0.5 hrs: fix visual bug where position:sticky didn't stick at correct height
+    // 1.5 hrs: create loading anim and partially integrate loading screen
+    // 1.0 hrs: SEO research
+    // 2.0 hrs: finalize loading sequence, fix inconsistent load order and seekability on some devices
 
 
     
@@ -369,6 +436,7 @@
     const playerDuration = document.getElementById('player-duration');
     const playerProgressContiner = document.getElementById('player-progress');
     const playerProgressBar = document.getElementById('player-progress-bar');
+    const playerLoadingScreen = document.getElementById('player-loading-screen');
 
     // SVG icons from Tabler: https://tablericons.com/
     const SVG_PLAY = `<path d="M6 4v16a1 1 0 0 0 1.524 .852l13 -8a1 1 0 0 0 0 -1.704l-13 -8a1 1 0 0 0 -1.524 .852z"></path>`;
@@ -387,6 +455,9 @@
         readMode : READ_BY_CLAUSE,
         id2lineSection : [],
         lineSection2id : [],
+
+        loadingComplete : false,
+        loadStart : performance.now(),
 
         getCurrentTime : () => {
             const time =  storyReader.player.currentTime - storyReader.currentStory[storyReader.readMode][0][0];
@@ -492,15 +563,19 @@
     storyReader.player.onended = () => {
         playPauseButton.innerHTML = SVG_REPEAT;
     };
-    storyReader.player.onloadedmetadata = () => {
-        storyReader.setSectionId(0);
-    };
 
     function loadStory (storyData) {
-        storyReader.setSrc(storyData.audio);
+        // reset loading cycle
+        storyReader.loadStart = performance.now();
+        storyReader.loadingComplete = false;
+        readerContent.innerHTML = '';
+        playerLoadingScreen.style.visibility = 'visible';
 
-        console.log(storyData[storyReader.readMode]);
+        // begin fetching audio
+        storyReader.setSrc(storyData.audio);
+        storyReader.currentStory = storyData;
         
+        // index reader sections
         let id = 0;
         storyReader.id2lineSection = [];
         storyReader.lineSection2id = [];
@@ -515,28 +590,54 @@
         }
         // console.log(storyReader.id2lineSection);
         // console.log(storyReader.lineSection2id);
+        console.log(`LOAD Story data indexed after ${(performance.now()-storyReader.loadStart).toFixed(0)} ms.`);
 
-        let textStr = '';
+        // construct dynamic content (is independent of audio, but don't render until audio playable)
+        let contentStr = '';
         for (let line = 0; line < storyData[storyReader.readMode].length; line++) {
-            textStr += `<div>`;
+            contentStr += `<div>`;
             for (let i = 0; i < storyData[storyReader.readMode][line].length; i+=3) {
                 const section = i / 3;
                 const id = storyReader.lineSection2id[line][section];
                 const timestamp = storyData[storyReader.readMode][line][i];
                 const textCHK = storyData[storyReader.readMode][line][i+1];
                 const textENG = storyData[storyReader.readMode][line][i+2];
-                textStr += `<p><span id='reader-section-${id}' class='reader-section' onClick='storyReader.setSectionId(${id})'>${textCHK}</span></p>`;
-                textStr += '\n';
-                textStr += `<p><span id='reader-section-translation-${id}' class='reader-section-translation' onClick='storyReader.setSectionId(${id})'>${textENG}</span></p>`;
+                contentStr += `<p><span id='reader-section-${id}' class='reader-section' onClick='storyReader.setSectionId(${id})'>${textCHK}</span></p>`;
+                contentStr += '\n';
+                contentStr += `<p><span id='reader-section-translation-${id}' class='reader-section-translation' onClick='storyReader.setSectionId(${id})'>${textENG}</span></p>`;
             }
-            textStr += `</div>`;
+            contentStr += `</div>`;
         }
+        console.log(`LOAD Dynamic content generated after ${(performance.now()-storyReader.loadStart).toFixed(0)} ms.`);
 
-        readerTitle.innerHTML = storyData.titleCHK;
-        readerSubtitle.innerHTML = storyData.titleENG;
-        readerContent.innerHTML = textStr;
-        storyReader.currentStory = storyData;
-        // storyReader.setSectionId(0);
+        // render content to screen only after audio is playable
+        function trySetInitialTime (t0) {
+            if (storyReader.player.currentTime == t0) {
+                console.log(`LOAD First section seekable after ${(performance.now()-storyReader.loadStart).toFixed(0)} ms.`);
+                readerContent.innerHTML = contentStr;
+                storyReader.setSectionId(0);
+                playerLoadingScreen.style.visibility = 'hidden';
+                console.log(`LOAD Dynamic content rendered after ${(performance.now()-storyReader.loadStart).toFixed(0)} ms.`);
+            } else if (storyReader.player.readyState >= 2) {
+                storyReader.player.currentTime = t0;
+                // console.log(`LOAD Set audio currentTime to ${storyReader.player.currentTime}`);
+                setTimeout(()=>trySetInitialTime(t0), 50);
+            } else {
+                setTimeout(()=>trySetInitialTime(t0), 50);
+            }
+        }
+        storyReader.player.onloadedmetadata = () => {
+            console.log(`LOAD Audio metadata available after ${(performance.now()-storyReader.loadStart).toFixed(0)} ms.`);
+        };
+        storyReader.player.oncanplay = () => {
+            if (!storyReader.loadingComplete) {
+                storyReader.loadingComplete = true;
+                readerTitle.innerHTML = storyData.titleCHK;
+                readerSubtitle.innerHTML = storyData.titleENG;
+                console.log(`LOAD Audio first frame playable after ${(performance.now()-storyReader.loadStart).toFixed(0)} ms.`);
+                trySetInitialTime(storyReader.currentStory[storyReader.readMode][0][0]);
+            }
+        };
     }
 
     /////////////////////
@@ -562,7 +663,6 @@
             }
         }
         console.log(`ERR Unable to seek to ${(100*p).toFixed(2)}% (time ${t})`);
-        // console.log(`STUB Seek broken by new data format, fix coming soon.`);
     }
 
     let dragPlayer = false;
@@ -596,6 +696,10 @@
             case 'ArrowRight':
             case 'l':
                 storyReader.nextSection();
+                break;
+
+            case '`':
+                playerLoadingScreen.style.visibility = (playerLoadingScreen.style.visibility == 'hidden') ? 'visible' : 'hidden';
                 break;
         }
     });
