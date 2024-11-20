@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset = 'utf-8'>
+    <title>Chukchansi Wordsearch</title>
+    <meta name='robots' content='index, follow'>
+    <meta name='description' content='An educational wordsearch puzzle for Chukchansi language learners to practice word recognition.'>
+	<style>
+		:root {
+			--background-nav: #461220; /* navbar */
+			--text-nav: #ffdab3; /* navbar */
+			
+			--background-search: #ffffff; /* searchbar */
+			--icon-search: #826545; /* searchbar inset icons */
+
+			--background-light: #f2e3d3; /* main content bg */
+			--background-inset: #dbb78f; /* inset panels; vibrant bg */
+			--background-medium: #bfa07e; /* side panels; muted bg */
+			--background-dark: #ad8e6c; /* fractionally darker interactibles bg */
+			--text-dark: #4f3a09; /* main content text */
+			--text-medium: #75544b; /* interactible text */
+			--text-light: #fdf7ea;
+
+			--border-dark: #4f3a09; /* content separation */
+			--border-medium: #75544b; /* inset panel border */
+			--border-light: #bfa07e; /* interactible textbox border */
+
+			--layer-front: 2; /* elems that hover over content (hanging tabs, search history) */
+			--layer-nav: 3; /* nav elements are always topmost [currently unused] */
+			--layer-overlay: 5; /* modal overlays */
+
+            --fluid-font-size: max(3vh, calc(1rem + 1.0vw));
+            --content-pad: 1rem;
+            --nav-height: calc(1.65 * var(--fluid-font-size)); /* ref height for content anchors; is actually 1.5*font, but position:sticky doesn't work properly for some reason unless this value is >= 0.15em bigger than the actual nav height */
+
+			--icon-image: url('../source/image.png');
+			--icon-audio: url('../source/audio.png');
+		}
+
+		* {
+			margin: 0px;
+			padding: 0px;
+			box-sizing: border-box;
+			font-family: 'Times New Roman';
+		}
+		body {
+			background-color: var(--background-nav);
+            font-size: var(--fluid-font-size);
+		}
+        button {
+            color: var(--text-dark);
+            background-color: transparent;
+            border: none;
+            outline: none;
+        }
+
+		.flex-sep {
+			width: 0;
+			flex-grow: 1;
+		}
+		.flex-row {
+			display: flex;
+			flex-direction: row;
+			align-items: start;
+		}
+		.flex-col {
+			display: flex;
+			flex-direction: column;
+		}
+
+        /* mobile-first for better load times on less-powerful devices */
+        @media (max-aspect-ratio: 1/1) { /* mobile mode */
+            .flex-adapt {
+                display: flex;
+                flex-direction: column;
+                /* justify-content: center; */
+                align-items: center;
+            }
+        }
+		@media (min-aspect-ratio: 1/1) { /* desktop mode */
+			.flex-adapt {
+				display: flex;
+				flex-direction: row;
+				justify-content: center;
+				/* align-items: center; */
+			}
+		}
+
+		/* nav/header bar */
+		#nav-bar {
+			color: var(--text-nav);
+			background-color: var(--background-nav);
+
+			position: sticky;
+			padding: 0.25em;
+			top: 0px;
+			width: 100%;
+            text-align: center;
+
+			z-index: var(--layer-front); /* make sure nav elems and hanging tabs are on top of other content */
+		}
+        #nav-title {
+            font-size: 1.0em;
+            font-weight: normal;
+        }
+
+        /* layout */
+        #content {
+            background-color: var(--background-inset);
+            min-height: calc(100vh - var(--nav-height));
+            align-items: center;
+            justify-content: center;
+        }
+        #wordsearch-container {
+            color: var(--text-dark);
+            background-color: var(--background-light);
+            border-radius: 0.5em;
+            box-shadow: 0 0 20px #0004;
+
+            display: inline-block;
+            margin: 0.5em;
+            padding: 0.25em;
+        }
+        .wordsearch-tile {
+/*            background-color: var(--background-light);*/
+/*            border: 0.1em solid var(--border-medium);*/
+
+            position: relative;
+            width: 1.5em;
+            height: 1.5em;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+
+        /* loading screen */
+        #player-loading-screen {
+            background-color: var(--background-inset);
+
+            position: absolute;
+            padding: 0.25em;
+            width: calc(100% - 0.25em - 0.25em);
+            height: calc(100% - 0.25em - 0.25em);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%,-50%);
+
+            gap: 2.0em;
+            align-items: center;
+        }
+        .loading-animation-track {
+            display: inline-block;
+            position: relative;
+            width: 2em;
+        }
+        .loading-icon-full, .loading-icon-empty {
+            display: inline-block;
+            position: absolute;
+            width: 1.0em;
+            height: 1.0em;
+            transform: translate(-50%,-50%) rotate(45deg);
+        }
+        .loading-icon-full {
+            background-color: var(--background-nav);
+            left: 0%;
+
+            animation: loading-left 1.5s ease infinite;
+        }
+        .loading-icon-empty {
+            background-color: var(--background-inset);
+            border: 0.1em solid var(--background-nav);
+            left: 100%;
+
+            animation: loading-right 1.5s ease infinite;
+        }
+        /* loading animation: 2 diamonds slide past each other, changing which one is on top */
+        @keyframes loading-left {
+            /* z-index changes at midpoint between keyframes, use fractional keyframes to set midpoint where diamonds don't overlap */
+            0%   { left:0%;   z-index:1; }
+            49%  { left:100%; z-index:1; }
+            50%  { left:100%; z-index:2; }
+            99%  { left:0%;   z-index:2; }
+            100% { left:0%;   z-index:1; }
+        }
+        @keyframes loading-right {
+            /* z-index changes at midpoint between keyframes, use fractional keyframes to set midpoint where diamonds don't overlap */
+            0%   { left:100%; z-index:2; }
+            49%  { left:0%;   z-index:2; }
+            50%  { left:0%;   z-index:1; }
+            99%  { left:100%; z-index:1; }
+            100% { left:100%; z-index:2; }
+        }
+
+		
+	</style>
+</head>
+<body>
+
+<div id='nav-bar'>
+    <h1 id='nav-title'>Chukchansi Wordsearch</h1>
+</div>
+<div id='content' class='flex-col'>
+    <div id='wordsearch-container' class='flex-col'></div>
+    <p>Wordsearch Label</p>
+</div>
+
+
+
+<script type='text/javascript'>
+
+    //// WAVE 3 ////
+
+    // 1.5 hrs: set up fluid typography and mobile-friendly responsive layout
+    // 1.0 hrs: add wordsearch UI
+    // 1.0 hrs: dev wordsearch data structure
+    // 1.5 hrs: build sox-siksika wordlist, dev algorithm
+    // 5.0 hrs: try multiple wordsearch gen algorithms, fully impl wordsearch gen
+
+
+    
+    // DOM anchors
+    const navTitle = document.getElementById('nav-title');
+    const wordsearch = document.getElementById('wordsearch-container');
+
+    const randInt = (min,max) => Math.floor(Math.random() * (max-min+1)) + min;
+    const ALPHABET = `ABCDEFGHIJKLMNOPQRSTUVWXYZ'ʔ`;
+
+    const wordlist_sox_siksika = ["Sox","Siksikaʔ","ʔoshto","woodiyga","namix","ʔutuytaʔ","henew","t'uluntaʔ","shaapintaʔ","limeek'am"];
+
+    const DIRECTIONS = [ // pairs of [dx,dy]
+        [0,1],[1,0],[0,-1],[-1,0]
+    ];
+    function tryPlaceWord (word,grid) {
+        function tryPlace () {
+            const [dr,dc] = DIRECTIONS[randInt(0,DIRECTIONS.length-1)];
+            const rMin = (dr<0) ? word.length-1 : 0;
+            const rMax = (dr<=0) ? grid.length-1 : grid.length-word.length;
+            const cMin = (dc<0) ? word.length-1 : 0;
+            const cMax = (dc<=0) ? grid.length-1 : grid.length-word.length;
+            // console.log(`dir(${dr},${dc}), sidelen ${grid.length} wordlen ${word.length}, r on [${rMin},${rMax}], c on [${cMin},${cMax}]`);
+            let rStart = r = randInt(rMin,rMax);
+            let cStart = c = randInt(cMin,cMax);
+            for (let i = 0; i < word.length; i++) {
+                // console.log(`side ${grid.length}, rc (${r},${c})`);
+                if (grid[r][c] != word[i] && grid[r][c] != '.') {
+                    return [];
+                } else {
+                    r += dr;
+                    c += dc;
+                }
+            }
+            return [rStart,cStart,dr,dc];
+        }
+        let breakout = 1000;
+        while (breakout-- > 0) {
+            const [rStart,cStart,dr,dc] = tryPlace();
+            if (rStart == undefined) continue;
+            let r = rStart;
+            let c = cStart;
+            for (let i = 0; i < word.length; i++) {
+                grid[r] = grid[r].slice(0,c) + word[i] + grid[r].slice(c+1);
+                r += dr;
+                c += dc;
+            }
+            return grid;
+        }
+        console.error(`ERR Could not place word "${word}" in grid after 1000 tries.`);
+        console.log(grid);
+        return grid;
+    }
+    function getWordsearch (sidelen,words=[]) {
+        sidelen = Math.max(sidelen, ...words.map(w=>w.length+1));
+        words = words.map(w=>w.toUpperCase()).sort((a,b)=>a.length<b.length);
+        // init empty grid
+        let grid = [];
+        for (let r = 0; r < sidelen; r++) {
+            grid.push('.'.repeat(sidelen));
+        }
+        // place words in grid longest first, shortest last
+        for (let word of words) {
+            console.log(word);
+            grid = tryPlaceWord(word,grid);
+        }
+        // fill in remaining blanks with random chars
+        for (let row = 0; row < sidelen; row++) {
+            let gridrow = '';
+            for (let col = 0; col < sidelen; col++) {
+                if (grid[row][col] == '.') {
+                    gridrow = gridrow + ALPHABET[randInt(0,ALPHABET.length-1)];
+                } else {
+                    gridrow = gridrow + grid[row][col];
+                }
+            }
+            grid[row] = gridrow;
+        }
+        return grid;
+    }
+    function wordsearchStringFrom (r1,c1,r2,c2,grid) {
+        const dr = Math.abs(r2-r1);
+        const dc = Math.abs(c2-c1);
+        let s = '';
+        if (dr == 0) { // vertical
+            if (c2 > c1) {
+                for (let c = c1; c <= c2; c++) {
+                    s = s + grid[r1][c]; // left-to-right
+                }
+            } else {
+                for (let c = c1; c >= c2; c--) {
+                    s = s + grid[r1][c]; // right-to-left
+                }
+            }
+            return s;
+        } else if (dc == 0) { // horizontal
+            if (r2 > r1) {
+                for (let r = r1; r <= r2; r++) {
+                    s = s + grid[r][c1]; // top-to-bottom
+                }
+            } else {
+                for (let r = r1; r >= r2; r--) {
+                    s = s + grid[r][c1]; // bottom-to-top
+                }
+            }
+            return s;
+        } else if (dr == dc) { // diagonal
+            //
+        } else {
+            console.log(`FAIL Coords do not give valid string.`);
+        }
+    }
+    let grid = getWordsearch(8,wordlist_sox_siksika);
+    console.log(grid);
+    console.log(wordsearchStringFrom(0,0, 0,3, grid));
+    console.log(wordsearchStringFrom(0,3, 0,0, grid));
+    console.log(wordsearchStringFrom(1,0, 4,0, grid));
+    console.log(wordsearchStringFrom(4,0, 1,0, grid));
+
+    function renderWordsearch (grid) {
+        const rows = grid[0].length;
+        const cols = grid.length;
+
+        let contentStr = '';
+        for (let r = 0; r < rows; r++) {
+            contentStr += `<div class='flex-row'>`;
+            for (let c = 0; c < cols; c++) {
+                contentStr += `<div class='wordsearch-tile' onclick='console.log("(${r},${c}) ${grid[r][c]}")'>${grid[r][c]}</div>`;
+            }
+            contentStr += `</div>`;
+        }
+        wordsearch.innerHTML = contentStr;
+    }
+    renderWordsearch(grid);
+
+    window.addEventListener('keydown', e => {
+        // console.log(e.key);
+        // e.preventDefault();
+        switch (e.key) {
+            case '`':
+                console.log('dev key');
+                break;
+        }
+    });
+
+    // window.addEventListener('resize', e => {
+    //     navTitle.innerHTML = (window.innerWidth < window.innerHeight) ? 'Chk Wordsearch' : 'Chukchansi Wordsearch';
+    // });
+    // navTitle.innerHTML = (window.innerWidth < window.innerHeight) ? 'Chk Wordsearch' : 'Chukchansi Wordsearch';
+
+    //////////////////////
+    
+    // init
+
+</script>
+
+</body>
+</html>
