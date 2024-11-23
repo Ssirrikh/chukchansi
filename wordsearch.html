@@ -120,6 +120,7 @@
 
             display: inline-block;
             padding: 0.25em;
+            font-size: 1em;
             user-select: none;
         }
         .wordsearch-tile {
@@ -256,6 +257,7 @@
     // 5.0 hrs: try multiple wordsearch gen algorithms, fully impl wordsearch gen
     // 1.5 hrs: add list of words to UI
     // 2.0 hrs: add mouse functionality, make fully playable on pc
+    // 1.0 hrs: add touch support
 
 
     
@@ -427,10 +429,14 @@
     let cDragStart = -1;
     let dragging = false;
     function moveStart (e,isTouch) {
-        dragging = true;
+        if (isTouch) e.preventDefault(); // prevent touch scrolling
+        const x = (isTouch) ? e.touches[0].clientX : e.clientX;
+        const y = (isTouch) ? e.touches[0].clientY : e.clientY;
+
         const b = wordsearch.getBoundingClientRect();
-        rDragStart = Math.floor(grid.length * (e.clientY-b.top)/b.height);
-        cDragStart = Math.floor(grid.length * (e.clientX-b.left)/b.width);
+        rDragStart = Math.floor(grid.length * (y-b.top)/b.height);
+        cDragStart = Math.floor(grid.length * (x-b.left)/b.width);
+        dragging = true;
         // console.log(`start drag from (${rDragStart},${cDragStart})`);
     }
     function moveEnd (e) {
@@ -440,13 +446,17 @@
     }
     function move (e,isTouch) {
         if (dragging) {
-            // e.preventDefault();
+            if (isTouch) e.preventDefault(); // prevent touch scrolling
+            const x = (isTouch) ? e.touches[0].clientX : e.clientX;
+            const y = (isTouch) ? e.touches[0].clientY : e.clientY;
+
             const b = wordsearch.getBoundingClientRect();
-            const rDragEnd = Math.floor(grid.length * (e.clientY-b.top)/b.height);
-            const cDragEnd = Math.floor(grid.length * (e.clientX-b.left)/b.width);
+            const rDragEnd = Math.floor(grid.length * (y-b.top)/b.height);
+            const cDragEnd = Math.floor(grid.length * (x-b.left)/b.width);
             const dr = Math.abs(rDragEnd - rDragStart);
             const dc = Math.abs(cDragEnd - cDragStart);
             // console.log(`(${rDragStart},${cDragStart}) -> (${rDragEnd},${cDragEnd}) drdc(${dr},${dc})`);
+
             if (dr == 0 || dc == 0 || dr == dc) {
                 const wordsearchStr = wordsearchStringFrom(rDragStart,cDragStart,rDragEnd,cDragEnd,grid);
                 for (let i = 0; i < wordlist_sox_siksika.length; i++) {
@@ -465,23 +475,20 @@
     wordsearch.addEventListener('mousedown', e => moveStart(e,false));
     wordsearch.addEventListener('mousemove', e => move(e,false));
     window.addEventListener('mouseup', e => moveEnd(e));
+    // touch controls
+    wordsearch.addEventListener('touchstart', e => moveStart(e,true));
+    wordsearch.addEventListener('touchmove', e => move(e,true));
+    window.addEventListener('touchend', e => moveEnd(e));
 
-
-    // wordsearch.addEventListener('mousemove', e => {
-    //     const sidelen = grid.length;
-    //     const b = wordsearch.getBoundingClientRect();
-    //     console.log(b.right, e.clientX, b.right-e.clientX);
+    // window.addEventListener('keydown', e => {
+    //     // console.log(e.key);
+    //     // e.preventDefault();
+    //     switch (e.key) {
+    //         case '`':
+    //             console.log('dev key');
+    //             break;
+    //     }
     // });
-
-    window.addEventListener('keydown', e => {
-        // console.log(e.key);
-        // e.preventDefault();
-        switch (e.key) {
-            case '`':
-                console.log('dev key');
-                break;
-        }
-    });
 
     // window.addEventListener('resize', e => {
     //     navTitle.innerHTML = (window.innerWidth < window.innerHeight) ? 'Chk Wordsearch' : 'Chukchansi Wordsearch';
