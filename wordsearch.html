@@ -32,6 +32,7 @@
             --fluid-font-size: max(3vh, calc(1rem + 1.0vw));
             --content-pad: 1rem;
             --nav-height: calc(1.65 * var(--fluid-font-size)); /* ref height for content anchors; is actually 1.5*font, but position:sticky doesn't work properly for some reason unless this value is >= 0.15em bigger than the actual nav height */
+            --wordsearch-grid-len: 11;
 
 			--icon-image: url('../source/image.png');
 			--icon-audio: url('../source/audio.png');
@@ -97,20 +98,51 @@
         }
         #main {
             margin: 0.5em;
+            gap: 1.0em;
             flex-direction: column-reverse;
         }
         #wordlist {
+/*            border-radius: 0.5em 0.5em 0 0;*/
+            border-radius: 0.5em;
+            box-shadow: 0 0 20px #0004;
+            width: calc(1.5em * var(--wordsearch-grid-len));
+        }
+        .wordlist-header {
+            color: var(--text-nav);
+            background-color: var(--background-nav);
+            border-radius: 0.5em 0.5em 0 0;
+            padding: 0.25em;
+            align-items: center;
+        }
+        #button-new-game {
+            cursor: pointer;
+            color: var(--text-nav);
+            font-size: 0.8em;
+        }
+        #wordlist-content {
+            color: var(--text-dark);
 /*            border: 1px solid red;*/
-            width: 10em;
+
+            display: flex;
+            padding: 0.5em;
+
+            flex-flow: row wrap;
+            justify-content: center;
+            align-content: flex-start;
+            gap: 0.25em;
         }
         .wordlist-item {
+            border-radius: 1em;
             display: inline-block;
-            margin: 0.25em;
-            padding: 0.25em;
+/*            margin: 0.25em;*/
+            padding: 0.25em 0.5em;
             font-size: 0.8em;
         }
         .highlighted {
-            background-color: var(--background-medium);
+/*            color: var(--text-medium);*/
+/*            background-color: var(--background-medium);*/
+            opacity: 0.3;
+            text-decoration: line-through;
         }
         #wordsearch-container {
             color: var(--text-dark);
@@ -119,14 +151,12 @@
             box-shadow: 0 0 20px #0004;
 
             display: inline-block;
+            position: relative;
             padding: 0.25em;
             font-size: 1em;
             user-select: none;
         }
         .wordsearch-tile {
-/*            background-color: var(--background-light);*/
-/*            border: 0.1em solid var(--border-medium);*/
-
             position: relative;
             width: 1.5em;
             height: 1.5em;
@@ -134,6 +164,25 @@
             display: flex;
             align-items: center;
             justify-content: center;
+        }
+        #cursor-caterpillar {
+            --radius: 0.7em;
+            --offset: calc(-1 * var(--radius));
+            pointer-events: none;
+            background-color: var(--background-dark);
+            border-radius: var(--radius);
+            opacity: 0.3;
+            visibility: hidden; /* start out invisible */
+
+            display: inline-block;
+            position: absolute;
+            padding: var(--radius);
+            width: 0;
+            height: 0;
+            top: 1em;
+            left: 1em;
+            transform-origin: var(--radius) var(--radius);
+            transform: translate(var(--offset),var(--offset)) rotate(0);
         }
 
         /* mobile-first for better load times on less-powerful devices */
@@ -144,9 +193,6 @@
                 /* justify-content: center; */
                 align-items: center;
             }
-            #wordlist {
-/*                width: 100%;*/
-            }
         }
         @media (min-aspect-ratio: 1/1) { /* desktop mode */
             .flex-adapt {
@@ -154,6 +200,9 @@
                 flex-direction: row;
                 justify-content: center;
                 /* align-items: center; */
+            }
+            #wordlist {
+                width: 10em;
             }
             #main {
                 flex-direction: row;
@@ -232,13 +281,21 @@
 </div>
 <div id='content' class='flex-col'>
     <div id='main' class='flex-adapt'>
-        <div id='wordlist'>
-            <p class='wordlist-item'>Word 1</p>
-            <p class='wordlist-item highlighted'>Long Word 2</p>
-            <p class='wordlist-item'>Reallylongusthemost Word</p>
+        <div id='wordlist' class='flex-col'>
+            <div class='flex-row wordlist-header'>
+                <p id='wordlist-progress'>0/0</p>
+                <div class='flex-sep'></div>
+                <button id='button-new-game' onclick='newGame()'>+ New Game</button>
+            </div>
+            <div id='wordlist-content'>
+                <p class='wordlist-item'>Word 1</p>
+                <p class='wordlist-item highlighted'>Long Word 2</p>
+                <p class='wordlist-item'>Reallylongusthemost Word</p>
+            </div>
         </div>
         <div id='wordsearch-container'>
             <div id='wordsearch-click-area' class='flex-col'></div>
+            <div id='cursor-caterpillar'></div>
         </div>
     </div>
         
@@ -258,18 +315,53 @@
     // 1.5 hrs: add list of words to UI
     // 2.0 hrs: add mouse functionality, make fully playable on pc
     // 1.0 hrs: add touch support
+    // 1.0 hrs: testing and UI design planning
+    // 3.5 hrs: add word selection "caterpillars", improve wordlist UI
 
 
     
     // DOM anchors
     const navTitle = document.getElementById('nav-title');
-    const wordlist = document.getElementById('wordlist');
+    const wordlist = document.getElementById('wordlist-content');
+    const progress = document.getElementById('wordlist-progress');
     const wordsearch = document.getElementById('wordsearch-click-area');
+    const cursorCaterpillar = document.getElementById('cursor-caterpillar');
 
     const randInt = (min,max) => Math.floor(Math.random() * (max-min+1)) + min;
     const ALPHABET = `ABCDEFGHIJKLMNOPQRSTUVWXYZ'ʔ`;
 
     const wordlist_sox_siksika = ["Sox","Siksikaʔ","ʔoshto","woodiyga","namix","ʔutuytaʔ","henew","t'uluntaʔ","shaapintaʔ","limeek'am"];
+    let wordData = [];
+    let grid = [];
+        
+    function numFound () {
+        let n = 0;
+        for (let word of wordData) {
+            if (word.found) {
+                n++;
+            }
+        }
+        return n;
+    }
+    function allFound () {
+        return numFound() == wordData.length;
+    }
+    function newGame () {
+        // reset word data
+        wordData = [];
+        for (let i = 0; i < wordlist_sox_siksika.length; i++) {
+            wordData.push({
+                found : false,
+                caterpillar : document.createElement('div')
+            });
+            wordData[i].caterpillar.classList.add('caterpillar');
+        }
+        // gen new wordsearch
+        grid = getWordsearch(8,wordlist_sox_siksika);
+        // console.log(grid);
+        // initial render
+        renderWordsearch(grid);
+    }
 
     const DIRECTIONS = [ // pairs of [dx,dy]
         [0,1],[1,0],[0,-1],[-1,0],
@@ -393,8 +485,8 @@
             console.log(`FAIL Coords do not give valid string.`);
         }
     }
-    let grid = getWordsearch(8,wordlist_sox_siksika);
-    console.log(grid);
+    // let grid = getWordsearch(8,wordlist_sox_siksika);
+    // console.log(grid);
     // console.log(wordsearchStringFrom(0,0, 0,3, grid));
     // console.log(wordsearchStringFrom(0,3, 0,0, grid));
     // console.log(wordsearchStringFrom(1,0, 4,0, grid));
@@ -419,11 +511,17 @@
             wordsearchStr += `</div>`;
         }
 
+        progress.innerHTML = `${numFound()}/${wordData.length}`;
         wordlist.innerHTML = wordlistStr;
         wordsearch.innerHTML = wordsearchStr;
 
     }
-    renderWordsearch(grid);
+
+    function getPxCoordsOf (r,c) {
+        const fontSize = parseFloat(getComputedStyle(wordsearch).fontSize);
+        // console.log(fontSize);
+        return [fontSize + c*1.5*fontSize, fontSize + r*1.5*fontSize]; // [x,y]
+    }
 
     let rDragStart = -1;
     let cDragStart = -1;
@@ -438,8 +536,14 @@
         cDragStart = Math.floor(grid.length * (x-b.left)/b.width);
         dragging = true;
         // console.log(`start drag from (${rDragStart},${cDragStart})`);
+
+        cursorCaterpillar.style.visibility = 'visible';
+        cursorCaterpillar.style.width = '0';
+        cursorCaterpillar.style.top = `calc(1em + ${rDragStart} * 1.5em)`;
+        cursorCaterpillar.style.left = `calc(1em + ${cDragStart} * 1.5em)`;
     }
     function moveEnd (e) {
+        cursorCaterpillar.style.visibility = 'hidden';
         rDragStart = -1;
         cDragStart = -1;
         dragging = false;
@@ -457,12 +561,32 @@
             const dc = Math.abs(cDragEnd - cDragStart);
             // console.log(`(${rDragStart},${cDragStart}) -> (${rDragEnd},${cDragEnd}) drdc(${dr},${dc})`);
 
+            const [xDragStart,yDragStart] = getPxCoordsOf(rDragStart,cDragStart);
+            const dx = (x) - (xDragStart+b.left);
+            const dy = (y) - (yDragStart+b.top);
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            const angle = Math.atan2(dy,dx);
+            cursorCaterpillar.style.width = `calc(1.5em + ${dist}px)`;
+            cursorCaterpillar.style.transform = `translate(var(--offset),var(--offset)) rotate(${angle}rad)`;
+            // console.log(`x ${xDragStart+b.left}->${x}, dxdy (${dx},${dy}) theta ${(180/2/Math.PI * angle).toFixed(1)}deg`);
+
             if (dr == 0 || dc == 0 || dr == dc) {
+                // const dist = Math.sqrt(dr*dr + dc*dc);
+                // const angle = Math.atan2(dr,dc);
+                // cursorCaterpillar.style.width = `calc(1.5em + ${dist} * 1.5em)`;
+                // cursorCaterpillar.style.transform = `translate(var(--offset),var(--offset)) rotate(${angle}rad)`;
+                // // console.log(`x ${xDragStart+b.left}->${x}, dxdy (${dx},${dy}) theta ${(180/2/Math.PI * angle).toFixed(1)}deg`);
+
                 const wordsearchStr = wordsearchStringFrom(rDragStart,cDragStart,rDragEnd,cDragEnd,grid);
                 for (let i = 0; i < wordlist_sox_siksika.length; i++) {
                     if (wordlist_sox_siksika[i].toUpperCase() == wordsearchStr) {
                         console.log(`Found word "${wordlist_sox_siksika[i]}"!`);
                         document.getElementById(`word-${i}`).classList.add('highlighted');
+                        wordData[i].found = true;
+                        progress.innerHTML = `${numFound()}/${wordData.length}`;
+                        if (allFound()) {
+                            console.log('Congratulations, you found all the words!');
+                        }
                         rDragStart = -1;
                         cDragStart = -1;
                         dragging = false;
@@ -498,6 +622,7 @@
     //////////////////////
     
     // init
+    newGame();
 
 </script>
 
