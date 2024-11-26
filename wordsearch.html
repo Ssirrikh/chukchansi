@@ -165,14 +165,13 @@
             align-items: center;
             justify-content: center;
         }
-        #cursor-caterpillar {
+        .caterpillar {
             --radius: 0.7em;
             --offset: calc(-1 * var(--radius));
             pointer-events: none;
             background-color: var(--background-dark);
             border-radius: var(--radius);
             opacity: 0.3;
-            visibility: hidden; /* start out invisible */
 
             display: inline-block;
             position: absolute;
@@ -183,6 +182,25 @@
             left: 1em;
             transform-origin: var(--radius) var(--radius);
             transform: translate(var(--offset),var(--offset)) rotate(0);
+        }
+        #cursor-caterpillar {
+            /* --radius: 0.7em; */
+            /* --offset: calc(-1 * var(--radius)); */
+            /* pointer-events: none;
+            background-color: var(--background-dark);
+            border-radius: var(--radius);
+            opacity: 0.3; */
+            visibility: hidden; /* start out invisible */
+
+            /* display: inline-block;
+            position: absolute;
+            padding: var(--radius);
+            width: 0;
+            height: 0;
+            top: 1em;
+            left: 1em;
+            transform-origin: var(--radius) var(--radius);
+            transform: translate(var(--offset),var(--offset)) rotate(0); */
         }
 
         /* mobile-first for better load times on less-powerful devices */
@@ -295,7 +313,7 @@
         </div>
         <div id='wordsearch-container'>
             <div id='wordsearch-click-area' class='flex-col'></div>
-            <div id='cursor-caterpillar'></div>
+            <div id='cursor-caterpillar' class='caterpillar'></div>
         </div>
     </div>
         
@@ -316,7 +334,8 @@
     // 2.0 hrs: add mouse functionality, make fully playable on pc
     // 1.0 hrs: add touch support
     // 1.0 hrs: testing and UI design planning
-    // 3.5 hrs: add word selection "caterpillars", improve wordlist UI
+    // 3.5 hrs: add word selection "caterpillar" while dragging, improve wordlist UI
+    // 1.0 hrs: highlight words with caterpillars once they're found
 
 
     
@@ -325,6 +344,7 @@
     const wordlist = document.getElementById('wordlist-content');
     const progress = document.getElementById('wordlist-progress');
     const wordsearch = document.getElementById('wordsearch-click-area');
+    const wordsearchContainer = document.getElementById('wordsearch-container');
     const cursorCaterpillar = document.getElementById('cursor-caterpillar');
 
     const randInt = (min,max) => Math.floor(Math.random() * (max-min+1)) + min;
@@ -580,13 +600,27 @@
                 const wordsearchStr = wordsearchStringFrom(rDragStart,cDragStart,rDragEnd,cDragEnd,grid);
                 for (let i = 0; i < wordlist_sox_siksika.length; i++) {
                     if (wordlist_sox_siksika[i].toUpperCase() == wordsearchStr) {
+                        // mark word as found
                         console.log(`Found word "${wordlist_sox_siksika[i]}"!`);
                         document.getElementById(`word-${i}`).classList.add('highlighted');
                         wordData[i].found = true;
+                        // position caterpillar over word
+                        const dx = cDragEnd - cDragStart;
+                        const dy = rDragEnd - rDragStart;
+                        const dist = Math.sqrt(dx*dx + dy*dy);
+                        const angle = Math.atan2(dy,dx);
+                        wordData[i].caterpillar.style.width = `calc(1.5em + 1.5em * ${dist})`;
+                        wordData[i].caterpillar.style.transform = `translate(var(--offset),var(--offset)) rotate(${angle}rad)`;
+                        wordData[i].caterpillar.style.top = `calc(1em + 1.5em * ${rDragStart})`;
+                        wordData[i].caterpillar.style.left = `calc(1em + 1.5em * ${cDragStart})`;
+                        wordsearchContainer.appendChild(wordData[i].caterpillar);
+                        // update progress counter
                         progress.innerHTML = `${numFound()}/${wordData.length}`;
                         if (allFound()) {
                             console.log('Congratulations, you found all the words!');
                         }
+                        // if word was found, can stop tracking current click-drag
+                        cursorCaterpillar.style.visibility = 'hidden';
                         rDragStart = -1;
                         cDragStart = -1;
                         dragging = false;
