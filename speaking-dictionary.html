@@ -431,14 +431,7 @@
 			const tPop = Date.now();
 
 			let elemStr = '';
-			// temp, put jasmine's words first for her demo
-			dictionary.forEachSynonym((entry, word) => {
-				if (jasmineWords.indexOf(word) != -1) elemStr += entryHTML(entry, word);
-			});
-			dictionary.forEachSynonym((entry, word) => {
-				if (jasmineWords.indexOf(word) == -1) elemStr += entryHTML(entry, word);
-			});
-			// dictionary.forEachSynonym((entry, word) => { elemStr += entryHTML(entry, word); });
+			dictionary.forEachSynonym((entry, word) => { elemStr += entryHTML(entry, word); });
 			elemStr += '<p id="noResultsText" style="display:none">No results...</p>';
 			container.innerHTML = elemStr;
 
