@@ -32,7 +32,7 @@
             --fluid-font-size: max(3vh, calc(1rem + 1.0vw));
             --content-pad: 1rem;
             --nav-height: calc(1.65 * var(--fluid-font-size)); /* ref height for content anchors; is actually 1.5*font, but position:sticky doesn't work properly for some reason unless this value is >= 0.15em bigger than the actual nav height */
-            --wordsearch-controller.grid-len: 11;
+            --wordsearch-grid-len: 11;
 
 			--icon-image: url('../source/image.png');
 			--icon-audio: url('../source/audio.png');
@@ -105,7 +105,7 @@
 /*            border-radius: 0.5em 0.5em 0 0;*/
             border-radius: 0.5em;
             box-shadow: 0 0 20px #0004;
-            width: calc(1.5em * var(--wordsearch-controller.grid-len));
+            width: calc(1.5em * var(--wordsearch-grid-len));
         }
         .wordlist-header {
             color: var(--text-nav);
