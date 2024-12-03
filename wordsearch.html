@@ -32,7 +32,7 @@
             --fluid-font-size: max(3vh, calc(1rem + 1.0vw));
             --content-pad: 1rem;
             --nav-height: calc(1.65 * var(--fluid-font-size)); /* ref height for content anchors; is actually 1.5*font, but position:sticky doesn't work properly for some reason unless this value is >= 0.15em bigger than the actual nav height */
-            --wordsearch-grid-len: 11;
+            --wordsearch-controller.grid-len: 11;
 
 			--icon-image: url('../source/image.png');
 			--icon-audio: url('../source/audio.png');
@@ -105,7 +105,7 @@
 /*            border-radius: 0.5em 0.5em 0 0;*/
             border-radius: 0.5em;
             box-shadow: 0 0 20px #0004;
-            width: calc(1.5em * var(--wordsearch-grid-len));
+            width: calc(1.5em * var(--wordsearch-controller.grid-len));
         }
         .wordlist-header {
             color: var(--text-nav);
@@ -303,7 +303,7 @@
             <div class='flex-row wordlist-header'>
                 <p id='wordlist-progress'>0/0</p>
                 <div class='flex-sep'></div>
-                <button id='button-new-game' onclick='newGame()'>+ New Game</button>
+                <button id='button-new-game' onclick='controller.newGame(targetWordlist)'>+ New Game</button>
             </div>
             <div id='wordlist-content'>
                 <p class='wordlist-item'>Word 1</p>
@@ -321,6 +321,9 @@
 
 
 
+<!-- load story data -->
+<script type='text/javascript' src="source/story-0/sox-siksika'-data-annotated.js"></script>
+
 <script type='text/javascript'>
 
     //// WAVE 3 ////
@@ -336,6 +339,10 @@
     // 1.0 hrs: testing and UI design planning
     // 3.5 hrs: add word selection "caterpillar" while dragging, improve wordlist UI
     // 1.0 hrs: highlight words with caterpillars once they're found
+    // 1.5 hrs: admin stuff and research prepping for new repo to go live
+    // 1.5 hrs: auto gen wordbanks from stories
+    // 2.0 hrs: switch to controller architecture for future scaleability
+    // 0.5 hrs: fix caterpillars not resetting on new game
 
 
     
@@ -348,58 +355,157 @@
     const cursorCaterpillar = document.getElementById('cursor-caterpillar');
 
     const randInt = (min,max) => Math.floor(Math.random() * (max-min+1)) + min;
-    const ALPHABET = `ABCDEFGHIJKLMNOPQRSTUVWXYZ'ʔ`;
-
-    const wordlist_sox_siksika = ["Sox","Siksikaʔ","ʔoshto","woodiyga","namix","ʔutuytaʔ","henew","t'uluntaʔ","shaapintaʔ","limeek'am"];
-    let wordData = [];
-    let grid = [];
-        
-    function numFound () {
-        let n = 0;
-        for (let word of wordData) {
-            if (word.found) {
-                n++;
-            }
-        }
-        return n;
-    }
-    function allFound () {
-        return numFound() == wordData.length;
-    }
-    function newGame () {
-        // reset word data
-        wordData = [];
-        for (let i = 0; i < wordlist_sox_siksika.length; i++) {
-            wordData.push({
-                found : false,
-                caterpillar : document.createElement('div')
-            });
-            wordData[i].caterpillar.classList.add('caterpillar');
-        }
-        // gen new wordsearch
-        grid = getWordsearch(8,wordlist_sox_siksika);
-        // console.log(grid);
-        // initial render
-        renderWordsearch(grid);
-    }
+    const ALPHABET = `ABCDEFGHIJKLMNOPSTUVWXY'ʔ`; // chukchansi adds glottal stops ['ʔ], and doesn't have [qrz]
 
     const DIRECTIONS = [ // pairs of [dx,dy]
         [0,1],[1,0],[0,-1],[-1,0],
         [1,1],[-1,1],[-1,-1],[1,-1]
     ];
-    function tryPlaceWord (word,grid) {
+    const DIRECTIONS_EASY = [
+        [0,1],[1,0] // top2bot or left2right
+    ];
+    const DIRECTIONS_MED = [
+        [0,1],[1,0],[0,-1],[-1,0], // any vertical or horizontal
+        [1,1],[-1,1] // top2bot diagonals
+    ];
+    const DIRECTIONS_HARD = [
+        [0,1],[1,0],[0,-1],[-1,0], // any vertical or horizontal
+        [1,1],[-1,1],[-1,-1],[1,-1] // any diagonal
+    ];
+
+
+
+    // gamestate controller
+    let controller = {
+        // constants and settings
+        MIN_SIDELEN : 8,
+        minWordlen : 3,
+        maxWordlen : 10,
+
+        // word data
+        wordlist : [], // actual wordlist, set by newGame(targetWordlist); may be diff than target if unable to place all words
+        wordData : [], // gamestate data linked to words; coindexed with wordlist
+        failedWords : [], // empty unless algorithm can't place a word after 1000 attempts
+        numFound : () => {
+            let n = 0;
+            for (let word of controller.wordData)
+                if (word.found)
+                    n++;
+            return n;
+        },
+        allFound : () => controller.numFound() == controller.wordData.length,
+
+        // gamestate interaction
+        newGame : (wordlist) => {
+            // clear any in-progress user inputs
+            moveEnd();
+            // clear previous game's caterpillars
+            for (let word of controller.wordData) {
+                if (wordsearchContainer.contains(word.caterpillar)) {
+                    wordsearchContainer.removeChild(word.caterpillar);
+                }
+            }
+            // reset word data
+            controller.wordData = [];
+            for (let i = 0; i < wordlist.length; i++) {
+                controller.wordData.push({
+                    found : false,
+                    caterpillar : document.createElement('div')
+                });
+                controller.wordData[i].caterpillar.classList.add('caterpillar');
+            }
+            // gen new wordsearch
+            getWordsearch(controller.MIN_SIDELEN, wordlist);
+            // initial render
+            renderWordsearch(controller.grid);
+        },
+
+        // gamestate
+        grid : [], // current game board
+        stringFrom : (r1,c1,r2,c2) => {
+            const dr = Math.abs(r2-r1);
+            const dc = Math.abs(c2-c1);
+            let s = '';
+            if (dr == 0) { // vertical
+                if (c2 > c1) {
+                    for (let c = c1; c <= c2; c++) s = s + controller.grid[r1][c]; // left-to-right
+                } else {
+                    for (let c = c1; c >= c2; c--) s = s + controller.grid[r1][c]; // right-to-left
+                }
+            } else if (dc == 0) { // horizontal
+                if (r2 > r1) {
+                    for (let r = r1; r <= r2; r++) s = s + controller.grid[r][c1]; // top-to-bottom
+                } else {
+                    for (let r = r1; r >= r2; r--) s = s + controller.grid[r][c1]; // bottom-to-top
+                }
+            } else if (dr == dc) { // diagonal
+                if (r2 > r1) {
+                    if (c2 > c1) {
+                        for (let delta = 0; delta <= dr; delta++) s = s + controller.grid[r1+delta][c1+delta]; // top-left to bot-right
+                    } else {
+                        for (let delta = 0; delta <= dr; delta++) s = s + controller.grid[r1+delta][c1-delta]; // top-right to bot-left
+                    }
+                } else {
+                    if (c2 > c1) {
+                        for (let delta = 0; delta <= dr; delta++) s = s + controller.grid[r1-delta][c1+delta]; // bot-left to top-right
+                    } else {
+                        for (let delta = 0; delta <= dr; delta++) s = s + controller.grid[r1-delta][c1-delta]; // bot-right to top-left
+                    }
+                }
+            } else {
+                console.log(`FAIL Coords do not give valid string.`);
+                // return undefined;
+            }
+            return s;
+        }
+    };
+
+
+
+    // compile word bank
+    function getWordlist (wordbank, numWords, minLen=3, maxLen=8) {
+        let words = [];
+        for (let word of wordbank.keys()) words.push(word);
+
+        let wordset = new Set();
+        let breakout = 1000;
+        while (--breakout > 0 && wordset.size < numWords) {
+            let word = words[randInt(0,words.length-1)];
+            if (word.length >= minLen && word.length <= maxLen) {
+                wordset.add(word);
+            }
+        }
+        console.log(wordset);
+
+        if (wordset > 0) {
+            console.error(`Wordbank did not contain sufficient words matching input settings.`);
+            return [];
+        } else {
+            let wordlist = [];
+            for (let word of wordset.keys()) wordlist.push(word);
+            return wordlist;
+        }
+    }
+
+
+    
+
+
+
+    
+    function tryPlaceWord (word) {
         function tryPlace () {
             const [dr,dc] = DIRECTIONS[randInt(0,DIRECTIONS.length-1)];
             const rMin = (dr<0) ? word.length-1 : 0;
-            const rMax = (dr<=0) ? grid.length-1 : grid.length-word.length;
+            const rMax = (dr<=0) ? controller.grid.length-1 : controller.grid.length-word.length;
             const cMin = (dc<0) ? word.length-1 : 0;
-            const cMax = (dc<=0) ? grid.length-1 : grid.length-word.length;
-            // console.log(`dir(${dr},${dc}), sidelen ${grid.length} wordlen ${word.length}, r on [${rMin},${rMax}], c on [${cMin},${cMax}]`);
+            const cMax = (dc<=0) ? controller.grid.length-1 : controller.grid.length-word.length;
+            // console.log(`dir(${dr},${dc}), sidelen ${controller.grid.length} wordlen ${word.length}, r on [${rMin},${rMax}], c on [${cMin},${cMax}]`);
             let rStart = r = randInt(rMin,rMax);
             let cStart = c = randInt(cMin,cMax);
             for (let i = 0; i < word.length; i++) {
-                // console.log(`side ${grid.length}, rc (${r},${c})`);
-                if (grid[r][c] != word[i] && grid[r][c] != '.') {
+                // console.log(`i ${i}, side ${controller.grid.length}, rc (${r},${c})`);
+                if (controller.grid[r][c] != word[i] && controller.grid[r][c] != '.') {
                     return [];
                 } else {
                     r += dr;
@@ -415,110 +521,71 @@
             let r = rStart;
             let c = cStart;
             for (let i = 0; i < word.length; i++) {
-                grid[r] = grid[r].slice(0,c) + word[i] + grid[r].slice(c+1);
+                controller.grid[r] = controller.grid[r].slice(0,c) + word[i] + controller.grid[r].slice(c+1);
                 r += dr;
                 c += dc;
             }
-            return grid;
+            return true;
         }
         console.error(`ERR Could not place word "${word}" in grid after 1000 tries.`);
-        console.log(grid);
-        return grid;
+        console.log(controller.grid);
+        controller.failedWords.push(word);
+        return false;
     }
     function getWordsearch (sidelen,words=[]) {
-        sidelen = Math.max(sidelen, ...words.map(w=>w.length+1));
+        sidelen = Math.max(sidelen, ...words.map(w=>w.length+1)); // sidelen is longest word + 1, but no less than target sidelen
         words = words.map(w=>w.toUpperCase()).sort((a,b)=>a.length<b.length);
-        // init empty grid
-        let grid = [];
-        for (let r = 0; r < sidelen; r++) {
-            grid.push('.'.repeat(sidelen));
+        function resetGrid () { // init empty grid
+            controller.grid = [];
+            for (let r = 0; r < sidelen; r++) {
+                controller.grid.push('.'.repeat(sidelen));
+            }
         }
-        // place words in grid longest first, shortest last
-        for (let word of words) {
-            console.log(word);
-            grid = tryPlaceWord(word,grid);
+        function tryFillGrid () { // place words in grid longest first, shortest last
+            controller.failedWords = [];
+            for (let word of words) {
+                tryPlaceWord(word);
+            }
+        }
+        // run first pass
+        resetGrid();
+        tryFillGrid();
+        // if first pass fails to place a word, it gets a second chance
+        if (controller.failedWords.length > 0) {
+            console.warn(`Unable to find valid placement for the following word(s) after 1000 tries:`, controller.failedWords);
+            console.warn(`Regenerating...`);
+            resetGrid();
+            tryFillGrid();
+            if (controller.failedWords.length > 0) {
+                console.error(`Unable to find valid placement for the following word(s) after 1000 tries:`, controller.failedWords);
+                console.error(`Generation fail. Wordlist may not be suitable for a grid of this size.`);
+            } else {
+                console.warn(`Regeneration successful.`);
+            }
         }
         // fill in remaining blanks with random chars
         for (let row = 0; row < sidelen; row++) {
             let gridrow = '';
             for (let col = 0; col < sidelen; col++) {
-                if (grid[row][col] == '.') {
+                if (controller.grid[row][col] == '.') {
                     gridrow = gridrow + ALPHABET[randInt(0,ALPHABET.length-1)];
                 } else {
-                    gridrow = gridrow + grid[row][col];
+                    gridrow = gridrow + controller.grid[row][col];
                 }
             }
-            grid[row] = gridrow;
+            controller.grid[row] = gridrow;
         }
-        return grid;
+
+        // console.log(controller.grid);
     }
-    function wordsearchStringFrom (r1,c1,r2,c2,grid) {
-        const dr = Math.abs(r2-r1);
-        const dc = Math.abs(c2-c1);
-        let s = '';
-        if (dr == 0) { // vertical
-            if (c2 > c1) {
-                for (let c = c1; c <= c2; c++) {
-                    s = s + grid[r1][c]; // left-to-right
-                }
-            } else {
-                for (let c = c1; c >= c2; c--) {
-                    s = s + grid[r1][c]; // right-to-left
-                }
-            }
-            return s;
-        } else if (dc == 0) { // horizontal
-            if (r2 > r1) {
-                for (let r = r1; r <= r2; r++) {
-                    s = s + grid[r][c1]; // top-to-bottom
-                }
-            } else {
-                for (let r = r1; r >= r2; r--) {
-                    s = s + grid[r][c1]; // bottom-to-top
-                }
-            }
-            return s;
-        } else if (dr == dc) { // diagonal
-            if (r2 > r1) {
-                if (c2 > c1) {
-                    for (let delta = 0; delta <= dr; delta++) {
-                        s = s + grid[r1+delta][c1+delta]; // top-left to bot-right
-                    }
-                } else {
-                    for (let delta = 0; delta <= dr; delta++) {
-                        s = s + grid[r1+delta][c1-delta]; // top-right to bot-left
-                    }
-                }
-            } else {
-                if (c2 > c1) {
-                    for (let delta = 0; delta <= dr; delta++) {
-                        s = s + grid[r1-delta][c1+delta]; // bot-left to top-right
-                    }
-                } else {
-                    for (let delta = 0; delta <= dr; delta++) {
-                        s = s + grid[r1-delta][c1-delta]; // bot-right to top-left
-                    }
-                }
-            }
-            return s;
-        } else {
-            console.log(`FAIL Coords do not give valid string.`);
-        }
-    }
-    // let grid = getWordsearch(8,wordlist_sox_siksika);
-    // console.log(grid);
-    // console.log(wordsearchStringFrom(0,0, 0,3, grid));
-    // console.log(wordsearchStringFrom(0,3, 0,0, grid));
-    // console.log(wordsearchStringFrom(1,0, 4,0, grid));
-    // console.log(wordsearchStringFrom(4,0, 1,0, grid));
 
     function renderWordsearch (grid) {
         const rows = grid[0].length;
         const cols = grid.length;
 
         let wordlistStr = '';
-        for (let i = 0; i < wordlist_sox_siksika.length; i++) {
-            wordlistStr += `<p id='word-${i}' class='wordlist-item'>${wordlist_sox_siksika[i]}</p>`;
+        for (let i = 0; i < targetWordlist.length; i++) {
+            wordlistStr += `<p id='word-${i}' class='wordlist-item'>${targetWordlist[i]}</p>`;
         }
 
         let wordsearchStr = '';
@@ -531,7 +598,7 @@
             wordsearchStr += `</div>`;
         }
 
-        progress.innerHTML = `${numFound()}/${wordData.length}`;
+        progress.innerHTML = `${controller.numFound()}/${controller.wordData.length}`;
         wordlist.innerHTML = wordlistStr;
         wordsearch.innerHTML = wordsearchStr;
 
@@ -552,8 +619,8 @@
         const y = (isTouch) ? e.touches[0].clientY : e.clientY;
 
         const b = wordsearch.getBoundingClientRect();
-        rDragStart = Math.floor(grid.length * (y-b.top)/b.height);
-        cDragStart = Math.floor(grid.length * (x-b.left)/b.width);
+        rDragStart = Math.floor(controller.grid.length * (y-b.top)/b.height);
+        cDragStart = Math.floor(controller.grid.length * (x-b.left)/b.width);
         dragging = true;
         // console.log(`start drag from (${rDragStart},${cDragStart})`);
 
@@ -575,8 +642,8 @@
             const y = (isTouch) ? e.touches[0].clientY : e.clientY;
 
             const b = wordsearch.getBoundingClientRect();
-            const rDragEnd = Math.floor(grid.length * (y-b.top)/b.height);
-            const cDragEnd = Math.floor(grid.length * (x-b.left)/b.width);
+            const rDragEnd = Math.floor(controller.grid.length * (y-b.top)/b.height);
+            const cDragEnd = Math.floor(controller.grid.length * (x-b.left)/b.width);
             const dr = Math.abs(rDragEnd - rDragStart);
             const dc = Math.abs(cDragEnd - cDragStart);
             // console.log(`(${rDragStart},${cDragStart}) -> (${rDragEnd},${cDragEnd}) drdc(${dr},${dc})`);
@@ -597,26 +664,26 @@
                 // cursorCaterpillar.style.transform = `translate(var(--offset),var(--offset)) rotate(${angle}rad)`;
                 // // console.log(`x ${xDragStart+b.left}->${x}, dxdy (${dx},${dy}) theta ${(180/2/Math.PI * angle).toFixed(1)}deg`);
 
-                const wordsearchStr = wordsearchStringFrom(rDragStart,cDragStart,rDragEnd,cDragEnd,grid);
-                for (let i = 0; i < wordlist_sox_siksika.length; i++) {
-                    if (wordlist_sox_siksika[i].toUpperCase() == wordsearchStr) {
+                const wordsearchStr = controller.stringFrom(rDragStart,cDragStart,rDragEnd,cDragEnd);
+                for (let i = 0; i < targetWordlist.length; i++) {
+                    if (targetWordlist[i].toUpperCase() == wordsearchStr) {
                         // mark word as found
-                        console.log(`Found word "${wordlist_sox_siksika[i]}"!`);
+                        console.log(`Found word "${targetWordlist[i]}"!`);
                         document.getElementById(`word-${i}`).classList.add('highlighted');
-                        wordData[i].found = true;
+                        controller.wordData[i].found = true;
                         // position caterpillar over word
                         const dx = cDragEnd - cDragStart;
                         const dy = rDragEnd - rDragStart;
                         const dist = Math.sqrt(dx*dx + dy*dy);
                         const angle = Math.atan2(dy,dx);
-                        wordData[i].caterpillar.style.width = `calc(1.5em + 1.5em * ${dist})`;
-                        wordData[i].caterpillar.style.transform = `translate(var(--offset),var(--offset)) rotate(${angle}rad)`;
-                        wordData[i].caterpillar.style.top = `calc(1em + 1.5em * ${rDragStart})`;
-                        wordData[i].caterpillar.style.left = `calc(1em + 1.5em * ${cDragStart})`;
-                        wordsearchContainer.appendChild(wordData[i].caterpillar);
+                        controller.wordData[i].caterpillar.style.width = `calc(1.5em + 1.5em * ${dist})`;
+                        controller.wordData[i].caterpillar.style.transform = `translate(var(--offset),var(--offset)) rotate(${angle}rad)`;
+                        controller.wordData[i].caterpillar.style.top = `calc(1em + 1.5em * ${rDragStart})`;
+                        controller.wordData[i].caterpillar.style.left = `calc(1em + 1.5em * ${cDragStart})`;
+                        wordsearchContainer.appendChild(controller.wordData[i].caterpillar);
                         // update progress counter
-                        progress.innerHTML = `${numFound()}/${wordData.length}`;
-                        if (allFound()) {
+                        progress.innerHTML = `${controller.numFound()}/${controller.wordData.length}`;
+                        if (controller.allFound()) {
                             console.log('Congratulations, you found all the words!');
                         }
                         // if word was found, can stop tracking current click-drag
@@ -655,8 +722,30 @@
 
     //////////////////////
     
-    // init
-    newGame();
+    // init //
+
+    // build word bank of unique words
+    let wordbank_sox_siksika = new Set();
+    for (let i = 0; i < story_sox_siksika.timestampsBySentence.length; i+=3) {
+        const timestamp = story_sox_siksika.timestampsBySentence[i];
+        const textCHK = story_sox_siksika.timestampsBySentence[i+1];
+        const textENG = story_sox_siksika.timestampsBySentence[i+2];
+        // stories may have ’ instead of ' for formatting; make the replacement, then scrub non-alphabetic chars
+        let words = textCHK.replaceAll("’","'").replaceAll(/[^a-zA-Z'ʔ ]/g,'').split(' ');
+        for (let word of words) {
+            wordbank_sox_siksika.add(word.toLowerCase());
+        }
+    }
+    console.log(wordbank_sox_siksika);
+    
+    // compile word list 
+    const wordlist_sox_siksika = ["Sox","Siksikaʔ","ʔoshto","woodiyga","namix","ʔutuytaʔ","henew","t'uluntaʔ","shaapintaʔ","limeek'am"];
+    let wordlist_sox_siksika_gen = getWordlist(wordbank_sox_siksika, 10, controller.minWordlen, controller.maxWordlen);
+    // anchor for global access
+    let targetWordlist = wordlist_sox_siksika_gen;
+
+    // init new game
+    controller.newGame(targetWordlist);
 
 </script>
 
