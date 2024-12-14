@@ -10,9 +10,9 @@ The Chukchansi Language Revitalization Project aims to document the Chukchansi Y
 
 [A story reader,](https://ssirrikh.github.io/chukchansi/stories) containing collected folk stories in an easy read-along format. Narration by Holly Wyatt, translations by Niken Adisasmito-Smith.
 
-Online flash cards, which are currently down for maintenance, but will return soon.
+[A Chukchansi word-search](https://ssirrikh.github.io/chukchansi/wordsearch) featuring words from the story of Sox and Siksikaʔ. We're currently working on adding vocab sets from Kim Lawhon's educational material and other translated stories. A planned expansion will also add the ability to generate wordsearches from random words in the online dictionary.
 
-A Chukchansi word-search, which is currently under development.
+Online flash cards, which are currently down for maintenance, but will return soon. They contain sets of vocab words from Kim Lawhon's educational material and translated folk stories.
 
 ## Other Resources
 
