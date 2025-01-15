@@ -322,6 +322,7 @@
 
 
 <!-- load story data -->
+<script type='text/javascript' src="script/vocab.js"></script>
 <script type='text/javascript' src="source/story-0/sox-siksika'-data-annotated.js"></script>
 
 <script type='text/javascript'>
@@ -345,6 +346,8 @@
     // 0.5 hrs: fix caterpillars not resetting on new game
     // 1.0 hrs: update readme, github admin stuff
     // 1.0 hrs: apply SEO to all main site pages
+    // 5.0 hrs: generalize vocab wordlist format
+    // 0.5 hrs: print difficulties demo
 
 
     
@@ -359,10 +362,12 @@
     const randInt = (min,max) => Math.floor(Math.random() * (max-min+1)) + min;
     const ALPHABET = `ABCDEFGHIJKLMNOPSTUVWXY'ʔ`; // chukchansi adds glottal stops ['ʔ], and doesn't have [qrz]
 
-    const DIRECTIONS = [ // pairs of [dx,dy]
-        [0,1],[1,0],[0,-1],[-1,0],
-        [1,1],[-1,1],[-1,-1],[1,-1]
-    ];
+    // const DIRECTIONS = [ 
+    //     [0,1],[1,0],[0,-1],[-1,0],
+    //     [1,1],[-1,1],[-1,-1],[1,-1]
+    // ];
+
+    // directions are pairs of [dx,dy]
     const DIRECTIONS_EASY = [
         [0,1],[1,0] // top2bot or left2right
     ];
@@ -375,14 +380,19 @@
         [1,1],[-1,1],[-1,-1],[1,-1] // any diagonal
     ];
 
+    const WORDLEN_EASY = 7;
+    const WORDLEN_MED = 10;
+    const WORDLEN_HARD = 15;
+
 
 
     // gamestate controller
     let controller = {
         // constants and settings
-        MIN_SIDELEN : 8,
+        MIN_SIDELEN : 10,
         minWordlen : 3,
         maxWordlen : 10,
+        directions : DIRECTIONS_HARD,
 
         // word data
         wordlist : [], // actual wordlist, set by newGame(targetWordlist); may be diff than target if unable to place all words
@@ -497,7 +507,7 @@
     
     function tryPlaceWord (word) {
         function tryPlace () {
-            const [dr,dc] = DIRECTIONS[randInt(0,DIRECTIONS.length-1)];
+            const [dr,dc] = controller.directions[randInt(0,controller.directions.length-1)];
             const rMin = (dr<0) ? word.length-1 : 0;
             const rMax = (dr<=0) ? controller.grid.length-1 : controller.grid.length-word.length;
             const cMin = (dc<0) ? word.length-1 : 0;
@@ -741,7 +751,7 @@
     console.log(wordbank_sox_siksika);
     
     // compile word list 
-    const wordlist_sox_siksika = ["Sox","Siksikaʔ","ʔoshto","woodiyga","namix","ʔutuytaʔ","henew","t'uluntaʔ","shaapintaʔ","limeek'am"];
+    // const wordlist_sox_siksika = ["Sox","Siksikaʔ","ʔoshto","woodiyga","namix","ʔutuytaʔ","henew","t'uluntaʔ","shaapintaʔ","limeek'am"];
     let wordlist_sox_siksika_gen = getWordlist(wordbank_sox_siksika, 10, controller.minWordlen, controller.maxWordlen);
     // anchor for global access
     let targetWordlist = wordlist_sox_siksika_gen;
