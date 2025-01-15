@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive Flexbox Design</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: #d2b48c; /* Light brown */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+        }
+
+        .panel {
+            background-color: #8b4513; /* Dark brown */
+            padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 800px;
+        }
+
+        .section {
+            text-align: center;
+            color: white;
+        }
+
+        .section h1 {
+            margin: 0;
+            font-size: 2em;
+        }
+
+        .section ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .section ul li {
+            margin: 5px 0;
+        }
+
+        @media (min-width: 768px) {
+            .panel {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .section {
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="panel">
+        <div class="section">
+            <h1>Welcome</h1>
+        </div>
+        <div class="section">
+            <ul>
+                <li>Opt 1</li>
+                <li>Opt 2</li>
+                <li>Opt 3</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
