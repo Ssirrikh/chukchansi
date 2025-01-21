@@ -29,6 +29,7 @@
 // 1.0 hrs: spreadsheet fixes and voice synth dev
 // 0.5 hrs: add v12 parser (support root/morpheme data); spreadsheet fixes
 // 2.0 hrs: add support for multi-word forms when auto-labeling sentences; minor related bugfixes
+// 0.5 hrs: add v13 parser (more root/morpheme data; new form)
 
 const SEP_LINES = '\n';
 const SEP_CELLS = '\t';
