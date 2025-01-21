@@ -146,10 +146,14 @@
             text-decoration: underline;
         }
         .selection-panel-story {
+            cursor: pointer;
             border-left: 0.2em solid var(--border-medium);
             margin-left: 1em;
             padding: 0.1em 0.25em;
             font-size: 1.0em;
+        }
+        .selection-panel-story + .selection-panel-story {
+            margin-top: 0.25em;
         }
 
         /* story reader */
@@ -210,6 +214,7 @@
         .player-button-small {
             /* mobile browsers mess w/ buttons to "make them big enought to click" but fail epically; need to set both height and font-size to override */
             --button-size-small: 1.1em;
+            cursor: pointer;
             width: var(--button-size-small);
             height: var(--button-size-small);
             font-size: var(--button-size-small);
@@ -217,6 +222,7 @@
         .player-button-large {
             /* mobile browsers mess w/ buttons to "make them big enought to click" but fail epically; need to set both height and font-size to override */
             --button-size-large: 1.2em;
+            cursor: pointer;
             width: var(--button-size-large);
             height: var(--button-size-large);
             font-size: var(--button-size-large);
@@ -226,6 +232,7 @@
             font-size: 0.8em;
         }
         #player-progress {
+            cursor: pointer;
             background-color: transparent;
 
             display: inline-block;
@@ -255,6 +262,7 @@
             left: 0;
         }
         #player-progress-slider {
+            cursor: pointer;
             background-color: var(--background-nav);
 
             display: inline-block;
@@ -336,7 +344,8 @@
     <div> <!-- need wrapper div so position:sticky plays nice with flexbox -->
         <div id='selection-panel' class='flex-col'>
             <p class='selection-panel-title'>Story Catalogue</p>
-            <p class='selection-panel-story'>Hawitmi Siksikaʔ Limeek’ataʔ</p>
+            <p class='selection-panel-story' onclick='loadStory(0)'>Siksikaʔ Limeek’ataʔ</p>
+            <p class='selection-panel-story' onclick='loadStory(1)'>Kaʔyuʔun Shashaʔ</p>
             <br>
             <p style='margin-left:1.0em;font-style:italic;'>More coming soon!</p>
         </div>
@@ -393,6 +402,7 @@
 
 <!-- load story data -->
 <script type='text/javascript' src="source/story-0/sox-siksika'-data-annotated.js"></script>
+<script type='text/javascript' src="source/story-1/kaʔyuʔun-shashaʔ-data-annotated.js"></script>
 
 
 
@@ -425,6 +435,9 @@
     // 1.0 hrs: visual fixes and code cleanup
     // 3.5 hrs: research git repo migration, migrate demo, migrate chukchansi project
     // 1.0 hrs: research publically available chukchansi resources, create initial site readme
+    // 2.0 hrs: annotate kaʔyuʔun-shashaʔ story by clause
+    // 1.0 hrs: reconfigure reader for dynamic loading
+    // 1.0 hrs: minor graphical fixes; ARIA research
 
 
     
@@ -452,7 +465,8 @@
     const READ_BY_CLAUSE = 'timestampsByClause';
 
     let storyReader = {
-        currentStory : undefined,
+        currentStoryId   : -1,
+        currentStoryData : undefined,
         currentSectionId : 0,
         player : document.createElement('audio'),
         readMode : READ_BY_CLAUSE,
@@ -463,13 +477,13 @@
         loadStart : performance.now(),
 
         getCurrentTime : () => {
-            const time =  storyReader.player.currentTime - storyReader.currentStory[storyReader.readMode][0][0];
+            const time =  storyReader.player.currentTime - storyReader.currentStoryData[storyReader.readMode][0][0];
             const m = Math.floor(time / 60);
             const ss = Math.floor(time % 60).toString().padStart(2,'0');
             return `${m}:${ss}`;
         },
         getDuration : () => {
-            const time = storyReader.player.duration - storyReader.currentStory[storyReader.readMode][0][0];
+            const time = storyReader.player.duration - storyReader.currentStoryData[storyReader.readMode][0][0];
             const m = Math.floor(time / 60);
             const ss = Math.floor(time % 60).toString().padStart(2,'0');
             return `${m}:${ss}`;
@@ -498,11 +512,11 @@
                 storyReader.player.play();
                 return true;
             }
-            console.log(`Playing audio from ${storyReader.currentStory[storyReader.readMode][3*i]}`);
+            console.log(`Playing audio from ${storyReader.currentStoryData[storyReader.readMode][3*i]}`);
         },
 
         highlightSection : (id) => {
-            if (!storyReader.currentStory || id < 0 || id >= storyReader.id2lineSection.length) {
+            if (!storyReader.currentStoryData || id < 0 || id >= storyReader.id2lineSection.length) {
                 console.error(`Section ${id} does not exist in current story, which has ${storyReader.id2lineSection.length} sections (zero-indexed).`);
                 return false;
             }
@@ -511,18 +525,18 @@
             return true;
         },
         setSectionId : (id) => {
-            console.log(`>> setting section from ${storyReader.currentSectionId} to ${id}`);
+            // console.log(`>> setting section from ${storyReader.currentSectionId} to ${id}`);
             if (!storyReader.highlightSection(id)) return false; // performs input validation
             storyReader.currentSectionId = id;
-            const start = storyReader.currentStory[storyReader.readMode][0][0];
+            const start = storyReader.currentStoryData[storyReader.readMode][0][0];
             const [line,section] = storyReader.id2lineSection[id];
-            storyReader.player.currentTime = storyReader.currentStory[storyReader.readMode][line][section*3];
-            console.log(`Jumping to section ${id}: apparent time ${storyReader.player.currentTime-start}, actual time ${storyReader.player.currentTime}`);
+            storyReader.player.currentTime = storyReader.currentStoryData[storyReader.readMode][line][section*3];
+            // console.log(`Jumping to section ${id}: apparent time ${storyReader.player.currentTime-start}, actual time ${storyReader.player.currentTime}`);
             playPauseButton.innerHTML = (storyReader.player.paused) ? SVG_PLAY : SVG_PAUSE; // reset media player icon when user changes sections, to clear replay icon if previously ended
             return true;
         },
         nextSection : () => {
-            // storyReader.setSectionId((storyReader.currentSectionId + 1) % (storyReader.currentStory[storyReader.readMode].length/3));
+            // storyReader.setSectionId((storyReader.currentSectionId + 1) % (storyReader.currentStoryData[storyReader.readMode].length/3));
             if (storyReader.currentSectionId < storyReader.id2lineSection.length - 1) {
                 storyReader.setSectionId(storyReader.currentSectionId + 1);
             } else if (storyReader.currentSectionId == storyReader.id2lineSection.length - 1) {
@@ -544,7 +558,7 @@
         const nextSectionId = storyReader.currentSectionId + 1;
         if (nextSectionId < storyReader.id2lineSection.length) {
             const [nextLine,nextSection] = storyReader.id2lineSection[nextSectionId];
-            if (storyReader.player.currentTime > storyReader.currentStory[storyReader.readMode][nextLine][3*nextSection]) {
+            if (storyReader.player.currentTime > storyReader.currentStoryData[storyReader.readMode][nextLine][3*nextSection]) {
                 storyReader.highlightSection(nextSectionId);
                 storyReader.currentSectionId = nextSectionId;
             }
@@ -557,15 +571,24 @@
         // adjust player display
         playerTime.innerHTML = storyReader.getCurrentTime();
         playerDuration.innerHTML = storyReader.getDuration();
-        const time = storyReader.player.currentTime - storyReader.currentStory[storyReader.readMode][0][0];
-        const duration = storyReader.player.duration - storyReader.currentStory[storyReader.readMode][0][0];
+        const time = storyReader.player.currentTime - storyReader.currentStoryData[storyReader.readMode][0][0];
+        const duration = storyReader.player.duration - storyReader.currentStoryData[storyReader.readMode][0][0];
         playerProgressBar.style.width = `${100 * Math.min(Math.max(0, time/duration), 1)}%`;
     };
     storyReader.player.onended = () => {
         playPauseButton.innerHTML = SVG_REPEAT;
     };
 
-    function loadStory (storyData) {
+    function loadStory (storyId) {
+        if (storyId < 0 || storyId >= stories.length) {
+            console.error(`ERR Story id ${storyId} not found in catalogue.`);
+            return false;
+        } else if (storyId == storyReader.currentStoryId) {
+            console.warn(`Story id ${storyId} is already loaded.`);
+            return false;
+        }
+        const storyData = stories[storyId];
+
         // reset loading cycle
         storyReader.loadStart = performance.now();
         storyReader.loadingComplete = false;
@@ -574,7 +597,8 @@
 
         // begin fetching audio
         storyReader.setSrc(storyData.audio);
-        storyReader.currentStory = storyData;
+        storyReader.currentStoryId = storyId;
+        storyReader.currentStoryData = storyData;
         
         // index reader sections
         let id = 0;
@@ -634,9 +658,11 @@
                 readerTitle.innerHTML = storyData.titleCHK;
                 readerSubtitle.innerHTML = storyData.titleENG;
                 console.log(`LOAD Audio first frame playable after ${(performance.now()-storyReader.loadStart).toFixed(0)} ms.`);
-                trySetInitialTime(storyReader.currentStory[storyReader.readMode][0][0]);
+                trySetInitialTime(storyReader.currentStoryData[storyReader.readMode][0][0]);
             }
         };
+
+        return true;
     }
 
     /////////////////////
@@ -644,14 +670,14 @@
     function seekTo (p = 0.0) {
         p = Math.min(Math.max(0,p),1);
         
-        const start = storyReader.currentStory[storyReader.readMode][0][0];
+        const start = storyReader.currentStoryData[storyReader.readMode][0][0];
         const duration = storyReader.player.duration;
         const t = start + p*(duration-start);
         for (let sectionId = 0; sectionId < storyReader.id2lineSection.length; sectionId++) {
             const [line,section] = storyReader.id2lineSection[sectionId];
             const [nextLine,nextSection] = storyReader.id2lineSection[sectionId+1] ?? [];
-            const t0 = storyReader.currentStory[storyReader.readMode][line][3*section];
-            const t1 = (nextLine!=undefined) ? storyReader.currentStory[storyReader.readMode][nextLine][3*nextSection] : duration;
+            const t0 = storyReader.currentStoryData[storyReader.readMode][line][3*section];
+            const t1 = (nextLine!=undefined) ? storyReader.currentStoryData[storyReader.readMode][nextLine][3*nextSection] : duration;
             // console.log(`checking t=${t} against (t0,t1)=(${t0},${t1})`);
             if (t > t0 && t < t1) {
                 storyReader.highlightSection(sectionId);
@@ -709,8 +735,13 @@
     navTitle.innerHTML = (window.innerWidth < window.innerHeight) ? 'Eng-Chk Story Reader' : 'English-Chukchansi Story Reader';
 
     //////////////////////
+
+    let stories = [
+        story_sox_siksika,
+        story_kaʔyuʔun_shashaʔ
+    ];
     
-    loadStory(story_sox_siksika);
+    loadStory(0);
 
 </script>
 
