@@ -1,6 +1,6 @@
 
-let story_sox_siksika = {
-	audio : `source/story-0/sox-siksika'-audio.wav`,
+let story_sox_siksikaʔ = {
+	audio : `source/story-0/sox-siksikaʔ-audio.wav`,
 	titleENG : `How Stinkbug Became Black`,
 	titleCHK : `Hawitmi Siksikaʔ Limeek’ataʔ`,
 	titleShortENG : `Black Stinkbug`,
@@ -93,6 +93,19 @@ let story_sox_siksika = {
 	],
 	timestampsByWord : [
 		//
+	],
+	thumbnail : `source/story-0/sox-siksikaʔ-thumbnail-small.jpg`,
+	images : [
+		15.5,
+		`source/story-0/sox-siksikaʔ-photo-1.jpg`,
+		25.0,
+		`source/story-0/sox-siksikaʔ-photo-2.jpg`,
+		34.7,
+		`source/story-0/sox-siksikaʔ-photo-3.jpg`,
+		49.5,
+		`source/story-0/sox-siksikaʔ-photo-4.jpg`,
+		54.0,
+		`source/story-0/sox-siksikaʔ-photo-5.jpg`
 	]
 };
 	
