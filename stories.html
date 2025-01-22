@@ -129,11 +129,14 @@
 
             display: block;
             padding: 1em;
+            overflow-x: hidden;
+            overflow-y: scroll;
         }
         #reader-panel {
             color: var(--text-dark);
             background-color: transparent;
 
+            scroll-margin-top: var(--nav-height);
             flex-grow: 1;
         }
 
@@ -196,6 +199,7 @@
             background-color: var(--background-inset);
             border: 0.2em solid var(--border-dark);
             border-radius: 1em;
+            filter: drop-shadow(0 0 4px #0006);
 
             position: sticky;
             margin: 0.5em;
@@ -332,6 +336,65 @@
             100% { left:100%; z-index:2; }
         }
 
+        /* /////////////////////////////// */
+
+        .selection-panel-row {
+            cursor: pointer;
+            /* border: 1px solid red; */
+            gap: 0.5em;
+            align-items: center;
+        }
+        .selection-panel-row + .selection-panel-row {
+            margin-top: 2px;
+        }
+        .selection-panel-story-thumbnail {
+            --w: 2.0em;
+            background-color: var(--background-nav);
+            border: 1px solid transparent;
+
+            width: var(--w);
+            height: var(--w);
+            flex-shrink: 0;
+        }
+        .selection-panel-story-title {
+            font-size: 1.0em;
+        }
+        .selection-panel-story-subtitle {
+            font-size: 0.5em;
+        }
+
+        #thumbnail-0 {
+            background: url('/source/story-0/sox-siksikaʔ-thumbnail-small.jpg') center center / cover no-repeat;
+            /* background: url('/source/story-0/sox-siksikaʔ-photo-1.jpg') center center / cover no-repeat; */
+            /* background: url('/source/story-0/sox-siksikaʔ-photo-1.jpg') center center / contain no-repeat; */
+        }
+        #thumbnail-1 {
+            background: url('/source/story-1/kaʔyuʔun-shashaʔ-thumbnail-small.jpg') center center / cover no-repeat;
+            /* background: url('/source/story-1/kaʔyuʔun-shashaʔ-photo-1.jpg') center center / cover no-repeat; */
+            /* background: url('/source/story-1/kaʔyuʔun-shashaʔ-photo-1.jpg') center center / contain no-repeat; */
+        }
+        .thumbnail-v {
+            /* background: url('/source/story-1/kaʔyuʔun-shashaʔ-photo-1.jpg') center center / cover no-repeat; */
+        }
+        .thumbnail-h {
+            /* background: url('/source/story-1/kaʔyuʔun-shashaʔ-photo-h.jpg') center center / cover no-repeat; */
+        }
+        .thumbnail-s {
+            /* background: url('/source/story-1/kaʔyuʔun-shashaʔ-thumbnail.jpg') center center / cover no-repeat; */
+        }
+
+
+        #scroll-to-top {
+            cursor: pointer;
+            border-top: 0.1em solid var(--border-light);
+            border-bottom: 0.1em solid var(--border-light);
+            background-color: var(--background-inset);
+            /* filter: drop-shadow(0 0 4px #0008); */
+
+            margin-bottom: 1.0em;
+            padding: 0.25em 0px;
+        }
+
 		
 	</style>
 </head>
@@ -344,8 +407,59 @@
     <div> <!-- need wrapper div so position:sticky plays nice with flexbox -->
         <div id='selection-panel' class='flex-col'>
             <p class='selection-panel-title'>Story Catalogue</p>
-            <p class='selection-panel-story' onclick='loadStory(0)'>Siksikaʔ Limeek’ataʔ</p>
-            <p class='selection-panel-story' onclick='loadStory(1)'>Kaʔyuʔun Shashaʔ</p>
+            <!-- <p class='selection-panel-story' onclick='loadStory(0)'>Siksikaʔ Limeek’ataʔ</p> -->
+            <!-- <p class='selection-panel-story' onclick='loadStory(1)'>Kaʔyuʔun Shashaʔ</p> -->
+            <div class='flex-row selection-panel-row' onclick='loadStory(0)'>
+                <div id='thumbnail-0' class='selection-panel-story-thumbnail'></div>
+                <div class='flex-col'>
+                    <p class='selection-panel-story-title'>Siksikaʔ Limeek’ataʔ</p>
+                    <p class='selection-panel-story-subtitle'>How Stinkbug Became Black</p>
+                </div>
+            </div>
+            <div class='flex-row selection-panel-row' onclick='loadStory(1)'>
+                <div id='thumbnail-1' class='selection-panel-story-thumbnail'></div>
+                <div class='flex-col'>
+                    <p class='selection-panel-story-title'>Kaʔyuʔun Shashaʔ</p>
+                    <p class='selection-panel-story-subtitle'>Why Coyote's Eyes are the Best</p>
+                </div>
+            </div>
+
+            <div class='flex-row selection-panel-row'>
+                <div class='thumbnail-v selection-panel-story-thumbnail'></div>
+                <div class='flex-col'>
+                    <p class='selection-panel-story-title'>Chukchansi Story</p>
+                    <p class='selection-panel-story-subtitle'>Why Centering Divs is the Worst</p>
+                </div>
+            </div>
+            <div class='flex-row selection-panel-row'>
+                <div class='thumbnail-v selection-panel-story-thumbnail'></div>
+                <div class='flex-col'>
+                    <p class='selection-panel-story-title'>Chukchansi Story</p>
+                    <p class='selection-panel-story-subtitle'>Don't Wake the Garbage Collector</p>
+                </div>
+            </div>
+            <div class='flex-row selection-panel-row'>
+                <div class='thumbnail-h selection-panel-story-thumbnail'></div>
+                <div class='flex-col'>
+                    <p class='selection-panel-story-title'>Chukchansi Story</p>
+                    <p class='selection-panel-story-subtitle'>Undefined Behavior is a Biatch</p>
+                </div>
+            </div>
+            <div class='flex-row selection-panel-row'>
+                <div class='thumbnail-s selection-panel-story-thumbnail'></div>
+                <div class='flex-col'>
+                    <p class='selection-panel-story-title'>Chukchansi Story</p>
+                    <p class='selection-panel-story-subtitle'>Optimize the World</p>
+                </div>
+            </div>
+            <div class='flex-row selection-panel-row'>
+                <div class='thumbnail-v selection-panel-story-thumbnail'></div>
+                <div class='flex-col'>
+                    <p class='selection-panel-story-title'>Chukchansi Story</p>
+                    <p class='selection-panel-story-subtitle'>No Docs is Stoopeed</p>
+                </div>
+            </div>
+
             <br>
             <p style='margin-left:1.0em;font-style:italic;'>More coming soon!</p>
         </div>
@@ -439,6 +553,7 @@
     // 1.0 hrs: reconfigure reader for dynamic loading
     // 1.0 hrs: minor graphical fixes; ARIA research
     // 1.5 hrs: clean up kaʔyuʔun-shashaʔ images, annotate transitions, gen thumbnails
+    // 1.5 hrs: improve page navigation and story selection UI
 
 
     
@@ -499,6 +614,8 @@
             if (storyReader.player.paused && storyReader.player.currentTime >= storyReader.player.duration-0.5) {
                 // if finished playing, reset to earliest timestamp
                 storyReader.setSectionId(0,0);
+                scrollToTop();
+                
             }
             (storyReader.player.paused) ? storyReader.player.play() : storyReader.player.pause();
             playPauseButton.innerHTML = (storyReader.player.paused) ? SVG_PLAY : SVG_PAUSE;
@@ -632,6 +749,7 @@
             }
             contentStr += `</div>`;
         }
+        contentStr += `<p id='scroll-to-top' onclick='scrollToTop()'>Scroll to Top</p>`;
         console.log(`LOAD Dynamic content generated after ${(performance.now()-storyReader.loadStart).toFixed(0)} ms.`);
 
         // render content to screen only after audio is playable
@@ -667,6 +785,10 @@
     }
 
     /////////////////////
+
+    function scrollToTop () {
+        storyReaderPanel.scrollIntoView({ block: 'start', behavior: 'smooth' }); // has scroll-margin-top to account for navbar
+    }
 
     function seekTo (p = 0.0) {
         p = Math.min(Math.max(0,p),1);
