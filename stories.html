@@ -373,6 +373,16 @@
             /* background: url('/source/story-1/kaʔyuʔun-shashaʔ-photo-1.jpg') center center / cover no-repeat; */
             /* background: url('/source/story-1/kaʔyuʔun-shashaʔ-photo-1.jpg') center center / contain no-repeat; */
         }
+        #thumbnail-2 {
+            background: url('/source/story-2/ʔuplalliʔ-deemaysuʔ-thumbnail-small.jpg') center center / cover no-repeat;
+            /* background: url('/source/story-2/ʔuplalliʔ-deemaysuʔ-thumbnail-small.jpg') center center / cover no-repeat; */
+            /* background: url('/source/story-2/ʔuplalliʔ-deemaysuʔ-thumbnail-small.jpg') center center / contain no-repeat; */
+        }
+        #thumbnail-3 {
+            background: url('/source/story-3/shelel-shilithanna-thumbnail-small.jpg') center center / cover no-repeat;
+            /* background: url('/source/story-3/shelel-shilithanna-thumbnail-small.jpg') center center / cover no-repeat; */
+            /* background: url('/source/story-3/shelel-shilithanna-thumbnail-small.jpg') center center / contain no-repeat; */
+        }
         .thumbnail-v {
             /* background: url('/source/story-1/kaʔyuʔun-shashaʔ-photo-1.jpg') center center / cover no-repeat; */
         }
@@ -381,6 +391,12 @@
         }
         .thumbnail-s {
             /* background: url('/source/story-1/kaʔyuʔun-shashaʔ-thumbnail.jpg') center center / cover no-repeat; */
+        }
+
+        .greyed-out {
+            cursor: default;
+
+            opacity: 0.5;
         }
 
 
@@ -407,6 +423,7 @@
     <div> <!-- need wrapper div so position:sticky plays nice with flexbox -->
         <div id='selection-panel' class='flex-col'>
             <p class='selection-panel-title'>Story Catalogue</p>
+
             <!-- <p class='selection-panel-story' onclick='loadStory(0)'>Siksikaʔ Limeek’ataʔ</p> -->
             <!-- <p class='selection-panel-story' onclick='loadStory(1)'>Kaʔyuʔun Shashaʔ</p> -->
             <div class='flex-row selection-panel-row' onclick='loadStory(0)'>
@@ -423,40 +440,18 @@
                     <p class='selection-panel-story-subtitle'>Why Coyote's Eyes are the Best</p>
                 </div>
             </div>
-
-            <div class='flex-row selection-panel-row'>
-                <div class='thumbnail-v selection-panel-story-thumbnail'></div>
+            <div class='flex-row selection-panel-row' onclick='loadStory(2)'>
+                <div id='thumbnail-2' class='selection-panel-story-thumbnail'></div>
                 <div class='flex-col'>
-                    <p class='selection-panel-story-title'>Chukchansi Story</p>
-                    <p class='selection-panel-story-subtitle'>Why Centering Divs is the Worst</p>
+                    <p class='selection-panel-story-title'>ʔuplalliʔ Deemaysuʔ</p>
+                    <p class='selection-panel-story-subtitle'>Dove and Hummingbird Race Each Other</p>
                 </div>
             </div>
-            <div class='flex-row selection-panel-row'>
-                <div class='thumbnail-v selection-panel-story-thumbnail'></div>
+            <div class='flex-row selection-panel-row greyed-out' onclick='console.log("Story is a work in progress!")'>
+                <div id='thumbnail-3' class='selection-panel-story-thumbnail'></div>
                 <div class='flex-col'>
-                    <p class='selection-panel-story-title'>Chukchansi Story</p>
-                    <p class='selection-panel-story-subtitle'>Don't Wake the Garbage Collector</p>
-                </div>
-            </div>
-            <div class='flex-row selection-panel-row'>
-                <div class='thumbnail-h selection-panel-story-thumbnail'></div>
-                <div class='flex-col'>
-                    <p class='selection-panel-story-title'>Chukchansi Story</p>
-                    <p class='selection-panel-story-subtitle'>Undefined Behavior is a Biatch</p>
-                </div>
-            </div>
-            <div class='flex-row selection-panel-row'>
-                <div class='thumbnail-s selection-panel-story-thumbnail'></div>
-                <div class='flex-col'>
-                    <p class='selection-panel-story-title'>Chukchansi Story</p>
-                    <p class='selection-panel-story-subtitle'>Optimize the World</p>
-                </div>
-            </div>
-            <div class='flex-row selection-panel-row'>
-                <div class='thumbnail-v selection-panel-story-thumbnail'></div>
-                <div class='flex-col'>
-                    <p class='selection-panel-story-title'>Chukchansi Story</p>
-                    <p class='selection-panel-story-subtitle'>No Docs is Stoopeed</p>
+                    <p class='selection-panel-story-title'>Shelel’ Shilithanna</p>
+                    <p class='selection-panel-story-subtitle'>A Rock to be Jumped - WIP!</p>
                 </div>
             </div>
 
@@ -517,6 +512,7 @@
 <!-- load story data -->
 <script type='text/javascript' src="source/story-0/sox-siksikaʔ-data-annotated.js"></script>
 <script type='text/javascript' src="source/story-1/kaʔyuʔun-shashaʔ-data-annotated.js"></script>
+<script type='text/javascript' src="source/story-2/ʔuplalliʔ-deemaysuʔ-data-annotated.js"></script>
 
 
 
@@ -554,6 +550,8 @@
     // 1.0 hrs: minor graphical fixes; ARIA research
     // 1.5 hrs: clean up kaʔyuʔun-shashaʔ images, annotate transitions, gen thumbnails
     // 1.5 hrs: improve page navigation and story selection UI
+    // 2.0 hrs: data corrections, partial ʔuplalliʔ-deemay'suʔ story annotation
+    // 2.0 hrs: finish annotating ʔuplalliʔ-deemaysuʔ story, begin adding shelel'-shilithanna story
 
 
     
@@ -861,7 +859,8 @@
 
     let stories = [
         story_sox_siksikaʔ,
-        story_kaʔyuʔun_shashaʔ
+        story_kaʔyuʔun_shashaʔ,
+        story_ʔuplalliʔ_deemaysuʔ
     ];
     
     loadStory(0);
