@@ -1,0 +1,17 @@
+
+Ensure local branches are up to date.
+
+git checkout main
+git pull origin main
+git checkout production
+git pull origin production
+
+Switch to production branch and copy files.
+If path/to/file is a directory, it and all files in it will be added to the production branch.
+
+git checkout production
+git checkout main -- path/to/file
+
+Confirm changes are correct.
+
+git diff --staged
