@@ -33,8 +33,7 @@
             --content-pad: 1rem;
             --nav-height: calc(1.65 * var(--fluid-font-size)); /* ref height for content anchors; is actually 1.5*font, but position:sticky doesn't work properly for some reason unless this value is >= 0.15em bigger than the actual nav height */
 
-			--icon-image: url('../source/image.png');
-			--icon-audio: url('../source/audio.png');
+			--thumbnail-position: center center / cover no-repeat;
 		}
 
 		* {
@@ -148,15 +147,32 @@
             /* font-weight: bold; */
             text-decoration: underline;
         }
-        .selection-panel-story {
+        .selection-panel-row {
             cursor: pointer;
-            border-left: 0.2em solid var(--border-medium);
-            margin-left: 1em;
-            padding: 0.1em 0.25em;
+            gap: 0.5em;
+            align-items: center;
+        }
+        .selection-panel-row + .selection-panel-row {
+            margin-top: 2px;
+        }
+        .selection-greyed-out {
+            cursor: default;
+            opacity: 0.5;
+        }
+        .selection-panel-story-thumbnail {
+            --w: 2.0em;
+            background-color: var(--background-nav);
+            border: 1px solid transparent;
+
+            width: var(--w);
+            height: var(--w);
+            flex-shrink: 0;
+        }
+        .selection-panel-story-title {
             font-size: 1.0em;
         }
-        .selection-panel-story + .selection-panel-story {
-            margin-top: 0.25em;
+        .selection-panel-story-subtitle {
+            font-size: 0.5em;
         }
 
         /* story reader */
@@ -176,7 +192,7 @@
             text-wrap: wrap;
             text-align: center;
 
-            gap: 0.5em;
+            gap: 0.75em;
         }
         .reader-section + .reader-section {
             margin-top: 0.5em;
@@ -191,6 +207,16 @@
         }
         .reader-highlight {
             background-color: var(--background-inset);
+        }
+        #scroll-to-top {
+            cursor: pointer;
+            border-top: 0.1em solid var(--border-light);
+            border-bottom: 0.1em solid var(--border-light);
+            background-color: var(--background-inset);
+            /* filter: drop-shadow(0 0 4px #0008); */
+
+            margin-bottom: 1.0em;
+            padding: 0.25em 0px;
         }
 
         /* audio player controls */
@@ -337,80 +363,20 @@
         }
 
         /* /////////////////////////////// */
-
-        .selection-panel-row {
-            cursor: pointer;
-            /* border: 1px solid red; */
-            gap: 0.5em;
-            align-items: center;
-        }
-        .selection-panel-row + .selection-panel-row {
-            margin-top: 2px;
-        }
-        .selection-panel-story-thumbnail {
-            --w: 2.0em;
-            background-color: var(--background-nav);
-            border: 1px solid transparent;
-
-            width: var(--w);
-            height: var(--w);
-            flex-shrink: 0;
-        }
-        .selection-panel-story-title {
-            font-size: 1.0em;
-        }
-        .selection-panel-story-subtitle {
-            font-size: 0.5em;
-        }
-
+        
+        /* thumbnail assets; hardcoded into html/css since there's a finite/limited number of stories */
         #thumbnail-0 {
-            background: url('/source/story-0/sox-siksikaʔ-thumbnail-small.jpg') center center / cover no-repeat;
-            /* background: url('/source/story-0/sox-siksikaʔ-photo-1.jpg') center center / cover no-repeat; */
-            /* background: url('/source/story-0/sox-siksikaʔ-photo-1.jpg') center center / contain no-repeat; */
+            background: url('/source/story-0/sox-siksikaʔ-thumbnail-small.jpg') var(--thumbnail-position);
         }
         #thumbnail-1 {
-            background: url('/source/story-1/kaʔyuʔun-shashaʔ-thumbnail-small.jpg') center center / cover no-repeat;
-            /* background: url('/source/story-1/kaʔyuʔun-shashaʔ-photo-1.jpg') center center / cover no-repeat; */
-            /* background: url('/source/story-1/kaʔyuʔun-shashaʔ-photo-1.jpg') center center / contain no-repeat; */
+            background: url('/source/story-1/kaʔyuʔun-shashaʔ-thumbnail-small.jpg') var(--thumbnail-position);
         }
         #thumbnail-2 {
-            background: url('/source/story-2/ʔuplalliʔ-deemaysuʔ-thumbnail-small.jpg') center center / cover no-repeat;
-            /* background: url('/source/story-2/ʔuplalliʔ-deemaysuʔ-thumbnail-small.jpg') center center / cover no-repeat; */
-            /* background: url('/source/story-2/ʔuplalliʔ-deemaysuʔ-thumbnail-small.jpg') center center / contain no-repeat; */
+            background: url('/source/story-2/ʔuplalliʔ-deemaysuʔ-thumbnail-small.jpg') var(--thumbnail-position);
         }
         #thumbnail-3 {
-            background: url('/source/story-3/shelel-shilithanna-thumbnail-small.jpg') center center / cover no-repeat;
-            /* background: url('/source/story-3/shelel-shilithanna-thumbnail-small.jpg') center center / cover no-repeat; */
-            /* background: url('/source/story-3/shelel-shilithanna-thumbnail-small.jpg') center center / contain no-repeat; */
+            background: url('/source/story-3/shelel\'-shilithanaʔ-thumbnail-small.jpg') var(--thumbnail-position);
         }
-        .thumbnail-v {
-            /* background: url('/source/story-1/kaʔyuʔun-shashaʔ-photo-1.jpg') center center / cover no-repeat; */
-        }
-        .thumbnail-h {
-            /* background: url('/source/story-1/kaʔyuʔun-shashaʔ-photo-h.jpg') center center / cover no-repeat; */
-        }
-        .thumbnail-s {
-            /* background: url('/source/story-1/kaʔyuʔun-shashaʔ-thumbnail.jpg') center center / cover no-repeat; */
-        }
-
-        .greyed-out {
-            cursor: default;
-
-            opacity: 0.5;
-        }
-
-
-        #scroll-to-top {
-            cursor: pointer;
-            border-top: 0.1em solid var(--border-light);
-            border-bottom: 0.1em solid var(--border-light);
-            background-color: var(--background-inset);
-            /* filter: drop-shadow(0 0 4px #0008); */
-
-            margin-bottom: 1.0em;
-            padding: 0.25em 0px;
-        }
-
 		
 	</style>
 </head>
@@ -424,8 +390,6 @@
         <div id='selection-panel' class='flex-col'>
             <p class='selection-panel-title'>Story Catalogue</p>
 
-            <!-- <p class='selection-panel-story' onclick='loadStory(0)'>Siksikaʔ Limeek’ataʔ</p> -->
-            <!-- <p class='selection-panel-story' onclick='loadStory(1)'>Kaʔyuʔun Shashaʔ</p> -->
             <div class='flex-row selection-panel-row' onclick='loadStory(0)'>
                 <div id='thumbnail-0' class='selection-panel-story-thumbnail'></div>
                 <div class='flex-col'>
@@ -443,15 +407,15 @@
             <div class='flex-row selection-panel-row' onclick='loadStory(2)'>
                 <div id='thumbnail-2' class='selection-panel-story-thumbnail'></div>
                 <div class='flex-col'>
-                    <p class='selection-panel-story-title'>ʔuplalliʔ Deemaysuʔ</p>
+                    <p class='selection-panel-story-title'>ʔuplalliʔ Deemay’suʔ</p>
                     <p class='selection-panel-story-subtitle'>Dove and Hummingbird Race Each Other</p>
                 </div>
             </div>
-            <div class='flex-row selection-panel-row greyed-out' onclick='console.log("Story is a work in progress!")'>
+            <div class='flex-row selection-panel-row' onclick='loadStory(3)'>
                 <div id='thumbnail-3' class='selection-panel-story-thumbnail'></div>
                 <div class='flex-col'>
-                    <p class='selection-panel-story-title'>Shelel’ Shilithanna</p>
-                    <p class='selection-panel-story-subtitle'>A Rock to be Jumped - WIP!</p>
+                    <p class='selection-panel-story-title'>Shelel’ Shilithanaʔ</p>
+                    <p class='selection-panel-story-subtitle'>A Rock to be Jumped</p>
                 </div>
             </div>
 
@@ -513,6 +477,7 @@
 <script type='text/javascript' src="source/story-0/sox-siksikaʔ-data-annotated.js"></script>
 <script type='text/javascript' src="source/story-1/kaʔyuʔun-shashaʔ-data-annotated.js"></script>
 <script type='text/javascript' src="source/story-2/ʔuplalliʔ-deemaysuʔ-data-annotated.js"></script>
+<script type='text/javascript' src="source/story-3/shelel'-shilithanaʔ-data-annotated.js"></script>
 
 
 
@@ -552,6 +517,9 @@
     // 1.5 hrs: improve page navigation and story selection UI
     // 2.0 hrs: data corrections, partial ʔuplalliʔ-deemay'suʔ story annotation
     // 2.0 hrs: finish annotating ʔuplalliʔ-deemaysuʔ story, begin adding shelel'-shilithanna story
+    // 1.0 hrs: cleanup, push release live
+    // 0.5 hrs: spelling corrections in story data
+    // 1.0 hrs: annotate shelel'-shilithanaʔ story
 
 
     
@@ -860,10 +828,11 @@
     let stories = [
         story_sox_siksikaʔ,
         story_kaʔyuʔun_shashaʔ,
-        story_ʔuplalliʔ_deemaysuʔ
+        story_ʔuplalliʔ_deemaysuʔ,
+        story_shelel_shilithanaʔ
     ];
     
-    loadStory(0);
+    loadStory(3);
 
 </script>
 
