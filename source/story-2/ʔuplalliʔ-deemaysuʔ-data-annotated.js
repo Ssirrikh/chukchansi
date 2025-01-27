@@ -2,15 +2,15 @@
 let story_ʔuplalliʔ_deemaysuʔ = {
 	audio : `source/story-2/ʔuplalliʔ-deemaysuʔ-audio.mp3`,
 	titleENG : `Dove and Hummingbird Race Each Other`,
-	titleCHK : `ʔuplalliʔ ʔamaʔ yoʔ Deemaysuʔ Baanewsheʔ`,
+	titleCHK : `ʔuplalliʔ ʔamaʔ yoʔ Deemay’suʔ Baanewsheʔ`,
 	titleShortENG : `Dove and Hummingbird`,
-	titleShortCHK : `ʔuplalliʔ Deemaysuʔ`,
+	titleShortCHK : `ʔuplalliʔ Deemay’suʔ`,
 	timestampsBySentence : [
 		0.0,
 		`Wooyiʔ Yokuch’ wil’ wileʔ, Deemay’suʔ mich ʔayax hoy’no.`,
 		`Old time Indians would say, “Hummingbird was the fastest thing that flies.”`,
 		0.0,
-		`Hidʔan wil’ wileʔ, ʔuplalliʔ wakiy’ ʔayax Deemay’suʔun.`,
+		`Hidʔan’ wil’ wileʔ, ʔuplalliʔ wakiy’ ʔayax Deemay’suʔun.`,
 		`Others would say, “Dove was faster than Hummingbird.”`,
 		0.0,
 		`Miʔin ʔaman baanelawshit ʔamaamig.`,
@@ -65,7 +65,7 @@ let story_ʔuplalliʔ_deemaysuʔ = {
 			`“Hummingbird was the fastest thing that flies.”`
 		],[
 			8.5,
-			`Hidʔan wil’ wileʔ,`,
+			`Hidʔan’ wil’ wileʔ,`,
 			`Others would say,`,
 			10.3,
 			`ʔuplalliʔ wakiy’ ʔayax Deemay’suʔun.`,
