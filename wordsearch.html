@@ -1,11 +1,12 @@
 <!DOCTYPE html>
-<html>
+<html lang='en' xml:lang='en'>
 <head>
 	<meta charset = 'utf-8'>
     <title>Chukchansi Wordsearch</title>
     <meta name='robots' content='index, follow'>
     <meta name='description' content='A fun and educational Chukchansi wordsearch puzzle for language learners to practice word recognition.'>
-	<style>
+	<meta name='viewport' content='width=device-width, initial-scale=1'>
+    <style>
 		:root {
 			--background-nav: #461220; /* navbar */
 			--text-nav: #ffdab3; /* navbar */
@@ -323,7 +324,7 @@
 
 <!-- load story data -->
 <script type='text/javascript' src="script/vocab.js"></script>
-<script type='text/javascript' src="source/story-0/sox-siksika'-data-annotated.js"></script>
+<script type='text/javascript' src="source/story-0/sox-siksikaʔ-data-annotated.js"></script>
 
 <script type='text/javascript'>
 
@@ -348,6 +349,7 @@
     // 1.0 hrs: apply SEO to all main site pages
     // 5.0 hrs: generalize vocab wordlist format
     // 0.5 hrs: print difficulties demo
+    // 0.5 hrs: fix wordsearch breaking after file name standardization; add failsafe for future
 
 
     
@@ -738,23 +740,29 @@
 
     // build word bank of unique words
     let wordbank_sox_siksika = new Set();
-    for (let i = 0; i < story_sox_siksika.timestampsBySentence.length; i+=3) {
-        const timestamp = story_sox_siksika.timestampsBySentence[i];
-        const textCHK = story_sox_siksika.timestampsBySentence[i+1];
-        const textENG = story_sox_siksika.timestampsBySentence[i+2];
-        // stories may have ’ instead of ' for formatting; make the replacement, then scrub non-alphabetic chars
-        let words = textCHK.replaceAll("’","'").replaceAll(/[^a-zA-Z'ʔ ]/g,'').split(' ');
-        for (let word of words) {
-            wordbank_sox_siksika.add(word.toLowerCase());
+    let wordlist_sox_siksika_gen;
+    if (typeof story_sox_siksikaʔ !== 'undefined') {    
+        for (let i = 0; i < story_sox_siksikaʔ.timestampsBySentence.length; i+=3) {
+            const timestamp = story_sox_siksikaʔ.timestampsBySentence[i];
+            const textCHK = story_sox_siksikaʔ.timestampsBySentence[i+1];
+            const textENG = story_sox_siksikaʔ.timestampsBySentence[i+2];
+            // stories may have ’ instead of ' for formatting; make the replacement, then scrub non-alphabetic chars
+            let words = textCHK.replaceAll("’","'").replaceAll(/[^a-zA-Z'ʔ ]/g,'').split(' ');
+            for (let word of words) {
+                wordbank_sox_siksika.add(word.toLowerCase());
+            }
         }
+        wordlist_sox_siksika_gen = getWordlist(wordbank_sox_siksika, 10, controller.minWordlen, controller.maxWordlen);
+    } else {
+        console.error('File not found. Defaulting to static wordlist.');
     }
     console.log(wordbank_sox_siksika);
     
-    // compile word list 
-    // const wordlist_sox_siksika = ["Sox","Siksikaʔ","ʔoshto","woodiyga","namix","ʔutuytaʔ","henew","t'uluntaʔ","shaapintaʔ","limeek'am"];
-    let wordlist_sox_siksika_gen = getWordlist(wordbank_sox_siksika, 10, controller.minWordlen, controller.maxWordlen);
+    // default curated word list in case things go wrong
+    const wordlist_sox_siksika = ["Sox","Siksikaʔ","ʔoshto","woodiyga","namix","ʔutuytaʔ","henew","t'uluntaʔ","shaapintaʔ","limeek'am"];
+    
     // anchor for global access
-    let targetWordlist = wordlist_sox_siksika_gen;
+    let targetWordlist = wordlist_sox_siksika_gen ?? wordlist_sox_siksika;
 
     // init new game
     controller.newGame(targetWordlist);
