@@ -1,14 +1,19 @@
 <!DOCTYPE html>
-<html>
+<html lang='en' xml:lang='en'>
 <head>
 	<meta charset = 'utf-8'>
 	<title>Chukchansi Story Reader</title>
     <meta name='robots' content='index, follow'>
     <meta name='description' content='An interactive story reader with traditional Chukchansi stories and legends told by a native speaker in a read-along web app.'>
-	<style>
+	<meta name='viewport' content='width=device-width, initial-scale=1'>
+    <style>
 		:root {
 			--background-nav: #461220; /* navbar */
-			--text-nav: #ffdab3; /* navbar */
+			/*--text-nav: #ffdab3; /* navbar */
+            --text-nav: #ffd994;
+
+            --background-selected: #6b4226;
+            --background-unselected: #eac8a2;
 			
 			--background-search: #ffffff; /* searchbar */
 			--icon-search: #826545; /* searchbar inset icons */
@@ -26,12 +31,13 @@
 			--border-light: #bfa07e; /* interactible textbox border */
 
 			--layer-front: 2; /* elems that hover over content (hanging tabs, search history) */
-			--layer-nav: 3; /* nav elements are always topmost [currently unused] */
+			--layer-nav: 3; /* nav elements are always topmost */
 			--layer-overlay: 5; /* modal overlays */
 
             --fluid-font-size: max(3vh, calc(1rem + 1.0vw));
             --content-pad: 1rem;
-            --nav-height: calc(1.65 * var(--fluid-font-size)); /* ref height for content anchors; is actually 1.5*font, but position:sticky doesn't work properly for some reason unless this value is >= 0.15em bigger than the actual nav height */
+            /* --title-font-size: 1.25em; */
+            /*--nav-height: calc(2.25 * var(--fluid-font-size)); /* ref height for content anchors */
 
 			--thumbnail-position: center center / cover no-repeat;
 		}
@@ -46,11 +52,17 @@
 			background-color: var(--background-nav);
             font-size: var(--fluid-font-size);
 		}
+
+        /* unstyle elements */
         button {
             color: var(--text-dark);
             background-color: transparent;
             border: none;
             outline: none;
+        }
+        h1 {
+            font-size: 1.0em;
+            font-weight: normal;
         }
 
 		.flex-sep {
@@ -68,7 +80,11 @@
 		}
 
         /* mobile-first for better load times on less-powerful devices */
-        @media (max-aspect-ratio: 1/1) { /* mobile mode */
+        @media (max-aspect-ratio: 5/4) { /* mobile mode */
+            :root {
+                --title-font-size: calc(1.17 * var(--fluid-font-size));
+                --nav-height: calc(1.75 * var(--fluid-font-size)); /* ref height for content anchors */
+            }
             .flex-adapt {
                 display: flex;
                 flex-direction: column;
@@ -83,7 +99,11 @@
                 width: calc(100vw - 0.5em - 0.5em); /* prevent panel from shrinking horizontally on mobile if content is skinny */
             }
         }
-		@media (min-aspect-ratio: 1/1) { /* desktop mode */
+		@media (min-aspect-ratio: 5/4) { /* desktop mode */
+            :root {
+                --title-font-size: 1.0em;
+                --nav-height: calc(1.5 * var(--fluid-font-size)); /* ref height for content anchors */
+            }
 			.flex-adapt {
 				display: flex;
 				flex-direction: row;
@@ -99,7 +119,7 @@
             }
 		}
 
-		/* nav/header bar */
+		/* nav bar */
 		#nav-bar {
 			color: var(--text-nav);
 			background-color: var(--background-nav);
@@ -108,11 +128,97 @@
 			padding: 0.25em;
 			top: 0px;
 			width: 100%;
-            font-size: 1.0em;
+            font-size: var(--title-font-size);
             text-align: center;
 
 			z-index: var(--layer-front); /* make sure nav elems and hanging tabs are on top of other content */
 		}
+        #nav-title {
+            line-height: var(--title-font-size);
+        }
+        #nav-menu {
+            /* https://www.sliderrevolution.com/resources/css-dropdown-menu/ */
+            cursor: pointer;
+            /* background-color: var(--text-nav); */
+            /* border: 1px solid red; */
+
+            display: inline-block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: var(--nav-height);
+            height: var(--nav-height);
+        }
+        /* #nav-menu span {
+            background-color: #00f;
+            border-radius: 0.1em;
+            
+            display: inline-block;
+            width: 100%;
+            height: 0.1em;
+        } */
+        /* #nav-menu ul {
+            color: var(--text-dark);
+            background-color: var(--background-medium);
+            border: 1px solid var(--border-light);
+            border-top: 1px solid var(--text-light);
+
+            visibility: hidden;
+            position: absolute;
+            top: var(--nav-height);
+            left: 0px;
+
+            text-align: left;
+            list-style: none;
+            gap: 1px;
+        } */
+        #nav-menu ul {
+            cursor: default;
+            color: var(--text-dark);
+            background-color: var(--background-unselected);
+            border-top: 1px solid var(--text-light);
+            border-bottom: 1px solid var(--border-light);
+
+            visibility: hidden;
+            position: absolute;
+            top: var(--nav-height);
+            left: 0px;
+            width: 100vw;
+            /* padding: 0.25em 0; */
+            padding: 0.25em;
+
+            text-align: left;
+            list-style: none;
+            flex-wrap: wrap;
+        }
+        #nav-menu div + div {
+            border-left: 1px solid var(--text-dark);
+        }
+        #nav-menu ul li {
+            cursor: pointer;
+            color: var(--text-dark);
+            padding: 0.15em 0.75em;
+            font-size: 0.8em;
+        }
+        #nav-menu ul li:hover {
+            /* color: var(--background-light); */
+            color: var(--text-nav);
+            background-color: var(--background-selected);
+        }
+        #nav-menu:focus-within > ul, #nav-menu:hover ul {
+            visibility: visible;
+        }
+        #nav-menu ul li a {
+            color: inherit;
+            text-decoration: inherit;
+        }
+        .nav-greyed-out {
+            cursor: default;
+            color: var(--text-dark);
+            padding: 0.15em 0.75em;
+            font-size: 0.8em;
+            opacity: 50%;
+        }
 
         /* layout */
         #content {
@@ -377,13 +483,81 @@
         #thumbnail-3 {
             background: url('source/story-3/shelel\'-shilithanaʔ-thumbnail-small.jpg') var(--thumbnail-position);
         }
+
+        #palette {
+            position: absolute;
+            top: 100px;
+            left: 100px;
+        }
+        #palette-test {
+            position: absolute;
+            top: 150px;
+            left: 100px;
+        }
+        #palette-test-2 {
+            position: absolute;
+            top: 200px;
+            left: 100px;
+        }
+        .palette-strip {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+        }
 		
 	</style>
 </head>
 <body>
 
 <div id='nav-bar'>
-    <span id='nav-title'>English-Chukchansi Story Reader</span>
+    <h1 id='nav-title'>English-Chukchansi Story Reader</h1>
+    <nav id='nav-menu' role='navigation'>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="24" height="24" stroke-width="1.25" style='width:100%;height:100%;pointer-events:none;'>
+            <path d="M5 8l14 0"></path>
+            <path d="M5 12l14 0"></path>
+            <path d="M5 16l14 0"></path>
+        </svg>
+        <ul id='nav-dropdown' class='flex-row'>
+            <div class='flex-col'>
+                <!-- <li><a>Home</a></li> -->
+                <p class='nav-greyed-out'>Home</p>
+            </div>
+            <div class='flex-col'>
+                <li><a href='/speaking-dictionary.html'>Speaking Dictionary</a></li>
+                <li><a href='/pdf-dictionary.html'>PDF Dictionary</a></li>
+                <li><a href='/stories.html'>Story Reader</a></li>
+                <li><a href='/wordsearch.html'>Wordsearch</a></li>
+                <!-- <li><a>Speaking Dictionary</a></li>
+                <li><a>PDF Dictionary</a></li>
+                <li><a>Story Reader</a></li>
+                <li><a>Wordsearch</a></li> -->
+            </div>
+        </ul>
+    </nav>
+    <!-- <div id='palette'>
+        <div class='palette-strip' style='background-color:var(--background-nav)'></div>
+        <div class='palette-strip' style='background-color:var(--text-nav)'></div>
+        <div class='palette-strip' style='background-color:var(--background-light)'></div>
+        <div class='palette-strip' style='background-color:var(--background-inset)'></div>
+        <div class='palette-strip' style='background-color:var(--text-dark)'></div>
+    </div>
+    <div id='palette-test'>
+        <div class='palette-strip' style='background-color:#755c48'></div>
+        <div class='palette-strip' style='background-color:#a67a5b'></div>
+        <div class='palette-strip' style='background-color:#ccad99'></div>
+        <div class='palette-strip' style='background-color:#335c67'></div>
+        <div class='palette-strip' style='background-color:#2c5f2d'></div>
+        <div class='palette-strip' style='background-color:#5687c7'></div>
+        <div class='palette-strip' style='background-color:#ff6700'></div>
+        <div class='palette-strip' style='background-color:#ffd700'></div>
+    </div>
+    <div id='palette-test-2'>
+        <div class='palette-strip' style='background-color:#FF4500'></div>
+        <div class='palette-strip' style='background-color:#FF8C42'></div>
+        <div class='palette-strip' style='background-color:#FFD27F'></div>
+        <div class='palette-strip' style='background-color:#C2B280'></div>
+        <div class='palette-strip' style='background-color:#6B4226'></div>
+    </div> -->
 </div>
 <div id='content' class='flex-adapt'>
     <div> <!-- need wrapper div so position:sticky plays nice with flexbox -->
@@ -487,6 +661,14 @@
 
 <script type='text/javascript'>
 
+    //// REFS ////
+
+    // https://open.spotify.com/playlist/37i9dQZF1DX9tPFwDMOaN1
+    // https://github.com/enterprise/startups
+    // https://www.w3schools.com/
+
+
+
     //// WAVE 3 ////
 
     // 1.5 hrs: set up basic page layout, audio player, and story reader
@@ -520,11 +702,15 @@
     // 1.0 hrs: cleanup, push release live
     // 0.5 hrs: spelling corrections in story data
     // 1.5 hrs: annotate shelel'-shilithanaʔ story
+    // 1.0 hrs: web optimization research
+    // 6.0 hrs: add nav menu
 
 
     
     // DOM anchors
     const navTitle = document.getElementById('nav-title');
+    const navButton = document.getElementById('nav-menu');
+    const navDropdown = document.getElementById('nav-dropdown');
     const storySelectionPanel = document.getElementById('selection-panel');
     const storyReaderPanel = document.getElementById('reader-panel');
     const playPauseButton = document.getElementById('play-pause');
@@ -823,6 +1009,16 @@
     });
     navTitle.innerHTML = (window.innerWidth < window.innerHeight) ? 'Eng-Chk Story Reader' : 'English-Chukchansi Story Reader';
 
+    // navButton.addEventListener('click', e => {
+    //     navDropdown.style.visibility = (navDropdown.style.visibility=='hidden') ? 'visible' : 'hidden';
+    // });
+    // window.addEventListener('scroll', e => {
+    //     // navDropdown.blur();
+    //     // navButton.blur();
+    //     document.body.focus();
+    //     navTitle.style.color = '#ff0000';
+    // },{ passive: true }); // passive:true guarantees no preventDefault(), so mobile won't check for it and can smooth scroll right away
+
     //////////////////////
 
     let stories = [
@@ -832,7 +1028,7 @@
         story_shelel_shilithanaʔ
     ];
     
-    loadStory(3);
+    loadStory(0);
 
 </script>
 
