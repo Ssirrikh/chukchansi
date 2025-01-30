@@ -7,36 +7,40 @@
     <meta name='description' content='A fun and educational Chukchansi wordsearch puzzle for language learners to practice word recognition.'>
 	<meta name='viewport' content='width=device-width, initial-scale=1'>
     <style>
-		:root {
+        :root {
 			--background-nav: #461220; /* navbar */
-			--text-nav: #ffdab3; /* navbar */
-			
-			--background-search: #ffffff; /* searchbar */
-			--icon-search: #826545; /* searchbar inset icons */
+            --text-nav: #ffd994; /* previously #ffdab3 */
+            --border-nav: #64182c; /* #64182c, #771932 */
+
+            --background-nav-selected: #6b4226;
+            --background-nav-unselected: #eac8a2;
 
 			--background-light: #f2e3d3; /* main content bg */
 			--background-inset: #dbb78f; /* inset panels; vibrant bg */
 			--background-medium: #bfa07e; /* side panels; muted bg */
 			--background-dark: #ad8e6c; /* fractionally darker interactibles bg */
 			--text-dark: #4f3a09; /* main content text */
-			--text-medium: #75544b; /* interactible text */
+			--text-medium: #806d46; /* interactible text */
 			--text-light: #fdf7ea;
 
 			--border-dark: #4f3a09; /* content separation */
 			--border-medium: #75544b; /* inset panel border */
 			--border-light: #bfa07e; /* interactible textbox border */
 
+            --popout-shadow: 0 0 10px #00000038;
+
 			--layer-front: 2; /* elems that hover over content (hanging tabs, search history) */
-			--layer-nav: 3; /* nav elements are always topmost [currently unused] */
+			--layer-nav: 3; /* nav elements are always topmost */
 			--layer-overlay: 5; /* modal overlays */
 
+            /* dynamic units calculated for mobile-first; see media queries for desktop */
             --fluid-font-size: max(3vh, calc(1rem + 1.0vw));
-            --content-pad: 1rem;
-            --nav-height: calc(1.65 * var(--fluid-font-size)); /* ref height for content anchors; is actually 1.5*font, but position:sticky doesn't work properly for some reason unless this value is >= 0.15em bigger than the actual nav height */
-            --wordsearch-grid-len: 11;
+            --nav-pad: 0.25em;
+            --content-pad: 0.6rem;
+            --title-font-size: calc(1.17 * var(--fluid-font-size)); /* unsure why 1.17, but it seems to be pixel-perfect at all sizes */
+            --nav-height: calc(1.75 * var(--fluid-font-size)); /* ref height for content anchors */
 
-			--icon-image: url('../source/image.png');
-			--icon-audio: url('../source/audio.png');
+			--wordsearch-grid-len: 11;
 		}
 
 		* {
