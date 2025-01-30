@@ -60,6 +60,7 @@
             outline: none;
         }
 
+        /* flexbox */
 		.flex-sep {
 			width: 0;
 			flex-grow: 1;
@@ -73,25 +74,89 @@
 			display: flex;
 			flex-direction: column;
 		}
+        .flex-adapt {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
 
-        
+        /**** NAV BAR ****/
 
-		/* nav/header bar */
 		#nav-bar {
 			color: var(--text-nav);
 			background-color: var(--background-nav);
+            border-bottom: 1px solid var(--border-nav);
 
 			position: sticky;
-			padding: 0.25em;
+			padding: var(--nav-pad);
 			top: 0px;
 			width: 100%;
+            font-size: var(--title-font-size);
             text-align: center;
 
-			z-index: var(--layer-front); /* make sure nav elems and hanging tabs are on top of other content */
+			z-index: var(--layer-nav); /* nav elems and hanging tabs are on top of other content, but not fullscreen modals */
 		}
         #nav-title {
-            font-size: 1.0em;
+            /* unstyle <h1> */
+            font-size: var(--title-font-size);
+            line-height: var(--title-font-size);
             font-weight: normal;
+        }
+        #nav-menu {
+            /* https://www.sliderrevolution.com/resources/css-dropdown-menu/ */
+            cursor: pointer;
+
+            display: inline-block;
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            width: var(--nav-height);
+            height: var(--nav-height);
+        }
+        #nav-menu ul {
+            cursor: default;
+            color: var(--text-dark);
+            background-color: var(--background-nav-unselected);
+            /* border-top: 1px solid var(--text-light); */
+            border-bottom: 1px solid var(--border-light);
+
+            visibility: hidden;
+            position: absolute;
+            top: var(--nav-height);
+            left: 0px;
+            width: 100vw;
+            padding: 0.25em;
+
+            text-align: left;
+            list-style: none;
+            flex-wrap: wrap;
+        }
+        #nav-menu div + div {
+            border-left: 1px solid var(--text-dark);
+        }
+        #nav-menu ul li {
+            cursor: pointer;
+            color: var(--text-dark);
+            padding: 0.15em 0.75em;
+            font-size: 0.8em;
+        }
+        #nav-menu ul li:hover {
+            color: var(--text-nav);
+            background-color: var(--background-nav-selected);
+        }
+        #nav-menu:focus-within > ul, #nav-menu:hover ul {
+            visibility: visible;
+        }
+        #nav-menu ul li a {
+            color: inherit;
+            text-decoration: inherit;
+        }
+        .nav-greyed-out {
+            cursor: default;
+            color: var(--text-dark);
+            padding: 0.15em 0.75em;
+            font-size: 0.8em;
+            opacity: 50%;
         }
 
         /* layout */
@@ -208,34 +273,6 @@
             transform: translate(var(--offset),var(--offset)) rotate(0); */
         }
 
-        /* mobile-first for better load times on less-powerful devices */
-        @media (max-aspect-ratio: 1/1) { /* mobile mode */
-            .flex-adapt {
-                display: flex;
-                flex-direction: column;
-                /* justify-content: center; */
-                align-items: center;
-            }
-        }
-        @media (min-aspect-ratio: 1/1) { /* desktop mode */
-            .flex-adapt {
-                display: flex;
-                flex-direction: row;
-                justify-content: center;
-                /* align-items: center; */
-            }
-            #wordlist {
-                width: 10em;
-            }
-            #main {
-                flex-direction: row;
-            }
-            .wordlist-item {
-                display: block;
-            }
-        }
-
-
         /* loading screen */
         #player-loading-screen {
             background-color: var(--background-inset);
@@ -294,6 +331,35 @@
             100% { left:100%; z-index:2; }
         }
 
+
+
+        /* mobile-first styling for better load times on less-powerful devices */
+        /* media queries must come after the things they modify */
+        @media (max-aspect-ratio: 5/4) { /* mobile mode */
+            /*  */
+        }
+		@media (min-aspect-ratio: 5/4) { /* desktop mode */
+            :root {
+                --title-font-size: 1.0em;
+                --nav-height: calc(1.5 * var(--fluid-font-size)); /* ref height for content anchors; 1.0em text + 2*0.25em padding */
+            }
+			.flex-adapt {
+				flex-direction: row;
+                align-items: normal;
+				justify-content: center;
+			}
+
+            #wordlist {
+                width: 10em;
+            }
+            #main {
+                flex-direction: row;
+            }
+            .wordlist-item {
+                display: block;
+            }
+		}
+
 		
 	</style>
 </head>
@@ -301,6 +367,25 @@
 
 <div id='nav-bar'>
     <h1 id='nav-title'>Chukchansi Wordsearch</h1>
+    <nav id='nav-menu' role='navigation'>
+        <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' width='24' height='24' stroke-width='1.25' style='width:100%;height:100%;pointer-events:none;'>
+            <path d='M5 8l14 0'></path>
+            <path d='M5 12l14 0'></path>
+            <path d='M5 16l14 0'></path>
+        </svg>
+        <ul id='nav-dropdown' class='flex-row'>
+            <div class='flex-col'>
+                <!-- <li><a>Home</a></li> -->
+                <p class='nav-greyed-out'>Home</p>
+            </div>
+            <div class='flex-col'>
+                <li><a href='speaking-dictionary.html'>Speaking Dictionary</a></li>
+                <li><a href='pdf-dictionary.html'>PDF Dictionary</a></li>
+                <li><a href='stories.html'>Story Reader</a></li>
+                <li><a href='wordsearch.html'>Wordsearch</a></li>
+            </div>
+        </ul>
+    </nav>
 </div>
 <div id='content' class='flex-col'>
     <div id='main' class='flex-adapt'>
@@ -326,9 +411,13 @@
 
 
 
-<!-- load story data -->
+<!-- load wordbank compiler (builds wordbanks from database) -->
 <script type='text/javascript' src="script/vocab.js"></script>
+<!-- load story data -->
 <script type='text/javascript' src="source/story-0/sox-siksikaʔ-data-annotated.js"></script>
+<script type='text/javascript' src="source/story-1/kaʔyuʔun-shashaʔ-data-annotated.js"></script>
+<script type='text/javascript' src="source/story-2/ʔuplalliʔ-deemaysuʔ-data-annotated.js"></script>
+<script type='text/javascript' src="source/story-3/shelel'-shilithanaʔ-data-annotated.js"></script>
 
 <script type='text/javascript'>
 
@@ -354,6 +443,7 @@
     // 5.0 hrs: generalize vocab wordlist format
     // 0.5 hrs: print difficulties demo
     // 0.5 hrs: fix wordsearch breaking after file name standardization; add failsafe for future
+    // 1.5 hrs: admin stuff, nav standardization
 
 
     
@@ -743,6 +833,12 @@
     // init //
 
     // build word bank of unique words
+    let stories = [
+        story_sox_siksikaʔ,
+        story_kaʔyuʔun_shashaʔ,
+        story_ʔuplalliʔ_deemaysuʔ,
+        story_shelel_shilithanaʔ
+    ];
     let wordbank_sox_siksika = new Set();
     let wordlist_sox_siksika_gen;
     if (typeof story_sox_siksikaʔ !== 'undefined') {    
