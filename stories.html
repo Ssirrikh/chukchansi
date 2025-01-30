@@ -20,7 +20,7 @@
 			--background-medium: #bfa07e; /* side panels; muted bg */
 			--background-dark: #ad8e6c; /* fractionally darker interactibles bg */
 			--text-dark: #4f3a09; /* main content text */
-			--text-medium: #75544b; /* interactible text */
+			--text-medium: #806d46; /* interactible text */
 			--text-light: #fdf7ea;
 
 			--border-dark: #4f3a09; /* content separation */
@@ -145,7 +145,7 @@
             cursor: default;
             color: var(--text-dark);
             background-color: var(--background-nav-unselected);
-            border-top: 1px solid var(--text-light);
+            /* border-top: 1px solid var(--text-light); */
             border-bottom: 1px solid var(--border-light);
 
             visibility: hidden;
@@ -262,8 +262,9 @@
             font-size: 0.8em;
         }
         .selection-panel-story-subtitle {
+            color: var(--text-medium);
             font-size: 0.6em;
-            opacity: 0.7;
+            /* opacity: 0.7; */
         }
         .selected-story-row {
             background-color: var(--background-inset);
@@ -546,7 +547,7 @@
                 <div id='story-2' class='flex-row selection-panel-row' onclick='loadStory(2)'>
                     <div id='thumbnail-2' class='selection-panel-story-thumbnail'></div>
                     <div class='flex-col'>
-                        <p class='selection-panel-story-title'>ʔuplalliʔ Deemay’suʔ</p>
+                        <p class='selection-panel-story-title'>ʔuplalliʔ ʔamaʔ yoʔ Deemay’suʔ</p>
                         <p class='selection-panel-story-subtitle'>Dove and Hummingbird Race Each Other</p>
                     </div>
                 </div>
