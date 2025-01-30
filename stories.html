@@ -10,6 +10,7 @@
 		:root {
 			--background-nav: #461220; /* navbar */
             --text-nav: #ffd994; /* previously #ffdab3 */
+            --border-nav: #64182c; /* #64182c, #771932 */
 
             --background-nav-selected: #6b4226;
             --background-nav-unselected: #eac8a2;
@@ -25,6 +26,8 @@
 			--border-dark: #4f3a09; /* content separation */
 			--border-medium: #75544b; /* inset panel border */
 			--border-light: #bfa07e; /* interactible textbox border */
+
+            --popout-shadow: 0 0 10px #00000038;
 
 			--layer-front: 2; /* elems that hover over content (hanging tabs, search history) */
 			--layer-nav: 3; /* nav elements are always topmost */
@@ -80,7 +83,6 @@
         /* mobile-first styling for better load times on less-powerful devices */
         @media (max-aspect-ratio: 5/4) { /* mobile mode */
             #selection-panel {
-                border-bottom: 0.1em solid var(--border-light);
                 width: 100vw;
                 max-height: 50vh;
             }
@@ -111,6 +113,7 @@
 		#nav-bar {
 			color: var(--text-nav);
 			background-color: var(--background-nav);
+            border-bottom: 1px solid var(--border-nav);
 
 			position: sticky;
 			padding: var(--nav-pad);
@@ -119,7 +122,7 @@
             font-size: var(--title-font-size);
             text-align: center;
 
-			z-index: var(--layer-front); /* nav elems and hanging tabs are on top of other content, but not fullscreen modals */
+			z-index: var(--layer-nav); /* nav elems and hanging tabs are on top of other content, but not fullscreen modals */
 		}
         #nav-title {
             /* unstyle <h1> */
@@ -187,17 +190,20 @@
         /**** SITE LAYOUT ****/
 
         #content { /* fullscreen container so subpanels can position:sticky independently of each other */
-            background-color: var(--background-medium);
+            background-color: var(--background-light);
             min-height: calc(100vh - var(--nav-height));
-            padding: var(--content-pad);
+            padding: 0 var(--content-pad);
             gap: var(--content-pad);
         }
 		#selection-panel { /* left/top panel: select story */
             color: var(--text-dark);
             background-color: var(--background-light);
             border-radius: 0.5em;
+            filter: drop-shadow(var(--popout-shadow));
+            /* box-shadow: var(--popout-shadow); */
 
             display: inline-block;
+            margin-top: var(--content-pad);
             max-width: calc(100vw - 2 * var(--content-pad));
             /* max-height: 50vh; /* if added here, cannot be overridden by media query for some reason */
             overflow-x: hidden;
@@ -205,8 +211,7 @@
         }
         #reader-panel { /* right/bottom panel: view story */
             color: var(--text-dark);
-            background-color: lightblue;
-            border: 1px solid blue;
+            background-color: var(--background-light);
 
             scroll-margin-top: var(--nav-height); /* adjust for navbar when auto-scrolling */
             flex-grow: 1;
@@ -217,6 +222,7 @@
         #selection-panel-title {
             color: var(--text-nav);
             background-color: var(--background-nav);
+            /* background-color: var(--border-nav); */
 
             position: sticky;
             top: 0;
@@ -256,7 +262,6 @@
             font-size: 0.8em;
         }
         .selection-panel-story-subtitle {
-            /* color: var(--text-medium); */
             font-size: 0.6em;
             opacity: 0.7;
         }
@@ -264,7 +269,8 @@
             background-color: var(--background-inset);
         }
 
-        /* story reader */
+        /**** MAIN STORY READER ****/
+
         #reader-title, #player-loading-text {
             font-size: 1.2em;
             text-decoration: underline;
@@ -299,22 +305,22 @@
         }
         #scroll-to-top {
             cursor: pointer;
-            border-top: 0.1em solid var(--border-light);
-            border-bottom: 0.1em solid var(--border-light);
             background-color: var(--background-inset);
-            /* filter: drop-shadow(0 0 4px #0008); */
+            /* filter: drop-shadow(var(--popout-shadow)); */
 
             margin-bottom: 1.0em;
             padding: 0.25em 0px;
         }
 
-        /* audio player controls */
+        /**** AUDIO PLAYER UI ****/
+
         .player-panel {
             color: var(--text-dark);
             background-color: var(--background-inset);
             border: 0.2em solid var(--border-dark);
             border-radius: 1em;
-            filter: drop-shadow(0 0 4px #0006);
+            filter: drop-shadow(var(--popout-shadow));
+            /* box-shadow: var(--popout-shadow); */
 
             position: sticky;
             margin: 0.5em;
@@ -393,7 +399,8 @@
             transform: translate(50%,-50%) rotate(45deg);
         }
 
-        /* loading screen */
+        /**** LOADING SCREEN ****/
+
         #player-loading-screen {
             background-color: var(--background-inset);
 
@@ -434,7 +441,7 @@
             animation: loading-right 1.5s ease infinite;
         }
         /* loading animation: 2 diamonds slide past each other, changing which one is on top */
-        /* unfortunately cannot optimize due to z-index change */
+        /* cannot optimize fully due to z-index change, but this is only anim, and it's very lightweight */
         @keyframes loading-left {
             /* z-index changes at midpoint between keyframes, use fractional keyframes to set midpoint where diamonds don't overlap */
             0%   { left:0%;   z-index:1; }
@@ -468,16 +475,25 @@
             background: url('source/story-3/shelel\'-shilithanaʔ-thumbnail-small.jpg') var(--thumbnail-position);
         }
 
-        #fade-top {
-            background-color: pink;
-            border: 1px solid red;
 
+
+        #fade-top, #fade-bottom {
             display: inline-block;
-            position: relative;
-            top: calc(1 * var(--content-pad));
+            position: fixed;
+            left: 0;
             width: 100%;
             height: var(--content-pad);
-
+            z-index: var(--layer-front);
+        }
+        #fade-top {
+            /* background: linear-gradient(var(--background-medium), var(--background-medium), transparent); */
+            background: linear-gradient(transparent, var(--background-medium) 70%);
+            top: var(--nav-height);
+        }
+        #fade-bottom {
+            /* background: linear-gradient(transparent, var(--background-medium), var(--background-medium)); */
+            background: linear-gradient(transparent, var(--background-medium) 70%);
+            bottom: 0;
         }
 		
 	</style>
@@ -498,41 +514,43 @@
                 <p class='nav-greyed-out'>Home</p>
             </div>
             <div class='flex-col'>
-                <li><a href='speaking-dictionary.html'>Speaking Dictionary</a></li>
-                <li><a href='pdf-dictionary.html'>PDF Dictionary</a></li>
-                <li><a href='stories.html'>Story Reader</a></li>
-                <li><a href='wordsearch.html'>Wordsearch</a></li>
+                <li><a href='speaking-dictionary'>Speaking Dictionary</a></li>
+                <li><a href='pdf-dictionary'>PDF Dictionary</a></li>
+                <li><a href='stories'>Story Reader</a></li>
+                <li><a href='wordsearch'>Wordsearch</a></li>
             </div>
         </ul>
     </nav>
 </div>
+<!-- <div id='fade-top'></div> -->
+<!-- <div id='fade-bottom'></div> -->
 <div id='content' class='flex-adapt'>
     <div> <!-- need wrapper div so position:sticky plays nice with flexbox -->
         <div id='selection-panel' class='flex-col'>
             <h2 id='selection-panel-title'>Story Selection</h2>
             <!-- <div id='selection-content' class='flex-col'> -->
-                <div class='flex-row selection-panel-row selected-story-row' onclick='loadStory(0)'>
+                <div id='story-0' class='flex-row selection-panel-row selected-story-row' onclick='loadStory(0)'>
                     <div id='thumbnail-0' class='selection-panel-story-thumbnail'></div>
                     <div class='flex-col'>
                         <p class='selection-panel-story-title'>Siksikaʔ Limeek’ataʔ</p>
                         <p class='selection-panel-story-subtitle'>How Stinkbug Became Black</p>
                     </div>
                 </div>
-                <div class='flex-row selection-panel-row' onclick='loadStory(1)'>
+                <div id='story-1' class='flex-row selection-panel-row' onclick='loadStory(1)'>
                     <div id='thumbnail-1' class='selection-panel-story-thumbnail'></div>
                     <div class='flex-col'>
                         <p class='selection-panel-story-title'>Kaʔyuʔun Shashaʔ</p>
                         <p class='selection-panel-story-subtitle'>Why Coyote's Eyes are the Best</p>
                     </div>
                 </div>
-                <div class='flex-row selection-panel-row' onclick='loadStory(2)'>
+                <div id='story-2' class='flex-row selection-panel-row' onclick='loadStory(2)'>
                     <div id='thumbnail-2' class='selection-panel-story-thumbnail'></div>
                     <div class='flex-col'>
                         <p class='selection-panel-story-title'>ʔuplalliʔ Deemay’suʔ</p>
                         <p class='selection-panel-story-subtitle'>Dove and Hummingbird Race Each Other</p>
                     </div>
                 </div>
-                <div class='flex-row selection-panel-row' onclick='loadStory(3)'>
+                <div id='story-3' class='flex-row selection-panel-row' onclick='loadStory(3)'>
                     <div id='thumbnail-3' class='selection-panel-story-thumbnail'></div>
                     <div class='flex-col'>
                         <p class='selection-panel-story-title'>Shelel’ Shilithanaʔ</p>
@@ -546,7 +564,6 @@
     </div>
         
     <div id='reader-panel'>
-        <div id='fade-top'></div>
         <div class='flex-col player-panel'>
             <div id='reader-title'>Chukchansi Title</div>
             <div id='reader-subtitle'>English Subtitle</div>
@@ -652,7 +669,7 @@
     // 1.5 hrs: annotate shelel'-shilithanaʔ story
     // 1.0 hrs: web optimization research
     // 6.0 hrs: add nav menu
-    // 3.5 hrs: cleanup, mobile optimization, layout improvements
+    // 6.0 hrs: cleanup, mobile optimization, layout improvements
 
 
     
@@ -807,6 +824,15 @@
             return false;
         }
         const storyData = stories[storyId];
+        
+        // update selection menu
+        for (let i = 0; i < stories.length; i++) {
+            if (i == storyId) {
+                document.getElementById(`story-${i}`).classList.add('selected-story-row');
+            } else {
+                document.getElementById(`story-${i}`).classList.remove('selected-story-row');
+            }
+        }
 
         // reset loading cycle
         storyReader.loadStart = performance.now();
