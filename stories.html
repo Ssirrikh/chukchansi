@@ -9,35 +9,36 @@
     <style>
 		:root {
 			--background-nav: #461220; /* navbar */
-			/*--text-nav: #ffdab3; /* navbar */
-            --text-nav: #ffd994;
+            --text-nav: #ffd994; /* previously #ffdab3 */
+            --border-nav: #64182c; /* #64182c, #771932 */
 
-            --background-selected: #6b4226;
-            --background-unselected: #eac8a2;
-			
-			--background-search: #ffffff; /* searchbar */
-			--icon-search: #826545; /* searchbar inset icons */
+            --background-nav-selected: #6b4226;
+            --background-nav-unselected: #eac8a2;
 
 			--background-light: #f2e3d3; /* main content bg */
 			--background-inset: #dbb78f; /* inset panels; vibrant bg */
 			--background-medium: #bfa07e; /* side panels; muted bg */
 			--background-dark: #ad8e6c; /* fractionally darker interactibles bg */
 			--text-dark: #4f3a09; /* main content text */
-			--text-medium: #75544b; /* interactible text */
+			--text-medium: #806d46; /* interactible text */
 			--text-light: #fdf7ea;
 
 			--border-dark: #4f3a09; /* content separation */
 			--border-medium: #75544b; /* inset panel border */
 			--border-light: #bfa07e; /* interactible textbox border */
 
+            --popout-shadow: 0 0 10px #00000038;
+
 			--layer-front: 2; /* elems that hover over content (hanging tabs, search history) */
 			--layer-nav: 3; /* nav elements are always topmost */
 			--layer-overlay: 5; /* modal overlays */
 
+            /* dynamic units calculated for mobile-first; see media queries for desktop */
             --fluid-font-size: max(3vh, calc(1rem + 1.0vw));
-            --content-pad: 1rem;
-            /* --title-font-size: 1.25em; */
-            /*--nav-height: calc(2.25 * var(--fluid-font-size)); /* ref height for content anchors */
+            --nav-pad: 0.25em;
+            --content-pad: 0.6rem;
+            --title-font-size: calc(1.17 * var(--fluid-font-size)); /* unsure why 1.17, but it seems to be pixel-perfect at all sizes */
+            --nav-height: calc(1.75 * var(--fluid-font-size)); /* ref height for content anchors */
 
 			--thumbnail-position: center center / cover no-repeat;
 		}
@@ -52,19 +53,14 @@
 			background-color: var(--background-nav);
             font-size: var(--fluid-font-size);
 		}
-
-        /* unstyle elements */
         button {
             color: var(--text-dark);
             background-color: transparent;
             border: none;
             outline: none;
         }
-        h1 {
-            font-size: 1.0em;
-            font-weight: normal;
-        }
 
+        /* flexbox */
 		.flex-sep {
 			width: 0;
 			flex-grow: 1;
@@ -78,22 +74,17 @@
 			display: flex;
 			flex-direction: column;
 		}
+        .flex-adapt {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
 
-        /* mobile-first for better load times on less-powerful devices */
+        /* mobile-first styling for better load times on less-powerful devices */
         @media (max-aspect-ratio: 5/4) { /* mobile mode */
-            :root {
-                --title-font-size: calc(1.17 * var(--fluid-font-size));
-                --nav-height: calc(1.75 * var(--fluid-font-size)); /* ref height for content anchors */
-            }
-            .flex-adapt {
-                display: flex;
-                flex-direction: column;
-                /* justify-content: center; */
-                align-items: center;
-            }
             #selection-panel {
-                border-bottom: 0.1em solid var(--border-light);
                 width: 100vw;
+                max-height: 50vh;
             }
             .player-panel {
                 width: calc(100vw - 0.5em - 0.5em); /* prevent panel from shrinking horizontally on mobile if content is skinny */
@@ -102,81 +93,59 @@
 		@media (min-aspect-ratio: 5/4) { /* desktop mode */
             :root {
                 --title-font-size: 1.0em;
-                --nav-height: calc(1.5 * var(--fluid-font-size)); /* ref height for content anchors */
+                --nav-height: calc(1.5 * var(--fluid-font-size)); /* ref height for content anchors; 1.0em text + 2*0.25em padding */
             }
 			.flex-adapt {
-				display: flex;
 				flex-direction: row;
+                align-items: normal;
 				justify-content: center;
-				/* align-items: center; */
 			}
             #selection-panel {
-                border-right: 0.1em solid var(--border-light);
                 position: sticky;
-                top: var(--nav-height);
+                top: calc(var(--nav-height) + var(--content-pad));
                 width: 33vw;
-                height: calc(100vh - var(--nav-height));
+                max-height: calc(100vh - var(--nav-height) - 2 * var(--content-pad));
             }
 		}
 
-		/* nav bar */
+		/**** NAV BAR ****/
+
 		#nav-bar {
 			color: var(--text-nav);
 			background-color: var(--background-nav);
+            border-bottom: 1px solid var(--border-nav);
 
 			position: sticky;
-			padding: 0.25em;
+			padding: var(--nav-pad);
 			top: 0px;
 			width: 100%;
             font-size: var(--title-font-size);
             text-align: center;
 
-			z-index: var(--layer-front); /* make sure nav elems and hanging tabs are on top of other content */
+			z-index: var(--layer-nav); /* nav elems and hanging tabs are on top of other content, but not fullscreen modals */
 		}
         #nav-title {
+            /* unstyle <h1> */
+            font-size: var(--title-font-size);
             line-height: var(--title-font-size);
+            font-weight: normal;
         }
         #nav-menu {
             /* https://www.sliderrevolution.com/resources/css-dropdown-menu/ */
             cursor: pointer;
-            /* background-color: var(--text-nav); */
-            /* border: 1px solid red; */
 
             display: inline-block;
             position: absolute;
-            top: 0;
-            left: 0;
+            top: 0px;
+            left: 0px;
             width: var(--nav-height);
             height: var(--nav-height);
         }
-        /* #nav-menu span {
-            background-color: #00f;
-            border-radius: 0.1em;
-            
-            display: inline-block;
-            width: 100%;
-            height: 0.1em;
-        } */
-        /* #nav-menu ul {
-            color: var(--text-dark);
-            background-color: var(--background-medium);
-            border: 1px solid var(--border-light);
-            border-top: 1px solid var(--text-light);
-
-            visibility: hidden;
-            position: absolute;
-            top: var(--nav-height);
-            left: 0px;
-
-            text-align: left;
-            list-style: none;
-            gap: 1px;
-        } */
         #nav-menu ul {
             cursor: default;
             color: var(--text-dark);
-            background-color: var(--background-unselected);
-            border-top: 1px solid var(--text-light);
+            background-color: var(--background-nav-unselected);
+            /* border-top: 1px solid var(--text-light); */
             border-bottom: 1px solid var(--border-light);
 
             visibility: hidden;
@@ -184,7 +153,6 @@
             top: var(--nav-height);
             left: 0px;
             width: 100vw;
-            /* padding: 0.25em 0; */
             padding: 0.25em;
 
             text-align: left;
@@ -201,9 +169,8 @@
             font-size: 0.8em;
         }
         #nav-menu ul li:hover {
-            /* color: var(--background-light); */
             color: var(--text-nav);
-            background-color: var(--background-selected);
+            background-color: var(--background-nav-selected);
         }
         #nav-menu:focus-within > ul, #nav-menu:hover ul {
             visibility: visible;
@@ -220,41 +187,58 @@
             opacity: 50%;
         }
 
-        /* layout */
-        #content {
+        /**** SITE LAYOUT ****/
+
+        #content { /* fullscreen container so subpanels can position:sticky independently of each other */
             background-color: var(--background-light);
             min-height: calc(100vh - var(--nav-height));
+            padding: 0 var(--content-pad);
+            gap: var(--content-pad);
         }
-		#selection-panel {
+		#selection-panel { /* left/top panel: select story */
             color: var(--text-dark);
-/*            background-color: transparent;*/
-/*            background-color: var(--background-medium);*/
-            /* border: 0.2em solid var(--border-dark); */
-/*            border-radius: 1em;*/
+            background-color: var(--background-light);
+            border-radius: 0.5em;
+            filter: drop-shadow(var(--popout-shadow));
+            /* box-shadow: var(--popout-shadow); */
 
-            display: block;
-            padding: 1em;
+            display: inline-block;
+            margin-top: var(--content-pad);
+            max-width: calc(100vw - 2 * var(--content-pad));
+            /* max-height: 50vh; /* if added here, cannot be overridden by media query for some reason */
             overflow-x: hidden;
             overflow-y: scroll;
         }
-        #reader-panel {
+        #reader-panel { /* right/bottom panel: view story */
             color: var(--text-dark);
-            background-color: transparent;
+            background-color: var(--background-light);
 
-            scroll-margin-top: var(--nav-height);
+            scroll-margin-top: var(--nav-height); /* adjust for navbar when auto-scrolling */
             flex-grow: 1;
         }
 
-        /* selection panel */
-        .selection-panel-title {
+        /**** STORY SELECTION PANEL ****/
+
+        #selection-panel-title {
+            color: var(--text-nav);
+            background-color: var(--background-nav);
+            /* background-color: var(--border-nav); */
+
+            position: sticky;
+            top: 0;
+            padding: 0.25em 0.5em;
             margin-bottom: 0.5em;
-            font-size: 1.2em;
-            /* text-align: center; */
-            /* font-weight: bold; */
-            text-decoration: underline;
+
+            /* unstyle <h2> */
+            font-size: 1.0em;
+            line-height: 1.0em;
+            font-weight: normal;
         }
         .selection-panel-row {
             cursor: pointer;
+            border-radius: 0.25em;
+            margin: 0 0.5em;
+            padding: 0.25em;
             gap: 0.5em;
             align-items: center;
         }
@@ -275,13 +259,19 @@
             flex-shrink: 0;
         }
         .selection-panel-story-title {
-            font-size: 1.0em;
+            font-size: 0.8em;
         }
         .selection-panel-story-subtitle {
-            font-size: 0.5em;
+            color: var(--text-medium);
+            font-size: 0.6em;
+            /* opacity: 0.7; */
+        }
+        .selected-story-row {
+            background-color: var(--background-inset);
         }
 
-        /* story reader */
+        /**** MAIN STORY READER ****/
+
         #reader-title, #player-loading-text {
             font-size: 1.2em;
             text-decoration: underline;
@@ -316,22 +306,22 @@
         }
         #scroll-to-top {
             cursor: pointer;
-            border-top: 0.1em solid var(--border-light);
-            border-bottom: 0.1em solid var(--border-light);
             background-color: var(--background-inset);
-            /* filter: drop-shadow(0 0 4px #0008); */
+            /* filter: drop-shadow(var(--popout-shadow)); */
 
             margin-bottom: 1.0em;
             padding: 0.25em 0px;
         }
 
-        /* audio player controls */
+        /**** AUDIO PLAYER UI ****/
+
         .player-panel {
             color: var(--text-dark);
             background-color: var(--background-inset);
             border: 0.2em solid var(--border-dark);
             border-radius: 1em;
-            filter: drop-shadow(0 0 4px #0006);
+            filter: drop-shadow(var(--popout-shadow));
+            /* box-shadow: var(--popout-shadow); */
 
             position: sticky;
             margin: 0.5em;
@@ -410,7 +400,8 @@
             transform: translate(50%,-50%) rotate(45deg);
         }
 
-        /* loading screen */
+        /**** LOADING SCREEN ****/
+
         #player-loading-screen {
             background-color: var(--background-inset);
 
@@ -451,6 +442,7 @@
             animation: loading-right 1.5s ease infinite;
         }
         /* loading animation: 2 diamonds slide past each other, changing which one is on top */
+        /* cannot optimize fully due to z-index change, but this is only anim, and it's very lightweight */
         @keyframes loading-left {
             /* z-index changes at midpoint between keyframes, use fractional keyframes to set midpoint where diamonds don't overlap */
             0%   { left:0%;   z-index:1; }
@@ -484,25 +476,25 @@
             background: url('source/story-3/shelel\'-shilithanaʔ-thumbnail-small.jpg') var(--thumbnail-position);
         }
 
-        #palette {
-            position: absolute;
-            top: 100px;
-            left: 100px;
-        }
-        #palette-test {
-            position: absolute;
-            top: 150px;
-            left: 100px;
-        }
-        #palette-test-2 {
-            position: absolute;
-            top: 200px;
-            left: 100px;
-        }
-        .palette-strip {
+
+
+        #fade-top, #fade-bottom {
             display: inline-block;
-            width: 50px;
-            height: 50px;
+            position: fixed;
+            left: 0;
+            width: 100%;
+            height: var(--content-pad);
+            z-index: var(--layer-front);
+        }
+        #fade-top {
+            /* background: linear-gradient(var(--background-medium), var(--background-medium), transparent); */
+            background: linear-gradient(transparent, var(--background-medium) 70%);
+            top: var(--nav-height);
+        }
+        #fade-bottom {
+            /* background: linear-gradient(transparent, var(--background-medium), var(--background-medium)); */
+            background: linear-gradient(transparent, var(--background-medium) 70%);
+            bottom: 0;
         }
 		
 	</style>
@@ -523,78 +515,52 @@
                 <p class='nav-greyed-out'>Home</p>
             </div>
             <div class='flex-col'>
-                <li><a href='speaking-dictionary.html'>Speaking Dictionary</a></li>
-                <li><a href='pdf-dictionary.html'>PDF Dictionary</a></li>
-                <li><a href='stories.html'>Story Reader</a></li>
-                <li><a href='wordsearch.html'>Wordsearch</a></li>
-                <!-- <li><a>Speaking Dictionary</a></li>
-                <li><a>PDF Dictionary</a></li>
-                <li><a>Story Reader</a></li>
-                <li><a>Wordsearch</a></li> -->
+                <li><a href='speaking-dictionary'>Speaking Dictionary</a></li>
+                <li><a href='pdf-dictionary'>PDF Dictionary</a></li>
+                <li><a href='stories'>Story Reader</a></li>
+                <li><a href='wordsearch'>Wordsearch</a></li>
             </div>
         </ul>
     </nav>
-    <!-- <div id='palette'>
-        <div class='palette-strip' style='background-color:var(--background-nav)'></div>
-        <div class='palette-strip' style='background-color:var(--text-nav)'></div>
-        <div class='palette-strip' style='background-color:var(--background-light)'></div>
-        <div class='palette-strip' style='background-color:var(--background-inset)'></div>
-        <div class='palette-strip' style='background-color:var(--text-dark)'></div>
-    </div>
-    <div id='palette-test'>
-        <div class='palette-strip' style='background-color:#755c48'></div>
-        <div class='palette-strip' style='background-color:#a67a5b'></div>
-        <div class='palette-strip' style='background-color:#ccad99'></div>
-        <div class='palette-strip' style='background-color:#335c67'></div>
-        <div class='palette-strip' style='background-color:#2c5f2d'></div>
-        <div class='palette-strip' style='background-color:#5687c7'></div>
-        <div class='palette-strip' style='background-color:#ff6700'></div>
-        <div class='palette-strip' style='background-color:#ffd700'></div>
-    </div>
-    <div id='palette-test-2'>
-        <div class='palette-strip' style='background-color:#FF4500'></div>
-        <div class='palette-strip' style='background-color:#FF8C42'></div>
-        <div class='palette-strip' style='background-color:#FFD27F'></div>
-        <div class='palette-strip' style='background-color:#C2B280'></div>
-        <div class='palette-strip' style='background-color:#6B4226'></div>
-    </div> -->
 </div>
+<!-- <div id='fade-top'></div> -->
+<!-- <div id='fade-bottom'></div> -->
 <div id='content' class='flex-adapt'>
     <div> <!-- need wrapper div so position:sticky plays nice with flexbox -->
         <div id='selection-panel' class='flex-col'>
-            <p class='selection-panel-title'>Story Catalogue</p>
+            <h2 id='selection-panel-title'>Story Selection</h2>
+            <!-- <div id='selection-content' class='flex-col'> -->
+                <div id='story-0' class='flex-row selection-panel-row selected-story-row' onclick='loadStory(0)'>
+                    <div id='thumbnail-0' class='selection-panel-story-thumbnail'></div>
+                    <div class='flex-col'>
+                        <p class='selection-panel-story-title'>Siksikaʔ Limeek’ataʔ</p>
+                        <p class='selection-panel-story-subtitle'>How Stinkbug Became Black</p>
+                    </div>
+                </div>
+                <div id='story-1' class='flex-row selection-panel-row' onclick='loadStory(1)'>
+                    <div id='thumbnail-1' class='selection-panel-story-thumbnail'></div>
+                    <div class='flex-col'>
+                        <p class='selection-panel-story-title'>Kaʔyuʔun Shashaʔ</p>
+                        <p class='selection-panel-story-subtitle'>Why Coyote's Eyes are the Best</p>
+                    </div>
+                </div>
+                <div id='story-2' class='flex-row selection-panel-row' onclick='loadStory(2)'>
+                    <div id='thumbnail-2' class='selection-panel-story-thumbnail'></div>
+                    <div class='flex-col'>
+                        <p class='selection-panel-story-title'>ʔuplalliʔ ʔamaʔ yoʔ Deemay’suʔ</p>
+                        <p class='selection-panel-story-subtitle'>Dove and Hummingbird Race Each Other</p>
+                    </div>
+                </div>
+                <div id='story-3' class='flex-row selection-panel-row' onclick='loadStory(3)'>
+                    <div id='thumbnail-3' class='selection-panel-story-thumbnail'></div>
+                    <div class='flex-col'>
+                        <p class='selection-panel-story-title'>Shelel’ Shilithanaʔ</p>
+                        <p class='selection-panel-story-subtitle'>A Rock to be Jumped</p>
+                    </div>
+                </div>
 
-            <div class='flex-row selection-panel-row' onclick='loadStory(0)'>
-                <div id='thumbnail-0' class='selection-panel-story-thumbnail'></div>
-                <div class='flex-col'>
-                    <p class='selection-panel-story-title'>Siksikaʔ Limeek’ataʔ</p>
-                    <p class='selection-panel-story-subtitle'>How Stinkbug Became Black</p>
-                </div>
-            </div>
-            <div class='flex-row selection-panel-row' onclick='loadStory(1)'>
-                <div id='thumbnail-1' class='selection-panel-story-thumbnail'></div>
-                <div class='flex-col'>
-                    <p class='selection-panel-story-title'>Kaʔyuʔun Shashaʔ</p>
-                    <p class='selection-panel-story-subtitle'>Why Coyote's Eyes are the Best</p>
-                </div>
-            </div>
-            <div class='flex-row selection-panel-row' onclick='loadStory(2)'>
-                <div id='thumbnail-2' class='selection-panel-story-thumbnail'></div>
-                <div class='flex-col'>
-                    <p class='selection-panel-story-title'>ʔuplalliʔ Deemay’suʔ</p>
-                    <p class='selection-panel-story-subtitle'>Dove and Hummingbird Race Each Other</p>
-                </div>
-            </div>
-            <div class='flex-row selection-panel-row' onclick='loadStory(3)'>
-                <div id='thumbnail-3' class='selection-panel-story-thumbnail'></div>
-                <div class='flex-col'>
-                    <p class='selection-panel-story-title'>Shelel’ Shilithanaʔ</p>
-                    <p class='selection-panel-story-subtitle'>A Rock to be Jumped</p>
-                </div>
-            </div>
-
-            <br>
-            <p style='margin-left:1.0em;font-style:italic;'>More coming soon!</p>
+                <p style='margin:1.0em;font-style:italic;'>More coming soon!</p>
+            <!-- </div> -->
         </div>
     </div>
         
@@ -704,6 +670,7 @@
     // 1.5 hrs: annotate shelel'-shilithanaʔ story
     // 1.0 hrs: web optimization research
     // 6.0 hrs: add nav menu
+    // 6.0 hrs: cleanup, mobile optimization, layout improvements
 
 
     
@@ -858,6 +825,15 @@
             return false;
         }
         const storyData = stories[storyId];
+        
+        // update selection menu
+        for (let i = 0; i < stories.length; i++) {
+            if (i == storyId) {
+                document.getElementById(`story-${i}`).classList.add('selected-story-row');
+            } else {
+                document.getElementById(`story-${i}`).classList.remove('selected-story-row');
+            }
+        }
 
         // reset loading cycle
         storyReader.loadStart = performance.now();
@@ -998,9 +974,9 @@
                 storyReader.nextSection();
                 break;
 
-            case '`':
-                playerLoadingScreen.style.visibility = (playerLoadingScreen.style.visibility == 'hidden') ? 'visible' : 'hidden';
-                break;
+            // case '`':
+            //     playerLoadingScreen.style.visibility = (playerLoadingScreen.style.visibility == 'hidden') ? 'visible' : 'hidden';
+            //     break;
         }
     });
 

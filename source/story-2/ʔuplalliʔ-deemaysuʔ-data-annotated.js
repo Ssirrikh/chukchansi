@@ -4,7 +4,7 @@ let story_ʔuplalliʔ_deemaysuʔ = {
 	titleENG : `Dove and Hummingbird Race Each Other`,
 	titleCHK : `ʔuplalliʔ ʔamaʔ yoʔ Deemay’suʔ Baanewsheʔ`,
 	titleShortENG : `Dove and Hummingbird`,
-	titleShortCHK : `ʔuplalliʔ Deemay’suʔ`,
+	titleShortCHK : `ʔuplalliʔ ʔamaʔ yoʔ Deemay’suʔ`,
 	timestampsBySentence : [
 		0.0,
 		`Wooyiʔ Yokuch’ wil’ wileʔ, Deemay’suʔ mich ʔayax hoy’no.`,
