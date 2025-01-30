@@ -33,7 +33,7 @@
             /* dynamic units calculated for mobile-first; see media queries for desktop */
             --fluid-font-size: max(3vh, calc(1rem + 1.0vw));
             --nav-pad: 0.25em;
-            --content-pad: 1rem;
+            --content-pad: 0.6rem;
             --title-font-size: calc(1.17 * var(--fluid-font-size)); /* unsure why 1.17, but it seems to be pixel-perfect at all sizes */
             --nav-height: calc(1.75 * var(--fluid-font-size)); /* ref height for content anchors */
 
@@ -99,7 +99,6 @@
 				justify-content: center;
 			}
             #selection-panel {
-                /* border-right: 0.1em solid var(--border-light); */
                 position: sticky;
                 top: calc(var(--nav-height) + var(--content-pad));
                 width: 33vw;
@@ -196,12 +195,11 @@
 		#selection-panel { /* left/top panel: select story */
             color: var(--text-dark);
             background-color: var(--background-light);
-            /* border: 1px solid red; */
             border-radius: 0.5em;
 
             display: inline-block;
-            /* max-height: 50vh; */
-            /* padding: 1.0em; */
+            max-width: calc(100vw - 2 * var(--content-pad));
+            /* max-height: 50vh; /* if added here, cannot be overridden by media query for some reason */
             overflow-x: hidden;
             overflow-y: scroll;
         }
@@ -216,7 +214,7 @@
 
         /**** STORY SELECTION PANEL ****/
 
-        .selection-panel-title {
+        #selection-panel-title {
             color: var(--text-nav);
             background-color: var(--background-nav);
 
@@ -255,10 +253,12 @@
             flex-shrink: 0;
         }
         .selection-panel-story-title {
-            font-size: 1.0em;
+            font-size: 0.8em;
         }
         .selection-panel-story-subtitle {
-            font-size: 0.5em;
+            /* color: var(--text-medium); */
+            font-size: 0.6em;
+            opacity: 0.7;
         }
         .selected-story-row {
             background-color: var(--background-inset);
@@ -467,6 +467,18 @@
         #thumbnail-3 {
             background: url('source/story-3/shelel\'-shilithanaʔ-thumbnail-small.jpg') var(--thumbnail-position);
         }
+
+        #fade-top {
+            background-color: pink;
+            border: 1px solid red;
+
+            display: inline-block;
+            position: relative;
+            top: calc(1 * var(--content-pad));
+            width: 100%;
+            height: var(--content-pad);
+
+        }
 		
 	</style>
 </head>
@@ -497,62 +509,44 @@
 <div id='content' class='flex-adapt'>
     <div> <!-- need wrapper div so position:sticky plays nice with flexbox -->
         <div id='selection-panel' class='flex-col'>
-            <h2 class='selection-panel-title'>Story Selection</h2>
+            <h2 id='selection-panel-title'>Story Selection</h2>
+            <!-- <div id='selection-content' class='flex-col'> -->
+                <div class='flex-row selection-panel-row selected-story-row' onclick='loadStory(0)'>
+                    <div id='thumbnail-0' class='selection-panel-story-thumbnail'></div>
+                    <div class='flex-col'>
+                        <p class='selection-panel-story-title'>Siksikaʔ Limeek’ataʔ</p>
+                        <p class='selection-panel-story-subtitle'>How Stinkbug Became Black</p>
+                    </div>
+                </div>
+                <div class='flex-row selection-panel-row' onclick='loadStory(1)'>
+                    <div id='thumbnail-1' class='selection-panel-story-thumbnail'></div>
+                    <div class='flex-col'>
+                        <p class='selection-panel-story-title'>Kaʔyuʔun Shashaʔ</p>
+                        <p class='selection-panel-story-subtitle'>Why Coyote's Eyes are the Best</p>
+                    </div>
+                </div>
+                <div class='flex-row selection-panel-row' onclick='loadStory(2)'>
+                    <div id='thumbnail-2' class='selection-panel-story-thumbnail'></div>
+                    <div class='flex-col'>
+                        <p class='selection-panel-story-title'>ʔuplalliʔ Deemay’suʔ</p>
+                        <p class='selection-panel-story-subtitle'>Dove and Hummingbird Race Each Other</p>
+                    </div>
+                </div>
+                <div class='flex-row selection-panel-row' onclick='loadStory(3)'>
+                    <div id='thumbnail-3' class='selection-panel-story-thumbnail'></div>
+                    <div class='flex-col'>
+                        <p class='selection-panel-story-title'>Shelel’ Shilithanaʔ</p>
+                        <p class='selection-panel-story-subtitle'>A Rock to be Jumped</p>
+                    </div>
+                </div>
 
-            <div class='flex-row selection-panel-row selected-story-row' onclick='loadStory(0)'>
-                <div id='thumbnail-0' class='selection-panel-story-thumbnail'></div>
-                <div class='flex-col'>
-                    <p class='selection-panel-story-title'>Siksikaʔ Limeek’ataʔ</p>
-                    <p class='selection-panel-story-subtitle'>How Stinkbug Became Black</p>
-                </div>
-            </div>
-            <div class='flex-row selection-panel-row' onclick='loadStory(1)'>
-                <div id='thumbnail-1' class='selection-panel-story-thumbnail'></div>
-                <div class='flex-col'>
-                    <p class='selection-panel-story-title'>Kaʔyuʔun Shashaʔ</p>
-                    <p class='selection-panel-story-subtitle'>Why Coyote's Eyes are the Best</p>
-                </div>
-            </div>
-            <div class='flex-row selection-panel-row' onclick='loadStory(2)'>
-                <div id='thumbnail-2' class='selection-panel-story-thumbnail'></div>
-                <div class='flex-col'>
-                    <p class='selection-panel-story-title'>ʔuplalliʔ Deemay’suʔ</p>
-                    <p class='selection-panel-story-subtitle'>Dove and Hummingbird Race Each Other</p>
-                </div>
-            </div>
-            <div class='flex-row selection-panel-row' onclick='loadStory(3)'>
-                <div id='thumbnail-3' class='selection-panel-story-thumbnail'></div>
-                <div class='flex-col'>
-                    <p class='selection-panel-story-title'>Shelel’ Shilithanaʔ</p>
-                    <p class='selection-panel-story-subtitle'>A Rock to be Jumped</p>
-                </div>
-            </div>
-
-            <br>
-            <p style='margin-left:1.0em;font-style:italic;'>More coming soon!</p>
-            <p style='margin-left:1.0em;font-style:italic;'>More coming soon!</p>
-            <p style='margin-left:1.0em;font-style:italic;'>More coming soon!</p>
-            <p style='margin-left:1.0em;font-style:italic;'>More coming soon!</p>
-            <p style='margin-left:1.0em;font-style:italic;'>More coming soon!</p>
-            <p style='margin-left:1.0em;font-style:italic;'>More coming soon!</p>
-            <p style='margin-left:1.0em;font-style:italic;'>More coming soon!</p>
-            <p style='margin-left:1.0em;font-style:italic;'>More coming soon!</p>
-            <p style='margin-left:1.0em;font-style:italic;'>More coming soon!</p>
-            <p style='margin-left:1.0em;font-style:italic;'>More coming soon!</p>
-            <p style='margin-left:1.0em;font-style:italic;'>More coming soon!</p>
-            <p style='margin-left:1.0em;font-style:italic;'>More coming soon!</p>
-            <p style='margin-left:1.0em;font-style:italic;'>More coming soon!</p>
-            <p style='margin-left:1.0em;font-style:italic;'>More coming soon!</p>
-            <p style='margin-left:1.0em;font-style:italic;'>More coming soon!</p>
-            <p style='margin-left:1.0em;font-style:italic;'>More coming soon!</p>
-            <p style='margin-left:1.0em;font-style:italic;'>More coming soon!</p>
-            <p style='margin-left:1.0em;font-style:italic;'>More coming soon!</p>
-            <p style='margin-left:1.0em;font-style:italic;'>More coming soon!</p>
-            <p style='margin-left:1.0em;font-style:italic;'>More coming soon!</p>
+                <p style='margin:1.0em;font-style:italic;'>More coming soon!</p>
+            <!-- </div> -->
         </div>
     </div>
         
     <div id='reader-panel'>
+        <div id='fade-top'></div>
         <div class='flex-col player-panel'>
             <div id='reader-title'>Chukchansi Title</div>
             <div id='reader-subtitle'>English Subtitle</div>
