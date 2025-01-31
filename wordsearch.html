@@ -7,36 +7,46 @@
     <meta name='description' content='A fun and educational Chukchansi wordsearch puzzle for language learners to practice word recognition.'>
 	<meta name='viewport' content='width=device-width, initial-scale=1'>
     <style>
-		:root {
+        :root {
 			--background-nav: #461220; /* navbar */
-			--text-nav: #ffdab3; /* navbar */
-			
-			--background-search: #ffffff; /* searchbar */
-			--icon-search: #826545; /* searchbar inset icons */
+            --text-nav: #ffd994; /* previously #ffdab3 */
+            --border-nav: #64182c; /* #64182c, #771932 */
+
+            --background-nav-selected: #6b4226;
+            --background-nav-unselected: #eac8a2;
 
 			--background-light: #f2e3d3; /* main content bg */
 			--background-inset: #dbb78f; /* inset panels; vibrant bg */
 			--background-medium: #bfa07e; /* side panels; muted bg */
 			--background-dark: #ad8e6c; /* fractionally darker interactibles bg */
 			--text-dark: #4f3a09; /* main content text */
-			--text-medium: #75544b; /* interactible text */
+			--text-medium: #806d46; /* interactible text */
 			--text-light: #fdf7ea;
 
 			--border-dark: #4f3a09; /* content separation */
 			--border-medium: #75544b; /* inset panel border */
 			--border-light: #bfa07e; /* interactible textbox border */
 
+            --popout-shadow: 0 0 10px #00000038;
+
 			--layer-front: 2; /* elems that hover over content (hanging tabs, search history) */
-			--layer-nav: 3; /* nav elements are always topmost [currently unused] */
+			--layer-nav: 3; /* nav elements are always topmost */
 			--layer-overlay: 5; /* modal overlays */
 
-            --fluid-font-size: max(3vh, calc(1rem + 1.0vw));
-            --content-pad: 1rem;
-            --nav-height: calc(1.65 * var(--fluid-font-size)); /* ref height for content anchors; is actually 1.5*font, but position:sticky doesn't work properly for some reason unless this value is >= 0.15em bigger than the actual nav height */
-            --wordsearch-grid-len: 11;
+            /* dynamic units calculated for mobile-first; see media queries for desktop */
+            --fluid-font-size: max(2.5vh, calc(1rem + 1.0vw));
+            /* --fluid-font-size: calc(1rem + 1.0vw); */
+            /* --fluid-font-size: 2.5vh; */
+            --nav-pad: 0.25em;
+            --content-pad: 0.8rem;
+            --title-font-size: calc(1.17 * var(--fluid-font-size)); /* unsure why 1.17, but it seems to be pixel-perfect at all sizes */
+            --nav-height: calc(1.75 * var(--fluid-font-size)); /* ref height for content anchors */
 
-			--icon-image: url('../source/image.png');
-			--icon-audio: url('../source/audio.png');
+			--wordsearch-grid-size: 11;
+            --wordsearch-pad: 0.25em;
+            --wordsearch-width: min(60vh, calc(100vw - 2 * var(--content-pad)));
+            --wordsearch-tile-width: calc(calc(var(--wordsearch-width) - 2 * var(--wordsearch-pad)) / var(--wordsearch-grid-size));
+            --wordsearch-tile-font-size: calc(0.7 * var(--wordsearch-tile-width));
 		}
 
 		* {
@@ -56,6 +66,7 @@
             outline: none;
         }
 
+        /* flexbox */
 		.flex-sep {
 			width: 0;
 			flex-grow: 1;
@@ -69,45 +80,129 @@
 			display: flex;
 			flex-direction: column;
 		}
+        .flex-adapt {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
 
-        
+        /**** NAV BAR ****/
 
-		/* nav/header bar */
 		#nav-bar {
 			color: var(--text-nav);
 			background-color: var(--background-nav);
+            border-bottom: 1px solid var(--border-nav);
 
 			position: sticky;
-			padding: 0.25em;
+			padding: var(--nav-pad);
 			top: 0px;
 			width: 100%;
+            font-size: var(--title-font-size);
             text-align: center;
 
-			z-index: var(--layer-front); /* make sure nav elems and hanging tabs are on top of other content */
+			z-index: var(--layer-nav); /* nav elems and hanging tabs are on top of other content, but not fullscreen modals */
 		}
         #nav-title {
-            font-size: 1.0em;
+            /* unstyle <h1> */
+            font-size: var(--title-font-size);
+            line-height: var(--title-font-size);
             font-weight: normal;
         }
+        #nav-menu {
+            /* https://www.sliderrevolution.com/resources/css-dropdown-menu/ */
+            cursor: pointer;
 
-        /* layout */
+            display: inline-block;
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            width: var(--nav-height);
+            height: var(--nav-height);
+        }
+        #nav-menu ul {
+            cursor: default;
+            color: var(--text-dark);
+            background-color: var(--background-nav-unselected);
+            /* border-top: 1px solid var(--text-light); */
+            border-bottom: 1px solid var(--border-light);
+
+            visibility: hidden;
+            position: absolute;
+            top: var(--nav-height);
+            left: 0px;
+            width: 100vw;
+            padding: 0.25em;
+
+            text-align: left;
+            list-style: none;
+            flex-wrap: wrap;
+        }
+        #nav-menu div + div {
+            border-left: 1px solid var(--text-dark);
+        }
+        #nav-menu ul li {
+            cursor: pointer;
+            color: var(--text-dark);
+            padding: 0.15em 0.75em;
+            font-size: 0.8em;
+        }
+        #nav-menu ul li:hover {
+            color: var(--text-nav);
+            background-color: var(--background-nav-selected);
+        }
+        #nav-menu:focus-within > ul, #nav-menu:hover ul {
+            visibility: visible;
+        }
+        #nav-menu ul li a {
+            color: inherit;
+            text-decoration: inherit;
+        }
+        .nav-greyed-out {
+            cursor: default;
+            color: var(--text-dark);
+            padding: 0.15em 0.75em;
+            font-size: 0.8em;
+            opacity: 50%;
+        }
+
+        /**** SITE LAYOUT ****/
+
         #content {
             background-color: var(--background-inset);
             min-height: calc(100vh - var(--nav-height));
-            align-items: center;
-            justify-content: center;
-        }
-        #main {
-            margin: 0.5em;
-            gap: 1.0em;
+
+            padding: var(--content-pad);
+
+            gap: var(--content-pad);
             flex-direction: column-reverse;
+            justify-content: start;
         }
         #wordlist {
-/*            border-radius: 0.5em 0.5em 0 0;*/
             border-radius: 0.5em;
-            box-shadow: 0 0 20px #0004;
-            width: calc(1.5em * var(--wordsearch-grid-len));
+            box-shadow: var(--popout-shadow);
+
+            display: inline-block;
+            width: var(--wordsearch-width);
+            /* width: calc(1.5em * var(--wordsearch-grid-size)); */
         }
+        #wordsearch-container {
+            user-select: none;
+            color: var(--text-dark);
+            background-color: var(--background-light);
+            border-radius: 0.5em;
+            box-shadow: var(--popout-shadow);
+
+            display: inline-block;
+            position: relative;
+            width: var(--wordsearch-width);
+            height: var(--wordsearch-width);
+            padding: var(--wordsearch-pad);
+            font-size: var(--wordsearch-tile-font-size);
+            line-height: var(--wordsearch-tile-font-size);
+        }
+
+        /**** WORD LIST ****/
+
         .wordlist-header {
             color: var(--text-nav);
             background-color: var(--background-nav);
@@ -122,11 +217,12 @@
         }
         #wordlist-content {
             color: var(--text-dark);
-/*            border: 1px solid red;*/
+            /* border: 1px solid red; */
 
             display: flex;
             padding: 0.5em;
 
+            /* overflow-y: scroll; */
             flex-flow: row wrap;
             justify-content: center;
             align-content: flex-start;
@@ -135,32 +231,28 @@
         .wordlist-item {
             border-radius: 1em;
             display: inline-block;
-/*            margin: 0.25em;*/
+            /* margin: 0.25em; */
             padding: 0.25em 0.5em;
             font-size: 0.8em;
         }
         .highlighted {
-/*            color: var(--text-medium);*/
-/*            background-color: var(--background-medium);*/
             opacity: 0.3;
             text-decoration: line-through;
         }
-        #wordsearch-container {
-            color: var(--text-dark);
-            background-color: var(--background-light);
-            border-radius: 0.5em;
-            box-shadow: 0 0 20px #0004;
 
-            display: inline-block;
-            position: relative;
-            padding: 0.25em;
-            font-size: 1em;
-            user-select: none;
+        /**** WORDSEARCH ****/
+        
+        #wordsearch-click-area {
+            /* border: 1px solid red; */
+            width: 100%;
+            height: 100%;
+            justify-content: space-around;
         }
         .wordsearch-tile {
+            /* border: 1px solid blue; */
             position: relative;
-            width: 1.5em;
-            height: 1.5em;
+            width: 1.0em;
+            height: 1.0em;
 
             display: flex;
             align-items: center;
@@ -185,54 +277,11 @@
             transform: translate(var(--offset),var(--offset)) rotate(0);
         }
         #cursor-caterpillar {
-            /* --radius: 0.7em; */
-            /* --offset: calc(-1 * var(--radius)); */
-            /* pointer-events: none;
-            background-color: var(--background-dark);
-            border-radius: var(--radius);
-            opacity: 0.3; */
-            visibility: hidden; /* start out invisible */
-
-            /* display: inline-block;
-            position: absolute;
-            padding: var(--radius);
-            width: 0;
-            height: 0;
-            top: 1em;
-            left: 1em;
-            transform-origin: var(--radius) var(--radius);
-            transform: translate(var(--offset),var(--offset)) rotate(0); */
+            visibility: hidden; /* start out invisible; only show while click-dragging */
         }
 
-        /* mobile-first for better load times on less-powerful devices */
-        @media (max-aspect-ratio: 1/1) { /* mobile mode */
-            .flex-adapt {
-                display: flex;
-                flex-direction: column;
-                /* justify-content: center; */
-                align-items: center;
-            }
-        }
-        @media (min-aspect-ratio: 1/1) { /* desktop mode */
-            .flex-adapt {
-                display: flex;
-                flex-direction: row;
-                justify-content: center;
-                /* align-items: center; */
-            }
-            #wordlist {
-                width: 10em;
-            }
-            #main {
-                flex-direction: row;
-            }
-            .wordlist-item {
-                display: block;
-            }
-        }
+        /**** LOADING SCREEN ****/
 
-
-        /* loading screen */
         #player-loading-screen {
             background-color: var(--background-inset);
 
@@ -290,6 +339,51 @@
             100% { left:100%; z-index:2; }
         }
 
+        /* mobile-first styling for better load times on less-powerful devices */
+        /* media queries must come after the things they modify */
+        @media (max-aspect-ratio: 5/4) { /* mobile mode */
+            /* [none] */
+        }
+		@media (min-aspect-ratio: 5/4) { /* desktop mode */
+            :root {
+                --title-font-size: 1.0em;
+                --nav-height: calc(1.5 * var(--fluid-font-size)); /* ref height for content anchors; 1.0em text + 2*0.25em padding */
+
+                --wordsearch-width: min(50vw, calc(100vh - var(--nav-height) - 2 * var(--content-pad)));
+            }
+			.flex-adapt {
+				flex-direction: row;
+                align-items: normal;
+				justify-content: center;
+			}
+
+            #content {
+                flex-direction: row;
+                align-items: center;
+                justify-content: center;
+            }
+            #wordlist {
+                width: 10em;
+                height: var(--wordsearch-width);
+            }
+            .wordlist-item {
+                display: block;
+            }
+		}
+
+
+
+        /**** DEBUG ****/
+
+        .marker {
+            border: 1px solid green;
+
+            display: inline-block;
+            position: absolute;
+            width: var(--wordsearch-tile-width);
+            height: var(--wordsearch-tile-width);
+            transform: translate(-50%,-50%);
+        }
 		
 	</style>
 </head>
@@ -297,34 +391,60 @@
 
 <div id='nav-bar'>
     <h1 id='nav-title'>Chukchansi Wordsearch</h1>
+    <nav id='nav-menu' role='navigation'>
+        <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' width='24' height='24' stroke-width='1.25' style='width:100%;height:100%;pointer-events:none;'>
+            <path d='M5 8l14 0'></path>
+            <path d='M5 12l14 0'></path>
+            <path d='M5 16l14 0'></path>
+        </svg>
+        <ul id='nav-dropdown' class='flex-row'>
+            <div class='flex-col'>
+                <!-- <li><a>Home</a></li> -->
+                <p class='nav-greyed-out'>Home</p>
+            </div>
+            <div class='flex-col'>
+                <li><a href='speaking-dictionary'>Speaking Dictionary</a></li>
+                <li><a href='pdf-dictionary'>PDF Dictionary</a></li>
+                <li><a href='stories'>Story Reader</a></li>
+                <li><a href='wordsearch'>Wordsearch</a></li>
+            </div>
+        </ul>
+    </nav>
 </div>
-<div id='content' class='flex-col'>
-    <div id='main' class='flex-adapt'>
-        <div id='wordlist' class='flex-col'>
-            <div class='flex-row wordlist-header'>
-                <p id='wordlist-progress'>0/0</p>
-                <div class='flex-sep'></div>
-                <button id='button-new-game' onclick='controller.newGame(targetWordlist)'>+ New Game</button>
-            </div>
-            <div id='wordlist-content'>
-                <p class='wordlist-item'>Word 1</p>
-                <p class='wordlist-item highlighted'>Long Word 2</p>
-                <p class='wordlist-item'>Reallylongusthemost Word</p>
-            </div>
+<div id='content' class='flex-adapt'>
+    <div id='wordlist' class='flex-col'>
+        <div class='flex-row wordlist-header'>
+            <p id='wordlist-progress'>0/0</p>
+            <div class='flex-sep'></div>
+            <button id='button-new-game' onclick='controller.newGame(targetWordlist)'>+ New Game</button>
         </div>
-        <div id='wordsearch-container'>
-            <div id='wordsearch-click-area' class='flex-col'></div>
-            <div id='cursor-caterpillar' class='caterpillar'></div>
+        <div id='wordlist-content'>
+            <p class='wordlist-item'>Word 1</p>
+            <p class='wordlist-item highlighted'>Long Word 2</p>
+            <p class='wordlist-item'>Reallylongusthemost Word</p>
+            <p class='wordlist-item'>Word N</p><p class='wordlist-item'>Word N</p>
+            <p class='wordlist-item'>Word N</p><p class='wordlist-item'>Word N</p>
+            <p class='wordlist-item'>Word N</p><p class='wordlist-item'>Word N</p>
+            <p class='wordlist-item'>Reallylongusthemost Word</p>
+            <p class='wordlist-item'>Word N</p><p class='wordlist-item'>Word N</p>
         </div>
     </div>
-        
+
+    <div id='wordsearch-container'>
+        <div id='wordsearch-click-area' class='flex-col'></div>
+        <div id='cursor-caterpillar' class='caterpillar'></div>
+    </div>
 </div>
 
 
 
-<!-- load story data -->
+<!-- load wordbank compiler (builds wordbanks from database) -->
 <script type='text/javascript' src="script/vocab.js"></script>
+<!-- load story data -->
 <script type='text/javascript' src="source/story-0/sox-siksikaʔ-data-annotated.js"></script>
+<script type='text/javascript' src="source/story-1/kaʔyuʔun-shashaʔ-data-annotated.js"></script>
+<script type='text/javascript' src="source/story-2/ʔuplalliʔ-deemaysuʔ-data-annotated.js"></script>
+<script type='text/javascript' src="source/story-3/shelel'-shilithanaʔ-data-annotated.js"></script>
 
 <script type='text/javascript'>
 
@@ -350,8 +470,16 @@
     // 5.0 hrs: generalize vocab wordlist format
     // 0.5 hrs: print difficulties demo
     // 0.5 hrs: fix wordsearch breaking after file name standardization; add failsafe for future
+    // 1.5 hrs: admin stuff, nav standardization
+    // 4.0 hrs: make ui fully dynamic, misc bug fixes
 
 
+
+    // CSS var manipulation
+    const CSSVars = {
+        get : (k) => getComputedStyle(document.documentElement).getPropertyValue(k),
+        set : (k,v) => document.documentElement.style.setProperty(k,v)
+    };
     
     // DOM anchors
     const navTitle = document.getElementById('nav-title');
@@ -391,7 +519,8 @@
     // gamestate controller
     let controller = {
         // constants and settings
-        MIN_SIDELEN : 10,
+        MIN_SIDELEN : 11,
+        // MIN_SIDELEN : 10,
         minWordlen : 3,
         maxWordlen : 10,
         directions : DIRECTIONS_HARD,
@@ -604,7 +733,7 @@
 
         let wordsearchStr = '';
         for (let r = 0; r < rows; r++) {
-            wordsearchStr += `<div class='flex-row'>`;
+            wordsearchStr += `<div class='flex-row' style='justify-content:space-around;'>`;
             for (let c = 0; c < cols; c++) {
                 wordsearchStr += `<div class='wordsearch-tile'>${grid[r][c]}</div>`;
                 // wordsearchStr += `<div class='wordsearch-tile' onclick='console.log("(${r},${c}) ${grid[r][c]}")'>${grid[r][c]}</div>`;
@@ -616,12 +745,6 @@
         wordlist.innerHTML = wordlistStr;
         wordsearch.innerHTML = wordsearchStr;
 
-    }
-
-    function getPxCoordsOf (r,c) {
-        const fontSize = parseFloat(getComputedStyle(wordsearch).fontSize);
-        // console.log(fontSize);
-        return [fontSize + c*1.5*fontSize, fontSize + r*1.5*fontSize]; // [x,y]
     }
 
     let rDragStart = -1;
@@ -636,12 +759,12 @@
         rDragStart = Math.floor(controller.grid.length * (y-b.top)/b.height);
         cDragStart = Math.floor(controller.grid.length * (x-b.left)/b.width);
         dragging = true;
-        // console.log(`start drag from (${rDragStart},${cDragStart})`);
+        console.log(`start drag from (${rDragStart},${cDragStart})`);
 
         cursorCaterpillar.style.visibility = 'visible';
         cursorCaterpillar.style.width = '0';
-        cursorCaterpillar.style.top = `calc(1em + ${rDragStart} * 1.5em)`;
-        cursorCaterpillar.style.left = `calc(1em + ${cDragStart} * 1.5em)`;
+        cursorCaterpillar.style.top = `calc(var(--wordsearch-pad) + ${0.5+rDragStart} * var(--wordsearch-tile-width))`;
+        cursorCaterpillar.style.left = `calc(var(--wordsearch-pad) + ${0.5+cDragStart} * var(--wordsearch-tile-width))`;
     }
     function moveEnd (e) {
         cursorCaterpillar.style.visibility = 'hidden';
@@ -662,22 +785,20 @@
             const dc = Math.abs(cDragEnd - cDragStart);
             // console.log(`(${rDragStart},${cDragStart}) -> (${rDragEnd},${cDragEnd}) drdc(${dr},${dc})`);
 
-            const [xDragStart,yDragStart] = getPxCoordsOf(rDragStart,cDragStart);
+            const tileWidth = b.width / controller.grid.length;
+            // console.log(tileWidth);
+            const xDragStart = (0.5+cDragStart) * tileWidth;
+            const yDragStart = (0.5+rDragStart) * tileWidth;
             const dx = (x) - (xDragStart+b.left);
             const dy = (y) - (yDragStart+b.top);
-            const dist = Math.sqrt(dx*dx + dy*dy);
+            const dist = Math.sqrt(dx*dx + dy*dy); // measured in px since caterpillar doesn't snap to tiles; doesn't need to scale dynamically since caterpillar disappears
             const angle = Math.atan2(dy,dx);
-            cursorCaterpillar.style.width = `calc(1.5em + ${dist}px)`;
+            cursorCaterpillar.style.width = `calc(var(--wordsearch-pad) + var(--wordsearch-tile-width) + ${dist}px)`;
             cursorCaterpillar.style.transform = `translate(var(--offset),var(--offset)) rotate(${angle}rad)`;
             // console.log(`x ${xDragStart+b.left}->${x}, dxdy (${dx},${dy}) theta ${(180/2/Math.PI * angle).toFixed(1)}deg`);
 
             if (dr == 0 || dc == 0 || dr == dc) {
-                // const dist = Math.sqrt(dr*dr + dc*dc);
-                // const angle = Math.atan2(dr,dc);
-                // cursorCaterpillar.style.width = `calc(1.5em + ${dist} * 1.5em)`;
-                // cursorCaterpillar.style.transform = `translate(var(--offset),var(--offset)) rotate(${angle}rad)`;
-                // // console.log(`x ${xDragStart+b.left}->${x}, dxdy (${dx},${dy}) theta ${(180/2/Math.PI * angle).toFixed(1)}deg`);
-
+                // if on a straight or diagonal, check if current string is in wordlist
                 const wordsearchStr = controller.stringFrom(rDragStart,cDragStart,rDragEnd,cDragEnd);
                 for (let i = 0; i < targetWordlist.length; i++) {
                     if (targetWordlist[i].toUpperCase() == wordsearchStr) {
@@ -688,12 +809,12 @@
                         // position caterpillar over word
                         const dx = cDragEnd - cDragStart;
                         const dy = rDragEnd - rDragStart;
-                        const dist = Math.sqrt(dx*dx + dy*dy);
+                        const dist = Math.sqrt(dx*dx + dy*dy); // measured in number of tiles; caterpillars must scale dynamically
                         const angle = Math.atan2(dy,dx);
-                        controller.wordData[i].caterpillar.style.width = `calc(1.5em + 1.5em * ${dist})`;
+                        controller.wordData[i].caterpillar.style.width = `calc(${1+dist} * var(--wordsearch-tile-width))`;
                         controller.wordData[i].caterpillar.style.transform = `translate(var(--offset),var(--offset)) rotate(${angle}rad)`;
-                        controller.wordData[i].caterpillar.style.top = `calc(1em + 1.5em * ${rDragStart})`;
-                        controller.wordData[i].caterpillar.style.left = `calc(1em + 1.5em * ${cDragStart})`;
+                        controller.wordData[i].caterpillar.style.top = `calc(var(--wordsearch-pad) + ${0.5+rDragStart} * var(--wordsearch-tile-width))`;
+                        controller.wordData[i].caterpillar.style.left = `calc(var(--wordsearch-pad) + ${0.5+cDragStart} * var(--wordsearch-tile-width))`;
                         wordsearchContainer.appendChild(controller.wordData[i].caterpillar);
                         // update progress counter
                         progress.innerHTML = `${controller.numFound()}/${controller.wordData.length}`;
@@ -719,16 +840,6 @@
     wordsearch.addEventListener('touchmove', e => move(e,true));
     window.addEventListener('touchend', e => moveEnd(e));
 
-    // window.addEventListener('keydown', e => {
-    //     // console.log(e.key);
-    //     // e.preventDefault();
-    //     switch (e.key) {
-    //         case '`':
-    //             console.log('dev key');
-    //             break;
-    //     }
-    // });
-
     // window.addEventListener('resize', e => {
     //     navTitle.innerHTML = (window.innerWidth < window.innerHeight) ? 'Chk Wordsearch' : 'Chukchansi Wordsearch';
     // });
@@ -739,6 +850,12 @@
     // init //
 
     // build word bank of unique words
+    let stories = [
+        story_sox_siksikaʔ,
+        story_kaʔyuʔun_shashaʔ,
+        story_ʔuplalliʔ_deemaysuʔ,
+        story_shelel_shilithanaʔ
+    ];
     let wordbank_sox_siksika = new Set();
     let wordlist_sox_siksika_gen;
     if (typeof story_sox_siksikaʔ !== 'undefined') {    
@@ -767,6 +884,17 @@
     // init new game
     controller.newGame(targetWordlist);
 
+
+
+    // debug
+    function inject (r=0,c=0) {
+        const markerActual = document.createElement('div');
+        markerActual.classList.add('marker');
+        markerActual.style.top = `calc(var(--wordsearch-pad) + ${0.5+r} * var(--wordsearch-tile-width))`;
+        markerActual.style.left = `calc(var(--wordsearch-pad) + ${0.5+c} * var(--wordsearch-tile-width))`;
+        wordsearch.appendChild(markerActual);
+    }
+    
 </script>
 
 </body>
