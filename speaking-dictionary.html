@@ -55,6 +55,7 @@
 		// 0.5 hrs: improve sentence-checker script and allow download .txt of results
 		// 0.5 hrs: display all word forms in both eng-chk and chk-eng (do not assume any chk fluency at this time)
 		// 1.5 hrs: update SEO across all pages; cleanup git branches
+		// 1.5 hrs: clobber nav menu into old framework
 
 		//// TODO ////
 		//
@@ -297,8 +298,8 @@
 			const wordTranslation = (!langToggle) ? currentEntry.getSecondary(0)[0] : currentEntry.getPrimary(0)[0];
 			langToggle = dictionary.togglePrimary();
 			// ui
-			document.getElementById('pageTitle').innerHTML = (!langToggle) ? `English-Chukchansi Dictionary` : `Chukchansi-English Waayaw Hudaʔhiy'`;
-			document.getElementById('pageTitle').style.fontSize = (!langToggle) ? '25px' : '20px';
+			document.getElementById('nav-title').innerHTML = (!langToggle) ? `English-Chukchansi Dictionary` : `Chukchansi-English Waayaw Hudaʔhiy'`;
+			document.getElementById('nav-title').style.fontSize = (!langToggle) ? '25px' : '20px';
 			document.getElementById('langToggleTitle').innerHTML = (!langToggle) ? 'en-ch' : 'ch-en';
 			document.getElementById('langToggleSwitch').style.left = (!langToggle) ? '1px' : '11px';
 			// current entry
@@ -559,6 +560,7 @@
 				}
 			elemStr += '</div>';
 			// sentences
+			elemStr += '<br>';
 			elemStr += '<div id="entrySentences">';
 				elemStr += '<p>';
 					for (let i = 0; i < sentences.length; i++) {
@@ -618,11 +620,32 @@
 		}
 
 		function init(dictionary) {
-			// add containers
+			// add stopgap navbar before mobile-friendliness overhaul
 			let navBar = document.createElement('div');
-				navBar.id = 'navBar';
-				navBar.innerHTML = '<span id="pageTitle">English-Chukchansi Dictionary</span>';
+				navBar.id = 'nav-bar';
+				navBar.innerHTML = `<h1 id='nav-title'>English-Chukchansi Dictionary</h1>
+<nav id='nav-menu' role='navigation'>
+	<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="24" height="24" stroke-width="1.25" style='width:100%;height:100%;pointer-events:none;'>
+		<path d="M5 8l14 0"></path>
+		<path d="M5 12l14 0"></path>
+		<path d="M5 16l14 0"></path>
+	</svg>
+	<ul id='nav-dropdown' class='flex-row'>
+		<div class='flex-col'>
+			<!-- <li><a>Home</a></li> -->
+			<p class='nav-greyed-out'>Home</p>
+		</div>
+		<div class='flex-col'>
+			<li><a href='speaking-dictionary'>Speaking Dictionary</a></li>
+			<li><a href='pdf-dictionary'>PDF Dictionary</a></li>
+			<li><a href='stories'>Story Reader</a></li>
+			<li><a href='wordsearch'>Wordsearch</a></li>
+		</div>
+	</ul>
+</nav>`;
 			document.body.appendChild(navBar);
+
+			// add content containers
 			let searchPanel = document.createElement('div');
 				searchPanel.id = 'searchPanel';
 			document.body.appendChild(searchPanel);
