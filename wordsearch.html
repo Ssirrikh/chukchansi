@@ -34,13 +34,19 @@
 			--layer-overlay: 5; /* modal overlays */
 
             /* dynamic units calculated for mobile-first; see media queries for desktop */
-            --fluid-font-size: max(3vh, calc(1rem + 1.0vw));
+            --fluid-font-size: max(2.5vh, calc(1rem + 1.0vw));
+            /* --fluid-font-size: calc(1rem + 1.0vw); */
+            /* --fluid-font-size: 2.5vh; */
             --nav-pad: 0.25em;
-            --content-pad: 0.6rem;
+            --content-pad: 0.8rem;
             --title-font-size: calc(1.17 * var(--fluid-font-size)); /* unsure why 1.17, but it seems to be pixel-perfect at all sizes */
             --nav-height: calc(1.75 * var(--fluid-font-size)); /* ref height for content anchors */
 
-			--wordsearch-grid-len: 11;
+			--wordsearch-grid-size: 11;
+            --wordsearch-pad: 0.25em;
+            --wordsearch-width: min(60vh, calc(100vw - 2 * var(--content-pad)));
+            --wordsearch-tile-width: calc(calc(var(--wordsearch-width) - 2 * var(--wordsearch-pad)) / var(--wordsearch-grid-size));
+            --wordsearch-tile-font-size: calc(0.7 * var(--wordsearch-tile-width));
 		}
 
 		* {
@@ -159,24 +165,44 @@
             opacity: 50%;
         }
 
-        /* layout */
+        /**** SITE LAYOUT ****/
+
         #content {
             background-color: var(--background-inset);
             min-height: calc(100vh - var(--nav-height));
-            align-items: center;
-            justify-content: center;
-        }
-        #main {
-            margin: 0.5em;
-            gap: 1.0em;
+
+            padding: var(--content-pad);
+
+            gap: var(--content-pad);
             flex-direction: column-reverse;
+            justify-content: start;
         }
         #wordlist {
-/*            border-radius: 0.5em 0.5em 0 0;*/
             border-radius: 0.5em;
-            box-shadow: 0 0 20px #0004;
-            width: calc(1.5em * var(--wordsearch-grid-len));
+            box-shadow: var(--popout-shadow);
+
+            display: inline-block;
+            width: var(--wordsearch-width);
+            /* width: calc(1.5em * var(--wordsearch-grid-size)); */
         }
+        #wordsearch-container {
+            user-select: none;
+            color: var(--text-dark);
+            background-color: var(--background-light);
+            border-radius: 0.5em;
+            box-shadow: var(--popout-shadow);
+
+            display: inline-block;
+            position: relative;
+            width: var(--wordsearch-width);
+            height: var(--wordsearch-width);
+            padding: var(--wordsearch-pad);
+            font-size: var(--wordsearch-tile-font-size);
+            line-height: var(--wordsearch-tile-font-size);
+        }
+
+        /**** WORD LIST ****/
+
         .wordlist-header {
             color: var(--text-nav);
             background-color: var(--background-nav);
@@ -191,11 +217,12 @@
         }
         #wordlist-content {
             color: var(--text-dark);
-/*            border: 1px solid red;*/
+            /* border: 1px solid red; */
 
             display: flex;
             padding: 0.5em;
 
+            /* overflow-y: scroll; */
             flex-flow: row wrap;
             justify-content: center;
             align-content: flex-start;
@@ -204,32 +231,28 @@
         .wordlist-item {
             border-radius: 1em;
             display: inline-block;
-/*            margin: 0.25em;*/
+            /* margin: 0.25em; */
             padding: 0.25em 0.5em;
             font-size: 0.8em;
         }
         .highlighted {
-/*            color: var(--text-medium);*/
-/*            background-color: var(--background-medium);*/
             opacity: 0.3;
             text-decoration: line-through;
         }
-        #wordsearch-container {
-            color: var(--text-dark);
-            background-color: var(--background-light);
-            border-radius: 0.5em;
-            box-shadow: 0 0 20px #0004;
 
-            display: inline-block;
-            position: relative;
-            padding: 0.25em;
-            font-size: 1em;
-            user-select: none;
+        /**** WORDSEARCH ****/
+        
+        #wordsearch-click-area {
+            /* border: 1px solid red; */
+            width: 100%;
+            height: 100%;
+            justify-content: space-around;
         }
         .wordsearch-tile {
+            /* border: 1px solid blue; */
             position: relative;
-            width: 1.5em;
-            height: 1.5em;
+            width: 1.0em;
+            height: 1.0em;
 
             display: flex;
             align-items: center;
@@ -254,26 +277,11 @@
             transform: translate(var(--offset),var(--offset)) rotate(0);
         }
         #cursor-caterpillar {
-            /* --radius: 0.7em; */
-            /* --offset: calc(-1 * var(--radius)); */
-            /* pointer-events: none;
-            background-color: var(--background-dark);
-            border-radius: var(--radius);
-            opacity: 0.3; */
-            visibility: hidden; /* start out invisible */
-
-            /* display: inline-block;
-            position: absolute;
-            padding: var(--radius);
-            width: 0;
-            height: 0;
-            top: 1em;
-            left: 1em;
-            transform-origin: var(--radius) var(--radius);
-            transform: translate(var(--offset),var(--offset)) rotate(0); */
+            visibility: hidden; /* start out invisible; only show while click-dragging */
         }
 
-        /* loading screen */
+        /**** LOADING SCREEN ****/
+
         #player-loading-screen {
             background-color: var(--background-inset);
 
@@ -331,17 +339,17 @@
             100% { left:100%; z-index:2; }
         }
 
-
-
         /* mobile-first styling for better load times on less-powerful devices */
         /* media queries must come after the things they modify */
         @media (max-aspect-ratio: 5/4) { /* mobile mode */
-            /*  */
+            /* [none] */
         }
 		@media (min-aspect-ratio: 5/4) { /* desktop mode */
             :root {
                 --title-font-size: 1.0em;
                 --nav-height: calc(1.5 * var(--fluid-font-size)); /* ref height for content anchors; 1.0em text + 2*0.25em padding */
+
+                --wordsearch-width: min(50vw, calc(100vh - var(--nav-height) - 2 * var(--content-pad)));
             }
 			.flex-adapt {
 				flex-direction: row;
@@ -349,17 +357,33 @@
 				justify-content: center;
 			}
 
+            #content {
+                flex-direction: row;
+                align-items: center;
+                justify-content: center;
+            }
             #wordlist {
                 width: 10em;
-            }
-            #main {
-                flex-direction: row;
+                height: var(--wordsearch-width);
             }
             .wordlist-item {
                 display: block;
             }
 		}
 
+
+
+        /**** DEBUG ****/
+
+        .marker {
+            border: 1px solid green;
+
+            display: inline-block;
+            position: absolute;
+            width: var(--wordsearch-tile-width);
+            height: var(--wordsearch-tile-width);
+            transform: translate(-50%,-50%);
+        }
 		
 	</style>
 </head>
@@ -379,34 +403,37 @@
                 <p class='nav-greyed-out'>Home</p>
             </div>
             <div class='flex-col'>
-                <li><a href='speaking-dictionary.html'>Speaking Dictionary</a></li>
-                <li><a href='pdf-dictionary.html'>PDF Dictionary</a></li>
-                <li><a href='stories.html'>Story Reader</a></li>
-                <li><a href='wordsearch.html'>Wordsearch</a></li>
+                <li><a href='speaking-dictionary'>Speaking Dictionary</a></li>
+                <li><a href='pdf-dictionary'>PDF Dictionary</a></li>
+                <li><a href='stories'>Story Reader</a></li>
+                <li><a href='wordsearch'>Wordsearch</a></li>
             </div>
         </ul>
     </nav>
 </div>
-<div id='content' class='flex-col'>
-    <div id='main' class='flex-adapt'>
-        <div id='wordlist' class='flex-col'>
-            <div class='flex-row wordlist-header'>
-                <p id='wordlist-progress'>0/0</p>
-                <div class='flex-sep'></div>
-                <button id='button-new-game' onclick='controller.newGame(targetWordlist)'>+ New Game</button>
-            </div>
-            <div id='wordlist-content'>
-                <p class='wordlist-item'>Word 1</p>
-                <p class='wordlist-item highlighted'>Long Word 2</p>
-                <p class='wordlist-item'>Reallylongusthemost Word</p>
-            </div>
+<div id='content' class='flex-adapt'>
+    <div id='wordlist' class='flex-col'>
+        <div class='flex-row wordlist-header'>
+            <p id='wordlist-progress'>0/0</p>
+            <div class='flex-sep'></div>
+            <button id='button-new-game' onclick='controller.newGame(targetWordlist)'>+ New Game</button>
         </div>
-        <div id='wordsearch-container'>
-            <div id='wordsearch-click-area' class='flex-col'></div>
-            <div id='cursor-caterpillar' class='caterpillar'></div>
+        <div id='wordlist-content'>
+            <p class='wordlist-item'>Word 1</p>
+            <p class='wordlist-item highlighted'>Long Word 2</p>
+            <p class='wordlist-item'>Reallylongusthemost Word</p>
+            <p class='wordlist-item'>Word N</p><p class='wordlist-item'>Word N</p>
+            <p class='wordlist-item'>Word N</p><p class='wordlist-item'>Word N</p>
+            <p class='wordlist-item'>Word N</p><p class='wordlist-item'>Word N</p>
+            <p class='wordlist-item'>Reallylongusthemost Word</p>
+            <p class='wordlist-item'>Word N</p><p class='wordlist-item'>Word N</p>
         </div>
     </div>
-        
+
+    <div id='wordsearch-container'>
+        <div id='wordsearch-click-area' class='flex-col'></div>
+        <div id='cursor-caterpillar' class='caterpillar'></div>
+    </div>
 </div>
 
 
@@ -444,8 +471,15 @@
     // 0.5 hrs: print difficulties demo
     // 0.5 hrs: fix wordsearch breaking after file name standardization; add failsafe for future
     // 1.5 hrs: admin stuff, nav standardization
+    // 4.0 hrs: make ui fully dynamic, misc bug fixes
 
 
+
+    // CSS var manipulation
+    const CSSVars = {
+        get : (k) => getComputedStyle(document.documentElement).getPropertyValue(k),
+        set : (k,v) => document.documentElement.style.setProperty(k,v)
+    };
     
     // DOM anchors
     const navTitle = document.getElementById('nav-title');
@@ -485,7 +519,8 @@
     // gamestate controller
     let controller = {
         // constants and settings
-        MIN_SIDELEN : 10,
+        MIN_SIDELEN : 11,
+        // MIN_SIDELEN : 10,
         minWordlen : 3,
         maxWordlen : 10,
         directions : DIRECTIONS_HARD,
@@ -698,7 +733,7 @@
 
         let wordsearchStr = '';
         for (let r = 0; r < rows; r++) {
-            wordsearchStr += `<div class='flex-row'>`;
+            wordsearchStr += `<div class='flex-row' style='justify-content:space-around;'>`;
             for (let c = 0; c < cols; c++) {
                 wordsearchStr += `<div class='wordsearch-tile'>${grid[r][c]}</div>`;
                 // wordsearchStr += `<div class='wordsearch-tile' onclick='console.log("(${r},${c}) ${grid[r][c]}")'>${grid[r][c]}</div>`;
@@ -710,12 +745,6 @@
         wordlist.innerHTML = wordlistStr;
         wordsearch.innerHTML = wordsearchStr;
 
-    }
-
-    function getPxCoordsOf (r,c) {
-        const fontSize = parseFloat(getComputedStyle(wordsearch).fontSize);
-        // console.log(fontSize);
-        return [fontSize + c*1.5*fontSize, fontSize + r*1.5*fontSize]; // [x,y]
     }
 
     let rDragStart = -1;
@@ -730,12 +759,12 @@
         rDragStart = Math.floor(controller.grid.length * (y-b.top)/b.height);
         cDragStart = Math.floor(controller.grid.length * (x-b.left)/b.width);
         dragging = true;
-        // console.log(`start drag from (${rDragStart},${cDragStart})`);
+        console.log(`start drag from (${rDragStart},${cDragStart})`);
 
         cursorCaterpillar.style.visibility = 'visible';
         cursorCaterpillar.style.width = '0';
-        cursorCaterpillar.style.top = `calc(1em + ${rDragStart} * 1.5em)`;
-        cursorCaterpillar.style.left = `calc(1em + ${cDragStart} * 1.5em)`;
+        cursorCaterpillar.style.top = `calc(var(--wordsearch-pad) + ${0.5+rDragStart} * var(--wordsearch-tile-width))`;
+        cursorCaterpillar.style.left = `calc(var(--wordsearch-pad) + ${0.5+cDragStart} * var(--wordsearch-tile-width))`;
     }
     function moveEnd (e) {
         cursorCaterpillar.style.visibility = 'hidden';
@@ -756,22 +785,20 @@
             const dc = Math.abs(cDragEnd - cDragStart);
             // console.log(`(${rDragStart},${cDragStart}) -> (${rDragEnd},${cDragEnd}) drdc(${dr},${dc})`);
 
-            const [xDragStart,yDragStart] = getPxCoordsOf(rDragStart,cDragStart);
+            const tileWidth = b.width / controller.grid.length;
+            // console.log(tileWidth);
+            const xDragStart = (0.5+cDragStart) * tileWidth;
+            const yDragStart = (0.5+rDragStart) * tileWidth;
             const dx = (x) - (xDragStart+b.left);
             const dy = (y) - (yDragStart+b.top);
-            const dist = Math.sqrt(dx*dx + dy*dy);
+            const dist = Math.sqrt(dx*dx + dy*dy); // measured in px since caterpillar doesn't snap to tiles; doesn't need to scale dynamically since caterpillar disappears
             const angle = Math.atan2(dy,dx);
-            cursorCaterpillar.style.width = `calc(1.5em + ${dist}px)`;
+            cursorCaterpillar.style.width = `calc(var(--wordsearch-pad) + var(--wordsearch-tile-width) + ${dist}px)`;
             cursorCaterpillar.style.transform = `translate(var(--offset),var(--offset)) rotate(${angle}rad)`;
             // console.log(`x ${xDragStart+b.left}->${x}, dxdy (${dx},${dy}) theta ${(180/2/Math.PI * angle).toFixed(1)}deg`);
 
             if (dr == 0 || dc == 0 || dr == dc) {
-                // const dist = Math.sqrt(dr*dr + dc*dc);
-                // const angle = Math.atan2(dr,dc);
-                // cursorCaterpillar.style.width = `calc(1.5em + ${dist} * 1.5em)`;
-                // cursorCaterpillar.style.transform = `translate(var(--offset),var(--offset)) rotate(${angle}rad)`;
-                // // console.log(`x ${xDragStart+b.left}->${x}, dxdy (${dx},${dy}) theta ${(180/2/Math.PI * angle).toFixed(1)}deg`);
-
+                // if on a straight or diagonal, check if current string is in wordlist
                 const wordsearchStr = controller.stringFrom(rDragStart,cDragStart,rDragEnd,cDragEnd);
                 for (let i = 0; i < targetWordlist.length; i++) {
                     if (targetWordlist[i].toUpperCase() == wordsearchStr) {
@@ -782,12 +809,12 @@
                         // position caterpillar over word
                         const dx = cDragEnd - cDragStart;
                         const dy = rDragEnd - rDragStart;
-                        const dist = Math.sqrt(dx*dx + dy*dy);
+                        const dist = Math.sqrt(dx*dx + dy*dy); // measured in number of tiles; caterpillars must scale dynamically
                         const angle = Math.atan2(dy,dx);
-                        controller.wordData[i].caterpillar.style.width = `calc(1.5em + 1.5em * ${dist})`;
+                        controller.wordData[i].caterpillar.style.width = `calc(${1+dist} * var(--wordsearch-tile-width))`;
                         controller.wordData[i].caterpillar.style.transform = `translate(var(--offset),var(--offset)) rotate(${angle}rad)`;
-                        controller.wordData[i].caterpillar.style.top = `calc(1em + 1.5em * ${rDragStart})`;
-                        controller.wordData[i].caterpillar.style.left = `calc(1em + 1.5em * ${cDragStart})`;
+                        controller.wordData[i].caterpillar.style.top = `calc(var(--wordsearch-pad) + ${0.5+rDragStart} * var(--wordsearch-tile-width))`;
+                        controller.wordData[i].caterpillar.style.left = `calc(var(--wordsearch-pad) + ${0.5+cDragStart} * var(--wordsearch-tile-width))`;
                         wordsearchContainer.appendChild(controller.wordData[i].caterpillar);
                         // update progress counter
                         progress.innerHTML = `${controller.numFound()}/${controller.wordData.length}`;
@@ -812,16 +839,6 @@
     wordsearch.addEventListener('touchstart', e => moveStart(e,true));
     wordsearch.addEventListener('touchmove', e => move(e,true));
     window.addEventListener('touchend', e => moveEnd(e));
-
-    // window.addEventListener('keydown', e => {
-    //     // console.log(e.key);
-    //     // e.preventDefault();
-    //     switch (e.key) {
-    //         case '`':
-    //             console.log('dev key');
-    //             break;
-    //     }
-    // });
 
     // window.addEventListener('resize', e => {
     //     navTitle.innerHTML = (window.innerWidth < window.innerHeight) ? 'Chk Wordsearch' : 'Chukchansi Wordsearch';
@@ -867,6 +884,17 @@
     // init new game
     controller.newGame(targetWordlist);
 
+
+
+    // debug
+    function inject (r=0,c=0) {
+        const markerActual = document.createElement('div');
+        markerActual.classList.add('marker');
+        markerActual.style.top = `calc(var(--wordsearch-pad) + ${0.5+r} * var(--wordsearch-tile-width))`;
+        markerActual.style.left = `calc(var(--wordsearch-pad) + ${0.5+c} * var(--wordsearch-tile-width))`;
+        wordsearch.appendChild(markerActual);
+    }
+    
 </script>
 
 </body>
