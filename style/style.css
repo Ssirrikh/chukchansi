@@ -1,26 +1,39 @@
 
 :root {
-    --background-nav: #461220; /* navbar */
-    --text-nav: #ffdab3; /* navbar */
+	--background-nav: #461220; /* navbar */
+	--text-nav: #ffd994; /* previously #ffdab3 */
+	--border-nav: #64182c; /* #64182c, #771932 */
+
+	--background-nav-selected: #6b4226;
+	--background-nav-unselected: #eac8a2;
 	
 	--background-search: #ffffff; /* searchbar */
 	--icon-search: #826545; /* search clear button, search history button */
 
-    --background-light: #f2e3d3; /* search panel, search results, content panel, hanging tabs */
-	--background-sentences: #dbb78f; /* sentences inset panel */
-    --background-medium: #bfa07e; /* search result panel, unloaded img inset panel */
-	--background-dark: #ad8e6c; /* toggle switch */
-    --text-dark: #4f3a09; /* hanging tabs, search results, content panel, sentences inset panel */
-	--text-medium: #75544b; /* searchbar, no results text, search history */
+	--background-light: #f2e3d3; /* main content bg */
+	--background-inset: #dbb78f; /* inset panels; vibrant bg */
+	--background-medium: #bfa07e; /* side panels; muted bg */
+	--background-dark: #ad8e6c; /* fractionally darker interactibles bg */
+	--text-dark: #4f3a09; /* main content text */
+	--text-medium: #806d46; /* interactible text */
 	--text-light: #fdf7ea;
 
-    --border-dark: #4f3a09; /* panel separators, hanging tabs */
-    --border-medium: #75544b; /* search results, img inset, sentences inset */
-    --border-light: #bfa07e; /* searchbar, search history */
+	--border-dark: #4f3a09; /* content separation */
+	--border-medium: #75544b; /* inset panel border */
+	--border-light: #bfa07e; /* interactible textbox border */
 
-    --layer-front: 2; /* elems that hover over content (hanging tabs, search history) */
-	--layer-nav: 3; /* nav elements are always topmost [currently unused] */
+	--popout-shadow: 0 0 10px #00000038;
+
+	--layer-front: 2; /* elems that hover over content (hanging tabs, search history) */
+	--layer-nav: 3; /* nav elements are always topmost */
 	--layer-overlay: 5; /* modal overlays */
+
+	/* dynamic units calculated for mobile-first; see media queries for desktop */
+	--fluid-font-size: max(3vh, calc(1rem + 1.0vw));
+	--nav-pad: 0.25em;
+	--content-pad: 0.6rem;
+	--title-font-size: calc(1.17 * var(--fluid-font-size)); /* unsure why 1.17, but it seems to be pixel-perfect at all sizes */
+	--nav-height: calc(1.75 * var(--fluid-font-size)); /* ref height for content anchors */
 
 	--icon-image: url('../source/image.png');
 	--icon-audio: url('../source/audio.png');
@@ -29,11 +42,54 @@
 * {
 	margin: 0px;
 	padding: 0px;
+	box-sizing: border-box;
 	font-family: 'Times New Roman';
-}	
+}
 body {
-	background-color: #000000;
-	overflow: hidden;
+	background-color: var(--background-nav);
+	/* font-size: var(--fluid-font-size); */
+}
+button {
+	color: var(--text-dark);
+	background-color: transparent;
+	border: none;
+	outline: none;
+}
+
+/* flexbox */
+.flex-sep {
+	width: 0;
+	flex-grow: 1;
+}
+.flex-row {
+	display: flex;
+	flex-direction: row;
+	align-items: start;
+}
+.flex-col {
+	display: flex;
+	flex-direction: column;
+}
+.flex-adapt {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+/* mobile-first styling for better load times on less-powerful devices */
+@media (max-aspect-ratio: 5/4) { /* mobile mode */
+	/* [none] */
+}
+@media (min-aspect-ratio: 5/4) { /* desktop mode */
+	/* :root { */
+		/* --title-font-size: 1.0em; */
+		/*--nav-height: calc(1.5 * var(--fluid-font-size)); /* ref height for content anchors; 1.0em text + 2*0.25em padding */
+	/* } */
+	.flex-adapt {
+		flex-direction: row;
+		align-items: normal;
+		justify-content: center;
+	}
 }
 
 
@@ -49,32 +105,89 @@ body {
 
 
 
-/**** PAGE ELEMENTS ****/
+/**** NAV BAR ****/
 
-/* header bar */
-#navBar {
+#nav-bar {
 	color: var(--text-nav);
 	background-color: var(--background-nav);
+	border-bottom: 1px solid var(--border-nav);
 
-	box-sizing: border-box;
 	position: sticky;
-	padding: 10px;
+	padding: var(--nav-pad);
 	top: 0px;
 	width: 100%;
-	height: 50px;
-	z-index: var(--layer-front); /* make sure nav elems and hanging tabs are on top of other content */
+	font-size: var(--title-font-size);
+	text-align: center;
 
-	border-bottom: 1px solid #ffffff; /* edge highlight to emphasize navbar separation */
+	z-index: var(--layer-nav); /* nav elems and hanging tabs are on top of other content, but not fullscreen modals */
 }
-#pageTitle {
+#nav-title {
+	/* unstyle <h1> */
+	font-size: var(--title-font-size);
+	line-height: var(--title-font-size);
+	font-weight: normal;
+}
+#nav-menu {
+	/* https://www.sliderrevolution.com/resources/css-dropdown-menu/ */
+	cursor: pointer;
+
+	display: inline-block;
 	position: absolute;
-	/*margin: 10px;*/
-	left: 50%;
-
-	transform: translate(-50%, 0%);
-
-	font-size: 25px;
+	top: 0px;
+	left: 0px;
+	width: var(--nav-height);
+	height: var(--nav-height);
 }
+#nav-menu ul {
+	cursor: default;
+	color: var(--text-dark);
+	background-color: var(--background-nav-unselected);
+	/* border-top: 1px solid var(--text-light); */
+	border-bottom: 1px solid var(--border-light);
+
+	visibility: hidden;
+	position: absolute;
+	top: var(--nav-height);
+	left: 0px;
+	width: 100vw;
+	padding: 0.25em;
+	z-index: var(--layer-overlay); /* TEMP BANDAID UNTIL OVERHAUL */
+
+	text-align: left;
+	list-style: none;
+	flex-wrap: wrap;
+}
+#nav-menu div + div {
+	border-left: 1px solid var(--text-dark);
+}
+#nav-menu ul li {
+	cursor: pointer;
+	color: var(--text-dark);
+	padding: 0.15em 0.75em;
+	font-size: 0.8em;
+}
+#nav-menu ul li:hover {
+	color: var(--text-nav);
+	background-color: var(--background-nav-selected);
+}
+#nav-menu:focus-within > ul, #nav-menu:hover ul {
+	visibility: visible;
+}
+#nav-menu ul li a {
+	color: inherit;
+	text-decoration: inherit;
+}
+.nav-greyed-out {
+	cursor: default;
+	color: var(--text-dark);
+	padding: 0.15em 0.75em;
+	font-size: 0.8em;
+	opacity: 50%;
+}
+
+
+
+/**** PAGE ELEMENTS ****/
 
 /* left panel search box */
 #searchPanel {
@@ -82,7 +195,7 @@ body {
 	/* border-bottom: 4px solid var(--border-dark); */
 
 	position: absolute;
-	top: 50px;
+	top: var(--nav-height);
 	width: 25%;
 	height: 46px;
 
@@ -167,13 +280,13 @@ body {
 	background-color: var(--background-light);
 	border: 3px solid var(--border-dark);
 	border-radius: 0px 0px 15px 15px;
-	border-top: none;
+	border-top: 1px solid var(--border-nav);
 
 	position: absolute;
-	top: 50px;
+	top: var(--nav-height);
 	left: calc(100% - 30px);
-	width: 100px;
-	height: 30px;
+	width: 104px;
+	height: 34px;
 	transform: translate(-100%, 0%);
 }
 #langToggleTitle {
@@ -194,8 +307,8 @@ body {
 	position: absolute;
 	top: 50%;
 	left: calc(100% - 7px);
-	width: 30px;
-	height: 16px;
+	width: 34px;
+	height: 20px;
 	transform: translate(-100%, -50%);
 }
 #langToggleSwitch {
@@ -217,9 +330,9 @@ body {
 
 	box-sizing: border-box;
 	position: absolute;
-	top: 124px;
+	top: calc(var(--nav-height) + 46px + 28px);
 	width: 25%;
-	height: calc(100% - 124px);
+	height: calc(100vh - var(--nav-height) - 46px - 28px);
 	padding-top: 2px;
 }
 .searchResult {
@@ -232,7 +345,7 @@ body {
 
 	margin: 4px;
 	padding: 2px 10px;
-	height: 20px;
+	height: 27px;
 
 	font-size: 16px;
 
@@ -330,7 +443,7 @@ body {
 	border-bottom: 4px solid var(--border-dark);
 
 	position: absolute;
-	top: 96px;
+	top: calc(var(--nav-height) + 46px);
 	width: 25%;
 	display: flex;
 	flex-direction: row;
@@ -372,7 +485,8 @@ body {
 	border-bottom: 4px solid var(--border-dark);
 
 	position: absolute;
-	top: 120px;
+	/* top: 120px; */
+	top: calc(var(--nav-height) + 46px + 28px - 4px);
 	/* height: 0px; */
 	width: 25%;
 
@@ -437,10 +551,10 @@ body {
 	box-sizing: border-box;
 	position: absolute;
 	padding: 20px;
-	top: 50px;
+	top: var(--nav-height);
 	left: 25%;
 	width: 75%;
-	height: calc(100% - 50px);
+	height: calc(100vh - var(--nav-height));
 }
 
 /* right panel title bar */
@@ -465,13 +579,11 @@ body {
 /* right panel data */
 #entryData {
 	display: block;
-	margin-top: 5px;
-	/*height: 200px;*/
 }
 .dataRow {
 	display: block;
 	margin-left: 40px;
-	padding: 5px;
+	padding: 20px 5px;
 	height: 30px;
 }
 .dataHeader {
@@ -623,7 +735,7 @@ body {
 
 /* right panel example sentences */
 #entrySentences {
-	background-color: var(--background-sentences);
+	background-color: var(--background-inset);
 	border: 2px solid var(--border-medium);
 	border-radius: 4px;
 
