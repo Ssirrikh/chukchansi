@@ -34,7 +34,9 @@
 			--layer-overlay: 5; /* modal overlays */
 
             /* dynamic units calculated for mobile-first; see media queries for desktop */
-            --fluid-font-size: max(3vh, calc(1rem + 1.0vw));
+            --fluid-font-size: max(2.5vh, calc(1rem + 1.0vw));
+            /* --fluid-font-size: calc(1rem + 1.0vw); */
+            /* --fluid-font-size: 2.5vh; */
             --nav-pad: 0.25em;
             --content-pad: 0.6rem;
             --title-font-size: calc(1.17 * var(--fluid-font-size)); /* unsure why 1.17, but it seems to be pixel-perfect at all sizes */
@@ -165,7 +167,7 @@
         #nav-menu ul li {
             cursor: pointer;
             color: var(--text-dark);
-            padding: 0.15em 0.75em;
+            /* padding: 0.15em 0.75em; */
             font-size: 0.8em;
         }
         #nav-menu ul li:hover {
@@ -176,6 +178,10 @@
             visibility: visible;
         }
         #nav-menu ul li a {
+            /* border: 1px solid blue; */
+            display: inline-block;
+            width: 100%;
+            padding: 0.15em 0.75em;
             color: inherit;
             text-decoration: inherit;
         }
@@ -671,6 +677,7 @@
     // 1.0 hrs: web optimization research
     // 6.0 hrs: add nav menu
     // 6.0 hrs: cleanup, mobile optimization, layout improvements
+    // 0.5 hrs: fix issue that made nav links hard to click
 
 
     

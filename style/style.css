@@ -163,7 +163,7 @@ button {
 #nav-menu ul li {
 	cursor: pointer;
 	color: var(--text-dark);
-	padding: 0.15em 0.75em;
+	/* padding: 0.15em 0.75em; */
 	font-size: 0.8em;
 }
 #nav-menu ul li:hover {
@@ -174,6 +174,10 @@ button {
 	visibility: visible;
 }
 #nav-menu ul li a {
+	/* border: 1px solid blue; */
+	display: inline-block;
+	width: 100%;
+	padding: 0.15em 0.75em;
 	color: inherit;
 	text-decoration: inherit;
 }
