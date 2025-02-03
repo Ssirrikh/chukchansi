@@ -194,9 +194,8 @@
         /**** SITE LAYOUT ****/
 
         #bg-img {
-            /* background-color: lightblue; */
-            /* border: 1px solid blue; */
             background: var(--background-inset) url('source/Picayune\ Ranch.jpg') center center / cover no-repeat;
+            filter: blur(4px);
 
             position: fixed;
             top: var(--nav-height);
@@ -206,7 +205,6 @@
         }
         #section-title {
             background-color: transparent;
-            border: 1px solid red;
             filter: drop-shadow(var(--popout-shadow));
 
             /* display: inline-block; */
@@ -220,22 +218,21 @@
             justify-content: space-around;
         }
         #section-resources {
-            background-color: var(--background-light);
-            border: 1px solid green;
+            background-color: var(--background-inset);
             filter: drop-shadow(var(--popout-shadow));
 
             width: 100%;
-            height: calc(100vh - var(--nav-height) - 4.0em);
-            min-height: 16em;
+            /* height: calc(100vh - var(--nav-height) - 4.0em); */
+            /* min-height: 16em; */
             /* padding: 1.0em; */
 
             /* justify-content: space-around; */
         }
 
         .section-header {
-            border: 1px solid blue;
+            /* border: 1px solid blue; */
             width: 100%;
-            height: 4em;
+            height: 2em;
             align-items: center;
             justify-content: center;
         }
@@ -281,26 +278,76 @@
             font-size: 0.8em;
         }
         #projects-wrapper {
+            flex-wrap: wrap;
             gap: 3.0em;
             justify-content: center;
         }
         .project-button {
-            color: var(--text-light);
-            background-color: var(--text-dark);
-            border-radius: 0.5em;
+            color: var(--text-dark);
+            background-color: var(--background-light);
+            border: 0.15em double var(--border-dark);
+            /* border-radius: 0.5em; */
 
+            width: 11em;
             padding: 0.5em;
-            font-size: 0.8em;
+            font-size: 0.7em;
         }
 
         /**** RESOURCES SECTION ****/
 
         .css-arrow-up {
-            background-color: var(--background-nav-selected);
+            --thickness: 0.2em;
+            border-top: var(--thickness) solid var(--background-nav-selected);
+            border-right: var(--thickness) solid var(--background-nav-selected);
+            transform: rotate(-45deg) translate(0,50%);
 
             display: inline-block;
             width: 0.8em;
             height: 0.8em;
+        }
+
+        .resource-column-title {
+            font-size: 1.0em;
+        }
+        .resource-container {
+            padding: 1.0em;
+            gap: 1.0em;
+        }
+        .resource-card-large {
+            background-color: var(--background-light);
+            filter: drop-shadow(var(--popout-shadow));
+            /* border: 1px solid blue; */
+            border-radius: 0.5em;
+
+            padding: 0.5em;
+
+            gap: 0.25em;
+        }
+        .resource-card-title {
+            font-size: 1.0em;
+        }
+        .resource-card-blurb {
+            color: var(--text-medium);
+            font-size: 0.8em;
+        }
+        .resource-card-link {
+            color: var(--text-nav);
+            background-color: var(--background-nav-selected);
+            border-radius: 0.25em;
+
+            padding: 0.25em 0.5em;
+            width: 6em;
+            font-size: 0.8em;
+            text-align: center;
+            text-decoration: underline;
+            align-self: end;
+        }
+
+        #resource-card-logo-1 {
+            background: var(--background-inset) url('source/logo-picayune.png') center center / cover no-repeat;
+        }
+        #resource-card-logo-2 {
+            background: var(--background-inset) url('source/logo-language-culture.png') center center / cover no-repeat;
         }
 		
 	</style>
@@ -308,7 +355,7 @@
 <body>
 
 <div id='nav-bar'>
-    <h1 id='nav-title'>The Chukchansi Project</h1>
+    <h1 id='nav-title'>The Chukchansi Language Project</h1>
     <nav id='nav-menu' role='navigation'>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="24" height="24" stroke-width="1.25" style='width:100%;height:100%;pointer-events:none;'>
             <path d="M5 8l14 0"></path>
@@ -343,23 +390,36 @@
     </div>
     <div id='projects-wrapper' class='flex-row'>
         <button class='project-button'>Online Dictionary</button>
-        <button class='project-button'>PDF Dictionary</button>
+        <button class='project-button'>PDF Dictionary (ed.6)</button>
+        <button class='project-button'>Story Reader</button>
+        <button class='project-button'>Wordsearch</button>
     </div>
 </div>
-<div id='section-resources' class='flex-adapt'>
+<div id='section-resources' class='flex-col'>
     <div class='flex-row section-header'>
         <div class='css-arrow-up'></div>
     </div>
-    <div class='flex-col'>
-        <div class='resource-card-large'></div>
-        <div class='resource-card-large'></div>
-    </div>
-    <div class='flex-col'>
-        <div class='resource-card-small'></div>
-        <div class='resource-card-small'></div>
-        <div class='resource-card-small'></div>
-        <div class='resource-card-small'></div>
-        <div class='resource-card-small'></div>
+    <div class='flex-adapt resource-container'>
+        <div class='flex-col' style='gap: 1em;'>
+            <div class='flex-col resource-card-large'>
+                <h3 class='resource-card-title'>Picayune Rancheria Homepage</h3>
+                <p class='resource-card-blurb'>The official website of The Picayune Rancheria of the Chukchansi Indians, with information and resources for tribe members.</p>
+                <a class='resource-card-link' href='https://chukchansi-nsn.gov/'>Visit Site</a>
+            </div>
+            <div class='flex-col resource-card-large'>
+                <h3 class='resource-card-title'>Dept. of Language and Culture</h3>
+                <p class='resource-card-blurb'>The hub site for the Department of Language and Culture, with educational resources and event calendars.</p>
+                <a class='resource-card-link' href='https://www.chukchansilanguage.org/'>Visit Site</a>
+            </div>
+        </div>
+        <div class='flex-col resource-card-large'>
+            <h3 class='resource-card-title'>Other Resources</h3>
+            <p class='resource-card-blurb'><a href='https://www.youtube.com/playlist?list=PLAanj6d8R-Thc5fmNNf6XhW4WawZiiBew'>A video series</a> by Shonna Alexander covers the basics of the language on YouTube.</p>
+            <p class='resource-card-blurb'><a href='https://www.youtube.com/@ChukchansiLanguage-pn3ko'>Recordings of online classes</a> by Kim Lawhon are available on another YouTube channel.</p>
+            <p class='resource-card-blurb'><a>Link</a> and text.</p>
+            <p class='resource-card-blurb'><a>Link</a> and text.</p>
+            <p class='resource-card-blurb'><a>Link</a> and text.</p>
+        </div>
     </div>
 </div>
 
@@ -373,7 +433,8 @@
     // 0.5 hrs: SEO analysis
     // 1.0 hrs: whitebox homepage
     // 1.5 hrs: dev site layout
-    // 2.0 hrs: dev site layout
+    // 4.0 hrs: dev site layout
+    // 0.5 hrs: add navbar to pdf dictionary
 
 
     
