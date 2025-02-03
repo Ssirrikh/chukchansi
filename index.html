@@ -1,40 +1,48 @@
 <!DOCTYPE html>
-<html>
+<html lang='en' xml:lang='en'>
 <head>
 	<meta charset = 'utf-8'>
 	<title>The Chukchansi Project</title>
     <meta name='robots' content='index, follow'>
-    <meta name='description' content='The home page for the Chukchansi Language Revitalization Project, which links to the bilingual speaking dictionary, the pdf dictionary, and other Chukchansi educational resources.'>
-	<style>
+    <meta name='description' content='The Chukchansi Language Revitalization Project is documenting the Chukchansi Yokuts language. Our bilingul dictionary and educational resources are helping the next generation to improve their fluency and connect with their heritage.'>
+	<meta name='viewport' content='width=device-width, initial-scale=1'>
+    <style>
 		:root {
 			--background-nav: #461220; /* navbar */
-			--text-nav: #ffdab3; /* navbar */
-			
-			--background-search: #ffffff; /* searchbar */
-			--icon-search: #826545; /* searchbar inset icons */
+            --text-nav: #ffd994; /* previously #ffdab3 */
+            --border-nav: #64182c; /* #64182c, #771932 */
+
+            --background-nav-selected: #6b4226;
+            --background-nav-unselected: #eac8a2;
 
 			--background-light: #f2e3d3; /* main content bg */
 			--background-inset: #dbb78f; /* inset panels; vibrant bg */
 			--background-medium: #bfa07e; /* side panels; muted bg */
 			--background-dark: #ad8e6c; /* fractionally darker interactibles bg */
 			--text-dark: #4f3a09; /* main content text */
-			--text-medium: #75544b; /* interactible text */
+			--text-medium: #806d46; /* interactible text */
 			--text-light: #fdf7ea;
 
 			--border-dark: #4f3a09; /* content separation */
 			--border-medium: #75544b; /* inset panel border */
 			--border-light: #bfa07e; /* interactible textbox border */
 
+            --popout-shadow: 0 0 10px #00000038;
+
 			--layer-front: 2; /* elems that hover over content (hanging tabs, search history) */
-			--layer-nav: 3; /* nav elements are always topmost [currently unused] */
+			--layer-nav: 3; /* nav elements are always topmost */
 			--layer-overlay: 5; /* modal overlays */
 
-            --fluid-font-size: max(3vh, calc(1rem + 1.0vw));
-            --content-pad: 1rem;
-            --nav-height: calc(1.65 * var(--fluid-font-size)); /* ref height for content anchors; is actually 1.5*font, but position:sticky doesn't work properly for some reason unless this value is >= 0.15em bigger than the actual nav height */
+            /* dynamic units calculated for mobile-first; see media queries for desktop */
+            --fluid-font-size: max(2.5vh, calc(1rem + 1.0vw));
+            /* --fluid-font-size: calc(1rem + 1.0vw); */
+            /* --fluid-font-size: 2.5vh; */
+            --nav-pad: 0.25em;
+            --content-pad: 0.6rem;
+            --title-font-size: calc(1.17 * var(--fluid-font-size)); /* unsure why 1.17, but it seems to be pixel-perfect at all sizes */
+            --nav-height: calc(1.75 * var(--fluid-font-size)); /* ref height for content anchors */
 
-			--icon-image: url('../source/image.png');
-			--icon-audio: url('../source/audio.png');
+			--thumbnail-position: center center / cover no-repeat;
 		}
 
 		* {
@@ -54,6 +62,7 @@
             outline: none;
         }
 
+		/* flexbox */
 		.flex-sep {
 			width: 0;
 			flex-grow: 1;
@@ -67,65 +76,231 @@
 			display: flex;
 			flex-direction: column;
 		}
+        .flex-adapt {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .flex-adapt-reverse {
+            flex-direction: row;
+            align-items: normal;
+            justify-content: center;
+        }
 
-        /* mobile-first for better load times on less-powerful devices */
-        @media (max-aspect-ratio: 1/1) { /* mobile mode */
-            .flex-adapt {
+        /* mobile-first styling for better load times on less-powerful devices */
+        @media (max-aspect-ratio: 5/4) { /* mobile mode */
+            /* [none] */
+        }
+		@media (min-aspect-ratio: 5/4) { /* desktop mode */
+            :root {
+                --title-font-size: 1.0em;
+                --nav-height: calc(1.5 * var(--fluid-font-size)); /* ref height for content anchors; 1.0em text + 2*0.25em padding */
+            }
+			.flex-adapt {
+				flex-direction: row;
+                align-items: normal;
+				justify-content: center;
+			}
+            .flex-adapt-reverse {
                 display: flex;
                 flex-direction: column;
-                /* justify-content: center; */
                 align-items: center;
             }
-        }
-		@media (min-aspect-ratio: 1/1) { /* desktop mode */
-			.flex-adapt {
-				display: flex;
-				flex-direction: row;
-				justify-content: center;
-				/* align-items: center; */
-			}
 		}
 
-		/* nav/header bar */
-		#nav-bar {
-            color: var(--text-nav);
-            background-color: var(--background-nav);
+		/**** NAV BAR ****/
 
-            position: sticky;
-            padding: 0.25em;
-            top: 0px;
-            width: 100%;
+		#nav-bar {
+			color: var(--text-nav);
+			background-color: var(--background-nav);
+            border-bottom: 1px solid var(--border-nav);
+
+			position: sticky;
+			padding: var(--nav-pad);
+			top: 0px;
+			width: 100%;
+            font-size: var(--title-font-size);
             text-align: center;
 
-            z-index: var(--layer-front); /* make sure nav elems and hanging tabs are on top of other content */
-        }
+			z-index: var(--layer-nav); /* nav elems and hanging tabs are on top of other content, but not fullscreen modals */
+		}
         #nav-title {
-            font-size: 1.0em;
+            /* unstyle <h1> */
+            font-size: var(--title-font-size);
+            line-height: var(--title-font-size);
             font-weight: normal;
         }
+        #nav-menu {
+            /* https://www.sliderrevolution.com/resources/css-dropdown-menu/ */
+            cursor: pointer;
 
-        /* layout */
-        #content {
-            background-color: var(--background-medium);
-            min-height: calc(100vh - var(--nav-height));
-            position: relative; /* allow children to anchor to content container */
+            display: inline-block;
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            width: var(--nav-height);
+            height: var(--nav-height);
+        }
+        #nav-menu ul {
+            cursor: default;
+            color: var(--text-dark);
+            background-color: var(--background-nav-unselected);
+            /* border-top: 1px solid var(--text-light); */
+            border-bottom: 1px solid var(--border-light);
+
+            visibility: hidden;
+            position: absolute;
+            top: var(--nav-height);
+            left: 0px;
+            width: 100vw;
+            padding: 0.25em;
+
+            text-align: left;
+            list-style: none;
+            flex-wrap: wrap;
+        }
+        #nav-menu div + div {
+            border-left: 1px solid var(--text-dark);
+        }
+        #nav-menu ul li {
+            cursor: pointer;
+            color: var(--text-dark);
+            /* padding: 0.15em 0.75em; */
+            font-size: 0.8em;
+        }
+        #nav-menu ul li:hover {
+            color: var(--text-nav);
+            background-color: var(--background-nav-selected);
+        }
+        #nav-menu:focus-within > ul, #nav-menu:hover ul {
+            visibility: visible;
+        }
+        #nav-menu ul li a {
+            /* border: 1px solid blue; */
+            display: inline-block;
+            width: 100%;
+            padding: 0.15em 0.75em;
+            color: inherit;
+            text-decoration: inherit;
+        }
+        .nav-greyed-out {
+            cursor: default;
+            color: var(--text-dark);
+            padding: 0.15em 0.75em;
+            font-size: 0.8em;
+            opacity: 50%;
         }
 
-        #section-main-popout {
-            background-color: var(--background-light);
+        /**** SITE LAYOUT ****/
+
+        #bg-img {
+            /* background-color: lightblue; */
+            /* border: 1px solid blue; */
+            background: var(--background-inset) url('source/Picayune\ Ranch.jpg') center center / cover no-repeat;
+
+            position: fixed;
+            top: var(--nav-height);
+            left: 0;
+            width: 100%;
+            height: calc(100vh - var(--nav-height));
+        }
+        #section-title {
+            background-color: transparent;
             border: 1px solid red;
+            filter: drop-shadow(var(--popout-shadow));
 
-            display: inline-block;
-            width: 5em;
-            height: 5em;
+            /* display: inline-block; */
+            width: 100%;
+            height: calc(100vh - var(--nav-height) - 4.0em);
+            min-height: 20em;
+            padding: 1.0em;
+            text-align: center;
+
+            align-items: center;
+            justify-content: space-around;
         }
-        #section-main-nav {
+        #section-resources {
             background-color: var(--background-light);
+            border: 1px solid green;
+            filter: drop-shadow(var(--popout-shadow));
+
+            width: 100%;
+            height: calc(100vh - var(--nav-height) - 4.0em);
+            min-height: 16em;
+            /* padding: 1.0em; */
+
+            /* justify-content: space-around; */
+        }
+
+        .section-header {
             border: 1px solid blue;
+            width: 100%;
+            height: 4em;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /**** TITLE SECTION ****/
+
+        #site-description-wrapper {
+            color: var(--text-dark);
+            background-color: var(--background-light);
+            border-radius: 1.0em;
+            filter: drop-shadow(var(--popout-shadow));
+
+            width: 70vmin;
+            padding: 1.0em;
+            padding-top: 0em;
+            /* padding-left: 2.0em; */
+            /* padding: 0.5em 1.0em 1.0em 3.0em; */
+
+            /* gap: 1.0em; */
+            align-items: center;
+        }
+        #site-title-wrapper {
+            border: 1px solid blue;
+            width: 70vw;
+            min-height: 4.0em;
+            gap: 1.0em;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #site-title {
+            color: var(--text-dark);
+            background-color: var(--background-inset);
+            border-radius: 0.5em;
+
+            position: relative;
+            left: -2.0em;
+            top: -0.5em;
+            padding: 0.5em;
+            font-size: 1.5em;
+        }
+        #site-description {
+            display: inline-block;
+            font-size: 0.8em;
+        }
+        #projects-wrapper {
+            gap: 3.0em;
+            justify-content: center;
+        }
+        .project-button {
+            color: var(--text-light);
+            background-color: var(--text-dark);
+            border-radius: 0.5em;
+
+            padding: 0.5em;
+            font-size: 0.8em;
+        }
+
+        /**** RESOURCES SECTION ****/
+
+        .css-arrow-up {
+            background-color: var(--background-nav-selected);
 
             display: inline-block;
-            width: 7em;
-            height: 10em;
+            width: 0.8em;
+            height: 0.8em;
         }
 		
 	</style>
@@ -134,11 +309,57 @@
 
 <div id='nav-bar'>
     <h1 id='nav-title'>The Chukchansi Project</h1>
+    <nav id='nav-menu' role='navigation'>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="24" height="24" stroke-width="1.25" style='width:100%;height:100%;pointer-events:none;'>
+            <path d="M5 8l14 0"></path>
+            <path d="M5 12l14 0"></path>
+            <path d="M5 16l14 0"></path>
+        </svg>
+        <ul id='nav-dropdown' class='flex-row'>
+            <div class='flex-col'>
+                <!-- <li><a>Home</a></li> -->
+                <p class='nav-greyed-out'>Home</p>
+            </div>
+            <div class='flex-col'>
+                <li><a href='speaking-dictionary'>Speaking Dictionary</a></li>
+                <li><a href='pdf-dictionary'>PDF Dictionary</a></li>
+                <li><a href='stories'>Story Reader</a></li>
+                <li><a href='wordsearch'>Wordsearch</a></li>
+            </div>
+        </ul>
+    </nav>
 </div>
-<div id='content' class='flex-col'>
-    <div id='section-main' class='flex-adapt'>
-        <div id='section-main-popout'></div>
-        <div id='section-main-nav'></div>
+<div id='bg-img'></div>
+<div id='section-title' class='flex-col'>
+    <div id='site-description-wrapper' class='flex-col'>
+        <!-- <div id='site-title-wrapper' class='flex-adapt'> -->
+            <h2 id='site-title'>The Chukchansi Language Project</h2>
+            <!-- <div class='flex-adapt-reverse' style='gap: 0.25em;justify-content: space-around;'>
+                <button class='project-button'>Online Dictionary</button>
+                <button class='project-button'>PDF Dictionary</button>
+            </div> -->
+        <!-- </div> -->
+        <p id='site-description'>The Chukchansi Language Revitalization Project is documenting the Chukchansi Yokuts language. Our bilingul dictionary and educational resources are helping the next generation improve their fluency and connect with their heritage.</p>
+    </div>
+    <div id='projects-wrapper' class='flex-row'>
+        <button class='project-button'>Online Dictionary</button>
+        <button class='project-button'>PDF Dictionary</button>
+    </div>
+</div>
+<div id='section-resources' class='flex-adapt'>
+    <div class='flex-row section-header'>
+        <div class='css-arrow-up'></div>
+    </div>
+    <div class='flex-col'>
+        <div class='resource-card-large'></div>
+        <div class='resource-card-large'></div>
+    </div>
+    <div class='flex-col'>
+        <div class='resource-card-small'></div>
+        <div class='resource-card-small'></div>
+        <div class='resource-card-small'></div>
+        <div class='resource-card-small'></div>
+        <div class='resource-card-small'></div>
     </div>
 </div>
 
@@ -151,6 +372,8 @@
     // 1.0 hrs: research publically available chukchansi resources, create initial site readme
     // 0.5 hrs: SEO analysis
     // 1.0 hrs: whitebox homepage
+    // 1.5 hrs: dev site layout
+    // 2.0 hrs: dev site layout
 
 
     
