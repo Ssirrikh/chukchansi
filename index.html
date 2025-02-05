@@ -61,6 +61,9 @@
             border: none;
             outline: none;
         }
+        h1, h2, h3 {
+            font-weight: normal;
+        }
 
 		/* flexbox */
 		.flex-sep {
@@ -209,24 +212,38 @@
 
             /* display: inline-block; */
             width: 100%;
-            height: calc(100vh - var(--nav-height) - 4.0em);
-            min-height: 20em;
-            padding: 1.0em;
+            /* height: calc(100vh - var(--nav-height) - 4.0em); */
+            /* min-height: max(20em, calc(100vh - var(--nav-height) - 4.0em)); */
+            /* padding: 1.0em; */
+            padding: 4em 2em;
             text-align: center;
 
             align-items: center;
             justify-content: space-around;
+        }
+        #section-projects {
+            /* border: 1px solid red; */
+            background-color: var(--background-inset);
+            filter: drop-shadow(var(--popout-shadow));
+
+            width: 100%;
+            padding: var(--content-pad);
+            gap: var(--content-pad);
         }
         #section-resources {
             background-color: var(--background-inset);
             filter: drop-shadow(var(--popout-shadow));
 
             width: 100%;
-            /* height: calc(100vh - var(--nav-height) - 4.0em); */
-            /* min-height: 16em; */
-            /* padding: 1.0em; */
+        }
+        #section-personnel {
+            background-color: transparent;
+            filter: drop-shadow(var(--popout-shadow));
 
-            /* justify-content: space-around; */
+            width: 100%;
+            padding: 1.0em;
+            gap: 1.0em;
+            align-items: center;
         }
 
         .section-header {
@@ -277,20 +294,127 @@
             display: inline-block;
             font-size: 0.8em;
         }
-        #projects-wrapper {
-            flex-wrap: wrap;
-            gap: 3.0em;
+
+        /**** PROJECTS SECTION ****/
+
+        .project-card-large {
+            background-color: var(--background-light);
+            border-radius: 0.5em;
+            filter: drop-shadow(var(--popout-shadow));
+
+            width: calc(100vw - 2 * var(--content-pad));
+            overflow: hidden;
+        }
+        .project-card {
+            color: var(--text-nav); /* must set text color here to override blue link underline of <a> */
+            background-color: var(--background-light);
+            filter: drop-shadow(var(--popout-shadow));
+            transform: translate(1em,0);
+
+            display: inline-block;
+            width: min(33vw, 8em + 5vw);
+            height: min(33vw, 8em + 5vw);
+            font-size: 0.8em;
+        }
+        .project-card:hover {
+            text-decoration: underline;
+            filter: drop-shadow(var(--popout-shadow)) drop-shadow(var(--popout-shadow));
+        }
+
+        .project-card-title {
+            color: var(--text-nav);
+            background-color: var(--background-nav);
+            transform: translate(-2em,0.5em);
+
+            padding: 0.5em;
+        }
+        .project-card-title-large {
+            color: var(--text-nav);
+            background-color: var(--background-nav);
+
+            width: 100%;
+            padding-left: 0.5em; /* vertical padding set by .project-link */
+            align-items: center;
+            justify-content: space-between;
+        }
+        .project-link {
+            color: var(--text-nav);
+            background-color: var(--border-nav);
+
+            padding: 0.25em 0.5em; /* this decides the height of parent .project-card-title-large */
+            text-decoration: none;
+            gap: 0.5em;
+            align-items: center;
+            align-self: stretch;
+        }
+        .project-link:hover {
+            text-decoration: underline;
+        }
+
+        .project-card-contents {
+            padding: 0.5em;
+            gap: var(--content-pad);
+            align-items: center;
+        }
+        #project-thumbnail-dictionary {
+            border: 0.1em solid var(--background-nav);
+            /* border-radius: 0.25em; */
+            /* filter: drop-shadow(var(--popout-shadow)); */
+            filter: blur(2px);
+            
+            display: block; /* necessary so parent container perfectly matches image dimensions */
+            max-width: 50vw;
+            width: auto;
+            height: auto;
+            /* margin: 0.5em; */
+        }
+
+        .project-thumbnail {
+            /* background-color: var(--background-inset); */
+            /* border: 0.1em solid var(--background-nav); */
+            /* border-radius: 0.25em; */
+            filter: drop-shadow(var(--popout-shadow));
+            /* overflow: hidden; */
+
+            display: inline-block;
+            position: relative; /* anchor for internal elements */
+            /* width: 50vw; */
+            /* height: 30vw; */
+            margin: 0.5em;
+        }
+        .thumbnail-overlay {
+            cursor: pointer;
+            color: var(--text-nav);
+            background-color: #0006;
+            filter: drop-shadow(var(--popout-shadow));
+            text-shadow: 0 0 2px #000;
+            /* opacity: 0.0; */
+
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding: 0.25em;
+            text-align: center;
+            align-items: center;
             justify-content: center;
         }
-        .project-button {
-            color: var(--text-dark);
-            background-color: var(--background-light);
-            border: 0.15em double var(--border-dark);
-            /* border-radius: 0.5em; */
+        .thumbnail-overlay:hover {
+            background-color: #000b;
+            /* opacity: 1.0; */
+            text-decoration: underline;
+        }
 
-            width: 11em;
-            padding: 0.5em;
-            font-size: 0.7em;
+        .link-arrow {
+            --thickness: 0.2em;
+            border-top: var(--thickness) solid var(--text-nav);
+            border-right: var(--thickness) solid var(--text-nav);
+            transform: rotate(45deg);
+
+            display: inline-block;
+            width: 0.5em;
+            height: 0.5em;
         }
 
         /**** RESOURCES SECTION ****/
@@ -349,6 +473,34 @@
         #resource-card-logo-2 {
             background: var(--background-inset) url('source/logo-language-culture.png') center center / cover no-repeat;
         }
+
+        /**** PERSONNEL SECTION ****/
+
+        .personnel-card-wrapper {
+            width: 100%;
+            gap: 2.0em;
+            align-items: center;
+            /* justify-content: center; */
+            justify-content: space-around;
+            flex-wrap: wrap;
+        }
+
+        .personnel-card, .personnel-card-large {
+            color: var(--text-nav);
+            background-color: var(--background-nav);
+
+            display: inline-block;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .personnel-card {
+            width: 6em;
+            height: 6em;
+        }
+        .personnel-card-large {
+            width: 12em;
+            height: 8em;
+        }
 		
 	</style>
 </head>
@@ -376,23 +528,46 @@
         </ul>
     </nav>
 </div>
+
 <div id='bg-img'></div>
 <div id='section-title' class='flex-col'>
     <div id='site-description-wrapper' class='flex-col'>
-        <!-- <div id='site-title-wrapper' class='flex-adapt'> -->
-            <h2 id='site-title'>The Chukchansi Language Project</h2>
-            <!-- <div class='flex-adapt-reverse' style='gap: 0.25em;justify-content: space-around;'>
-                <button class='project-button'>Online Dictionary</button>
-                <button class='project-button'>PDF Dictionary</button>
-            </div> -->
-        <!-- </div> -->
-        <p id='site-description'>The Chukchansi Language Revitalization Project is documenting the Chukchansi Yokuts language. Our bilingul dictionary and educational resources are helping the next generation improve their fluency and connect with their heritage.</p>
+        <h2 id='site-title'>The Chukchansi Language Project</h2>
+        <p id='site-description'>The Chukchansi Language Revitalization Project is documenting the Chukchansi Yokuts language. Our bilingual dictionary and educational resources are helping the next generation improve their fluency and connect with their heritage.</p>
     </div>
-    <div id='projects-wrapper' class='flex-row'>
-        <button class='project-button'>Online Dictionary</button>
-        <button class='project-button'>PDF Dictionary (ed.6)</button>
-        <button class='project-button'>Story Reader</button>
-        <button class='project-button'>Wordsearch</button>
+</div>
+
+<div id='section-projects' class='flex-col'>
+    <div class='flex-row section-header'>
+        <div class='css-arrow-up'></div>
+    </div>
+    <div class='flex-col project-card-large'>
+        <div class='flex-row project-card-title-large'>
+            <h3>Speaking Dictionary</h3>
+            <a class='flex-row project-link' href='speaking-dictionary'>
+                <span>Visit</span>
+                <div class='link-arrow'></div>
+            </a>
+        </div>
+        <div class='flex-adapt project-card-contents'>
+            <div class='flex-col' style='gap: 0.5em;'>
+                <p> The online speaking dictionary is a powerful interactive tool for looking up words or example sentences in Chukchansi. Many entries include recordings of fluent speakers reading the words aloud.</p>
+                <p> You can also view a pdf of the <a href='pdf-dictionary'>6th Edition Printed Dictionary.</a></p>
+            </div>
+            <div class='project-thumbnail'>
+                <img id='project-thumbnail-dictionary' src='source/thumbnails/speaking-dictionary-thumbnail-small.png' alt='Screenshot of the entry for blackberry'></img>
+                <div class='flex-row thumbnail-overlay' aria-hidden='true' onclick='window.location.href="speaking-dictionary"'>Click to visit dictionary</div>
+            </div>
+        </div>
+    </div>
+
+    <div class='flex-row' style='justify-content: space-around;'>
+        <a href='stories.html'><div class='project-card'>
+            <div class='project-card-title'>Story Reader</div>
+        </div></a>
+        <a href='wordsearch.html'><div class='project-card'>
+            <div class='project-card-title'>Wordsearch</div>
+        </div></a>
     </div>
 </div>
 <div id='section-resources' class='flex-col'>
@@ -422,6 +597,24 @@
         </div>
     </div>
 </div>
+<div id='section-personnel' class='flex-col'>
+    <!-- <div class='personnel-card-large'>Holly</div> -->
+    <div class='flex-row personnel-card-wrapper'>
+        <div class='personnel-card-large'>Holly</div>
+        <div class='personnel-card-large'>Jane</div>
+    </div>
+    <div class='flex-row personnel-card-wrapper'>
+        <div class='personnel-card'>Niken</div>
+        <div class='personnel-card'>Chris</div>
+        <div class='personnel-card'>Brian</div>
+        <div class='personnel-card'>Kat</div>
+        <div class='personnel-card'>Kim</div>
+        <div class='personnel-card'>Ted</div>
+        <div class='personnel-card'>Makayla</div>
+        <div class='personnel-card'>Shonna</div>
+        <div class='personnel-card'>[Artists]</div>
+    </div>
+</div>
 
 
 
@@ -432,9 +625,19 @@
     // 1.0 hrs: research publically available chukchansi resources, create initial site readme
     // 0.5 hrs: SEO analysis
     // 1.0 hrs: whitebox homepage
-    // 1.5 hrs: dev site layout
-    // 4.0 hrs: dev site layout
+    // 1.5 hrs: dev initial site layout
+    // 4.0 hrs: improve site layout, add resources section
     // 0.5 hrs: add navbar to pdf dictionary
+    // 0.5 hrs: add personnel cards
+    // 6.0 hrs: overhaul projects section, make fully dynamic and mobile-friendly
+
+
+
+    //// TODO ////
+    // flashcards
+    // word of the day
+    // tile matching memory game
+    // chukchansi wordle
 
 
     
