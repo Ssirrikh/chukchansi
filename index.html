@@ -54,6 +54,7 @@
 		body {
 			background-color: var(--background-nav);
             font-size: var(--fluid-font-size);
+            overflow-x: hidden; /* 100vw overflows horizontally on chrome cuz it doesn't treat scrollbars the way everyone else does */
 		}
         button {
             color: var(--text-dark);
@@ -137,6 +138,7 @@
             top: var(--nav-height);
             left: 0px;
             width: 100vw;
+            /* width: 100%; */
             padding: 0.25em;
 
             text-align: left;
@@ -187,6 +189,7 @@
             width: 100%;
             height: calc(100vh - var(--nav-height));
         }
+
         #section-title {
             background-color: transparent;
             filter: drop-shadow(var(--popout-shadow));
@@ -196,7 +199,8 @@
             /* height: calc(100vh - var(--nav-height) - 4.0em); */
             /* min-height: max(20em, calc(100vh - var(--nav-height) - 4.0em)); */
             /* padding: 1.0em; */
-            padding: 4em 2em;
+            /* padding: 4em 2em; */
+            padding: var(--content-pad);
             text-align: center;
 
             align-items: center;
@@ -209,7 +213,7 @@
 
             width: 100%;
             padding: var(--content-pad);
-            gap: var(--content-pad);
+            gap: 1.5em;
         }
         #section-resources {
             background-color: var(--background-inset);
@@ -223,7 +227,7 @@
             filter: drop-shadow(var(--popout-shadow));
 
             width: 100%;
-            padding: 1.0em;
+            padding: var(--content-pad);
             gap: 1.0em;
             align-items: center;
         }
@@ -240,7 +244,10 @@
             /* align-self: center; */
         }
         .section-header {
-            /* border: 1px solid blue; */
+            position: relative;
+            /* border: 1px solid red; */
+            z-index: var(--layer-front); /* positions under everything by default otherwise; no idea why */
+
             width: 100%;
             height: 2em;
             align-items: center;
@@ -268,7 +275,7 @@
             border-radius: 1.0em;
             filter: drop-shadow(var(--popout-shadow));
 
-            width: 70vmin;
+            width: min(70vw, 16em);
             padding: 1.0em;
             padding-top: 0em;
             /* padding-left: 2.0em; */
@@ -461,8 +468,11 @@
             width: 6em;
             font-size: 0.8em;
             text-align: center;
-            text-decoration: underline;
+            text-decoration: none;
             align-self: end;
+        }
+        .resource-card-link:hover {
+            text-decoration: underline;
         }
 
         #resource-card-logo-1 {
@@ -476,28 +486,112 @@
 
         .personnel-card-wrapper {
             width: 100%;
-            gap: 2.0em;
+            gap: var(--content-pad);
             align-items: center;
-            /* justify-content: center; */
-            justify-content: space-around;
+            justify-content: space-around !important; /* prevent media queries from overriding spacing */
             flex-wrap: wrap;
         }
 
-        .personnel-card, .personnel-card-large {
+        .personnel-card {
+            --w-max: calc(100vw - 2 * var(--content-pad));
+            --w: min(12em, var(--w-max));
+            background-color: var(--background-inset);
+            position: relative;
+            width: var(--w);
+            height: calc(1.25 * var(--w));
+        }
+        .personnel-card div {
+            color: var(--text-nav);
+            background-color: var(--background-nav);
+            position: absolute;
+            bottom: 0.5em;
+            right: -0.5em;
+            padding: 0.5em;
+        }
+        .personnel-card div p + p {
+            font-size: 0.8em;
+        }
+
+        .personnel-strip, .personnel-strip-reverse {
+            /* border: 1px solid red; */
+            width: calc(100vw - 2 * var(--content-pad));
+            max-width: 17em;
+            align-items: center;
+        }
+        .personnel-strip {
+            align-self: start;
+        }
+        .personnel-strip-reverse {
+            align-self: end;
+            flex-direction: row-reverse;
+        }
+        .personnel-strip div:first-child, .personnel-strip-reverse div:first-child {
+            --w: 5em;
+            background-color: var(--background-inset);
+            width: var(--w);
+            height: var(--w);
+            flex-shrink: 0;
+            flex-grow: 0;
+        }
+        .personnel-strip div + div, .personnel-strip-reverse div + div {
+            color: var(--text-nav);
+            background-color: var(--background-nav);
+            padding: 0.5em;
+            text-align: center;
+            flex-grow: 1;
+        }
+        .personnel-strip div p + p, .personnel-strip-reverse div p + p {
+            font-size: 0.8em;
+        }
+
+        /**** FOOTER ****/
+
+        .footer-no-ai {
+            color: var(--text-dark);
+            background-color: var(--background-inset);
+            position: relative;
+            padding: 0.5em 2em;
+            text-align: center;
+        }
+        
+        .footer-nav {
+            color: var(--text-nav);
+            background-color: var(--border-nav);
+
+            position: relative;
+            z-index: var(--layer-nav);
+            padding: 0.5em;
+            font-size: 0.8em;
+        }
+        .footer-nav ul {
+            list-style: none;
+        }
+        .footer-nav ul + ul {
+            border-left: 1px solid var(--text-nav);
+        }
+        .footer-nav ul li {
+            padding: 0.25em 0.5em;
+            text-decoration: none;
+        }
+        .footer-nav ul li:hover {
+            text-decoration: underline;
+        }
+        .footer p {
+            text-align: center;
+        }
+
+        .footer {
             color: var(--text-nav);
             background-color: var(--background-nav);
 
-            display: inline-block;
-            text-align: center;
-            flex-shrink: 0;
-        }
-        .personnel-card {
-            width: 6em;
-            height: 6em;
-        }
-        .personnel-card-large {
-            width: 12em;
-            height: 8em;
+            position: relative;
+            z-index: var(--layer-nav);
+            padding: 0.5em;
+            font-size: 0.8em;
+            /* align-content: space-between !important; */
+            /* text-align: center; */
+
+            gap: 0.5em;
         }
 
         /**** MEDIA QUERIES ****/
@@ -522,10 +616,13 @@
                 flex-direction: column;
                 align-items: center;
             }
+
             .project-card-large {
                 width: min(90vw, 37em);
-                /* width: 37em; */
                 align-self: center;
+            }
+            .personnel-strip-reverse {
+                flex-direction: row;
             }
 		}
 		
@@ -557,6 +654,9 @@
 </div>
 
 <div id='bg-img'></div>
+
+<!-- TITLE SECTION -->
+<div class='flex-row section-header'></div>
 <div id='section-title' class='flex-col'>
     <div id='site-description-wrapper' class='flex-col'>
         <h2 id='site-title'>The Chukchansi Language Project</h2>
@@ -564,10 +664,11 @@
     </div>
 </div>
 
+<!-- PROJECTS SECTION -->
+<div class='flex-row section-header'>
+    <div class='header-arrow-up'></div>
+</div>
 <div id='section-projects' class='flex-col'>
-    <div class='flex-row section-header'>
-        <div class='header-arrow-up'></div>
-    </div>
     <div class='flex-col project-card-large'>
         <div class='flex-row project-card-title-large'>
             <h3>Speaking Dictionary</h3>
@@ -588,19 +689,18 @@
         </div>
     </div>
     <div class='flex-row' style='justify-content: space-around;'>
-        <a href='stories.html'><div id='project-thumbnail-story-reader' class='project-card'>
+        <a href='stories'><div id='project-thumbnail-story-reader' class='project-card'>
             <div class='project-card-title'>Story Reader</div>
         </div></a>
-        <a href='wordsearch.html'><div id='project-thumbnail-wordsearch' class='project-card'>
+        <a href='wordsearch'><div id='project-thumbnail-wordsearch' class='project-card'>
             <div class='project-card-title'>Wordsearch</div>
         </div></a>
     </div>
 </div>
 
+<!-- OTHER RESOURCES SECTION -->
+<div class='flex-row section-header'></div>
 <div id='section-resources' class='flex-col'>
-    <div class='flex-row section-header'>
-        <!-- <div class='header-arrow-up'></div> -->
-    </div>
     <h2 class='section-title'>Want to learn more?</h2>
     <div class='flex-adapt resource-container'>
         <div class='flex-col' style='gap: 1em;justify-content: space-between;'>
@@ -625,23 +725,76 @@
         </div>
     </div>
 </div>
+
+<!-- PERSONNEL SECTION -->
+<div class='flex-row section-header'></div>
 <div id='section-personnel' class='flex-col'>
-    <!-- <div class='personnel-card-large'>Holly</div> -->
-    <div class='flex-row personnel-card-wrapper'>
-        <div class='personnel-card-large'>Holly</div>
-        <div class='personnel-card-large'>Jane</div>
+    <div class='flex-adapt personnel-card-wrapper'>
+        <div class='flex-col personnel-card'>
+            <div class='flex-col'>
+                <p>Holly Wyatt</p>
+                <p>Language Consultant</p>
+            </div>
+        </div>
+        <div class='flex-col personnel-card'>
+            <div class='flex-col'>
+                <p>Jane Wyatt</p>
+                <p>Language Consultant</p>
+            </div>
+        </div>
     </div>
-    <div class='flex-row personnel-card-wrapper'>
-        <div class='personnel-card'>Niken</div>
-        <div class='personnel-card'>Chris</div>
-        <div class='personnel-card'>Brian</div>
-        <div class='personnel-card'>Kat</div>
-        <div class='personnel-card'>Kim</div>
-        <div class='personnel-card'>Ted</div>
-        <div class='personnel-card'>Makayla</div>
-        <div class='personnel-card'>Shonna</div>
-        <div class='personnel-card'>[Artists]</div>
+
+    <div class='flex-adapt personnel-card-wrapper'>
+        <div class='flex-row personnel-strip'>
+            <div></div>
+            <div class='flex-col'>
+                <p>Niken Adisasmito-Smith</p>
+                <p>Linguist</p>
+            </div>
+        </div>
+        <div class='flex-row personnel-strip-reverse'>
+            <div></div>
+            <div class='flex-col'>
+                <p>Chris Golston</p>
+                <p>Linguist</p>
+            </div>
+        </div>
+        <div class='flex-row personnel-strip'>
+            <div></div>
+            <div class='flex-col'>
+                <p>Brian Agbayani</p>
+                <p>Linguist</p>
+            </div>
+        </div>
+        <div class='flex-row personnel-strip-reverse'>
+            <div></div>
+            <div class='flex-col'>
+                <p>Kat Adisasmito-Smith</p>
+                <p>Programmer</p>
+            </div>
+        </div>
     </div>
+</div>
+
+<!-- FOOTER -->
+<div class='flex-row section-header'></div>
+<!-- <div class='flex-col footer-no-ai'>
+    <p>Text and images from this site may not be used as training data for AI.</p>
+</div> -->
+<!-- <div class='flex-row footer-nav'>
+    <ul><li><a>Home</a></li></ul>
+    <ul>
+        <li><a href='speaking-dictionary'>Speaking Dictionary</a></li>
+        <li><a href='pdf-dictionary'>PDF Dictionary</a></li>
+        <li><a href='stories'>Story Reader</a></li>
+        <li><a href='wordsearch'>Wordsearch</a></li>
+    </ul>
+</div> -->
+<div class='flex-col footer'>
+    <p>Language data is freely shared with the world.</p>
+    <p>Website &copy 2025 Narayana "Kat" Adisasmito-Smith</p>
+    <p></p>
+    <p>Text and images from this site may not be used as training data for AI.</p>
 </div>
 
 
@@ -658,7 +811,9 @@
     // 0.5 hrs: add navbar to pdf dictionary
     // 0.5 hrs: add personnel cards
     // 6.0 hrs: overhaul projects section, make fully dynamic and mobile-friendly
-    // 3.0 hrs: complete resources section, improve dynamic layout
+    // 4.5 hrs: complete resources section, improve dynamic layout
+    // 1.0 hrs: research copyright and site hosting
+    // 4.5 hrs: finish personnel section
 
 
 
@@ -672,16 +827,6 @@
     
     // DOM anchors
     const navTitle = document.getElementById('nav-title');
-
-    window.addEventListener('keydown', e => {
-        // console.log(e.key);
-        // e.preventDefault();
-        switch (e.key) {
-            case '`':
-                console.log('dev key');
-                break;
-        }
-    });
 
     window.addEventListener('resize', e => {
         navTitle.innerHTML = (window.innerWidth < window.innerHeight) ? 'The Chukchansi Project' : 'The Chukchansi Language Project';
