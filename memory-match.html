@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang='en' xml:lang='en'>
+<head>
+	<meta charset = 'utf-8'>
+    <title>Chukchansi Wordsearch</title>
+    <meta name='robots' content='index, follow'>
+    <meta name='description' content='A fun and educational Chukchansi wordsearch puzzle for language learners to practice word recognition.'>
+	<meta name='viewport' content='width=device-width, initial-scale=1'>
+    <style>
+        :root {
+			--background-nav: #461220; /* navbar */
+            --text-nav: #ffd994; /* previously #ffdab3 */
+            --border-nav: #64182c; /* #64182c, #771932 */
+
+            --background-nav-selected: #6b4226;
+            --background-nav-unselected: #eac8a2;
+
+			--background-light: #f2e3d3; /* main content bg */
+			--background-inset: #dbb78f; /* inset panels; vibrant bg */
+			--background-medium: #bfa07e; /* side panels; muted bg */
+			--background-dark: #ad8e6c; /* fractionally darker interactibles bg */
+			--text-dark: #4f3a09; /* main content text */
+			--text-medium: #806d46; /* interactible text */
+			--text-light: #fdf7ea;
+
+			--border-dark: #4f3a09; /* content separation */
+			--border-medium: #75544b; /* inset panel border */
+			--border-light: #bfa07e; /* interactible textbox border */
+
+            --popout-shadow: 0 0 10px #00000038;
+
+			--layer-front: 2; /* elems that hover over content (hanging tabs, search history) */
+			--layer-nav: 3; /* nav elements are always topmost */
+			--layer-overlay: 5; /* modal overlays */
+
+            /* dynamic units calculated for mobile-first; see media queries for desktop */
+            --fluid-font-size: max(2.5vh, calc(1rem + 1.0vw));
+            /* --fluid-font-size: calc(1rem + 1.0vw); */
+            /* --fluid-font-size: 2.5vh; */
+            --nav-pad: 0.25em;
+            --content-pad: 0.8rem;
+            --title-font-size: calc(1.17 * var(--fluid-font-size)); /* unsure why 1.17, but it seems to be pixel-perfect at all sizes */
+            --nav-height: calc(1.75 * var(--fluid-font-size)); /* ref height for content anchors */
+
+			--wordsearch-grid-size: 11;
+            --wordsearch-pad: 0.25em;
+            --wordsearch-width: min(60vh, calc(100vw - 2 * var(--content-pad)));
+            --wordsearch-tile-width: calc(calc(var(--wordsearch-width) - 2 * var(--wordsearch-pad)) / var(--wordsearch-grid-size));
+            --wordsearch-tile-font-size: calc(0.7 * var(--wordsearch-tile-width));
+		}
+
+		* {
+			margin: 0px;
+			padding: 0px;
+			box-sizing: border-box;
+			font-family: 'Times New Roman';
+		}
+		body {
+			background-color: var(--background-nav);
+            font-size: var(--fluid-font-size);
+		}
+        button {
+            color: var(--text-dark);
+            background-color: transparent;
+            border: none;
+            outline: none;
+        }
+
+        /* flexbox */
+		.flex-sep {
+			width: 0;
+			flex-grow: 1;
+		}
+		.flex-row {
+			display: flex;
+			flex-direction: row;
+			align-items: start;
+		}
+		.flex-col {
+			display: flex;
+			flex-direction: column;
+		}
+        .flex-adapt {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /**** NAV BAR ****/
+
+		#nav-bar {
+			color: var(--text-nav);
+			background-color: var(--background-nav);
+            border-bottom: 1px solid var(--border-nav);
+
+			position: sticky;
+			padding: var(--nav-pad);
+			top: 0px;
+			width: 100%;
+            font-size: var(--title-font-size);
+            text-align: center;
+
+			z-index: var(--layer-nav); /* nav elems and hanging tabs are on top of other content, but not fullscreen modals */
+		}
+        #nav-title {
+            /* unstyle <h1> */
+            font-size: var(--title-font-size);
+            line-height: var(--title-font-size);
+            font-weight: normal;
+        }
+        #nav-menu {
+            /* https://www.sliderrevolution.com/resources/css-dropdown-menu/ */
+            cursor: pointer;
+
+            display: inline-block;
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            width: var(--nav-height);
+            height: var(--nav-height);
+        }
+        #nav-menu ul {
+            cursor: default;
+            color: var(--text-dark);
+            background-color: var(--background-nav-unselected);
+            /* border-top: 1px solid var(--text-light); */
+            border-bottom: 1px solid var(--border-light);
+
+            visibility: hidden;
+            position: absolute;
+            top: var(--nav-height);
+            left: 0px;
+            width: 100vw;
+            padding: 0.25em;
+
+            text-align: left;
+            list-style: none;
+            flex-wrap: wrap;
+        }
+        #nav-menu div + div {
+            border-left: 1px solid var(--text-dark);
+        }
+        #nav-menu ul li {
+            cursor: pointer;
+            color: var(--text-dark);
+            /* padding: 0.15em 0.75em; */
+            font-size: 0.8em;
+        }
+        #nav-menu ul li:hover {
+            color: var(--text-nav);
+            background-color: var(--background-nav-selected);
+        }
+        #nav-menu:focus-within > ul, #nav-menu:hover ul {
+            visibility: visible;
+        }
+        #nav-menu ul li a {
+            /* border: 1px solid blue; */
+            display: inline-block;
+            width: 100%;
+            padding: 0.15em 0.75em;
+            color: inherit;
+            text-decoration: inherit;
+        }
+        .nav-greyed-out {
+            cursor: default;
+            color: var(--text-dark);
+            padding: 0.15em 0.75em;
+            font-size: 0.8em;
+            opacity: 50%;
+        }
+
+        /**** SITE LAYOUT ****/
+
+        #content {
+            background-color: var(--background-inset);
+            min-height: calc(100vh - var(--nav-height));
+
+            padding: var(--content-pad);
+
+            gap: var(--content-pad);
+            flex-direction: column-reverse;
+            justify-content: start;
+        }
+        #wordlist {
+            border-radius: 0.5em;
+            box-shadow: var(--popout-shadow);
+
+            display: inline-block;
+            width: var(--wordsearch-width);
+            /* width: calc(1.5em * var(--wordsearch-grid-size)); */
+        }
+        #cards-container {
+            user-select: none;
+            color: var(--text-dark);
+            background-color: var(--background-light);
+            border-radius: 0.5em;
+            box-shadow: var(--popout-shadow);
+
+            display: inline-block;
+            position: relative;
+            width: var(--wordsearch-width);
+            height: var(--wordsearch-width);
+            padding: var(--wordsearch-pad);
+            font-size: var(--wordsearch-tile-font-size);
+            line-height: var(--wordsearch-tile-font-size);
+        }
+
+        /**** WORD LIST ****/
+
+        .wordlist-header {
+            color: var(--text-nav);
+            background-color: var(--background-nav);
+            border-radius: 0.5em 0.5em 0 0;
+            padding: 0.25em;
+            align-items: center;
+        }
+        #button-new-game {
+            cursor: pointer;
+            color: var(--text-nav);
+            font-size: 0.8em;
+        }
+        #wordlist-content {
+            color: var(--text-dark);
+            /* border: 1px solid red; */
+
+            display: flex;
+            padding: 0.5em;
+
+            /* overflow-y: scroll; */
+            flex-flow: row wrap;
+            justify-content: center;
+            align-content: flex-start;
+            gap: 0.25em;
+        }
+        .wordlist-item {
+            border-radius: 1em;
+            display: inline-block;
+            /* margin: 0.25em; */
+            padding: 0.25em 0.5em;
+            font-size: 0.8em;
+        }
+        .highlighted {
+            opacity: 0.3;
+            text-decoration: line-through;
+        }
+
+        /**** WORDSEARCH ****/
+        
+        #cards-click-area {
+            /* border: 1px solid red; */
+            width: 100%;
+            height: 100%;
+            justify-content: space-around;
+        }
+        .wordsearch-tile {
+            /* border: 1px solid blue; */
+            position: relative;
+            width: 1.0em;
+            height: 1.0em;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .caterpillar {
+            --radius: 0.7em;
+            --offset: calc(-1 * var(--radius));
+            pointer-events: none;
+            background-color: var(--background-dark);
+            border-radius: var(--radius);
+            opacity: 0.3;
+
+            display: inline-block;
+            position: absolute;
+            padding: var(--radius);
+            width: 0;
+            height: 0;
+            top: 1em;
+            left: 1em;
+            transform-origin: var(--radius) var(--radius);
+            transform: translate(var(--offset),var(--offset)) rotate(0);
+        }
+        #cursor-caterpillar {
+            visibility: hidden; /* start out invisible; only show while click-dragging */
+        }
+
+        /**** LOADING SCREEN ****/
+
+        #player-loading-screen {
+            background-color: var(--background-inset);
+
+            position: absolute;
+            padding: 0.25em;
+            width: calc(100% - 0.25em - 0.25em);
+            height: calc(100% - 0.25em - 0.25em);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%,-50%);
+
+            gap: 2.0em;
+            align-items: center;
+        }
+        .loading-animation-track {
+            display: inline-block;
+            position: relative;
+            width: 2em;
+        }
+        .loading-icon-full, .loading-icon-empty {
+            display: inline-block;
+            position: absolute;
+            width: 1.0em;
+            height: 1.0em;
+            transform: translate(-50%,-50%) rotate(45deg);
+        }
+        .loading-icon-full {
+            background-color: var(--background-nav);
+            left: 0%;
+
+            animation: loading-left 1.5s ease infinite;
+        }
+        .loading-icon-empty {
+            background-color: var(--background-inset);
+            border: 0.1em solid var(--background-nav);
+            left: 100%;
+
+            animation: loading-right 1.5s ease infinite;
+        }
+        /* loading animation: 2 diamonds slide past each other, changing which one is on top */
+        @keyframes loading-left {
+            /* z-index changes at midpoint between keyframes, use fractional keyframes to set midpoint where diamonds don't overlap */
+            0%   { left:0%;   z-index:1; }
+            49%  { left:100%; z-index:1; }
+            50%  { left:100%; z-index:2; }
+            99%  { left:0%;   z-index:2; }
+            100% { left:0%;   z-index:1; }
+        }
+        @keyframes loading-right {
+            /* z-index changes at midpoint between keyframes, use fractional keyframes to set midpoint where diamonds don't overlap */
+            0%   { left:100%; z-index:2; }
+            49%  { left:0%;   z-index:2; }
+            50%  { left:0%;   z-index:1; }
+            99%  { left:100%; z-index:1; }
+            100% { left:100%; z-index:2; }
+        }
+
+        /* mobile-first styling for better load times on less-powerful devices */
+        /* media queries must come after the things they modify */
+        @media (max-aspect-ratio: 5/4) { /* mobile mode */
+            /* [none] */
+        }
+		@media (min-aspect-ratio: 5/4) { /* desktop mode */
+            :root {
+                --title-font-size: 1.0em;
+                --nav-height: calc(1.5 * var(--fluid-font-size)); /* ref height for content anchors; 1.0em text + 2*0.25em padding */
+
+                --wordsearch-width: min(50vw, calc(100vh - var(--nav-height) - 2 * var(--content-pad)));
+            }
+			.flex-adapt {
+				flex-direction: row;
+                align-items: normal;
+				justify-content: center;
+			}
+
+            #content {
+                flex-direction: row;
+                align-items: center;
+                justify-content: center;
+            }
+            #wordlist {
+                width: 10em;
+                height: var(--wordsearch-width);
+            }
+            .wordlist-item {
+                display: block;
+            }
+		}
+
+
+
+        /**** DEBUG ****/
+
+        .marker {
+            border: 1px solid green;
+
+            display: inline-block;
+            position: absolute;
+            width: var(--wordsearch-tile-width);
+            height: var(--wordsearch-tile-width);
+            transform: translate(-50%,-50%);
+        }
+		
+	</style>
+</head>
+<body>
+
+<div id='nav-bar'>
+    <h1 id='nav-title'>Chukchansi Wordsearch</h1>
+    <nav id='nav-menu' role='navigation'>
+        <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' width='24' height='24' stroke-width='1.25' style='width:100%;height:100%;pointer-events:none;'>
+            <path d='M5 8l14 0'></path>
+            <path d='M5 12l14 0'></path>
+            <path d='M5 16l14 0'></path>
+        </svg>
+        <ul id='nav-dropdown' class='flex-row'>
+            <div class='flex-col'>
+                <!-- <li><a>Home</a></li> -->
+                <p class='nav-greyed-out'>Home</p>
+            </div>
+            <div class='flex-col'>
+                <li><a href='speaking-dictionary'>Speaking Dictionary</a></li>
+                <li><a href='pdf-dictionary'>PDF Dictionary</a></li>
+                <li><a href='stories'>Story Reader</a></li>
+                <li><a href='wordsearch'>Wordsearch</a></li>
+            </div>
+        </ul>
+    </nav>
+</div>
+<div id='content' class='flex-adapt'>
+    <div id='wordlist' class='flex-col'>
+        <div class='flex-row wordlist-header'>
+            <p id='wordlist-progress'>0/0</p>
+            <div class='flex-sep'></div>
+            <button id='button-new-game' onclick='controller.newGame(targetWordlist)'>+ New Game</button>
+        </div>
+        <div id='wordlist-content'>
+            <p class='wordlist-item'>Word 1</p>
+            <p class='wordlist-item highlighted'>Long Word 2</p>
+            <p class='wordlist-item'>Reallylongusthemost Word</p>
+            <p class='wordlist-item'>Word N</p><p class='wordlist-item'>Word N</p>
+            <p class='wordlist-item'>Word N</p><p class='wordlist-item'>Word N</p>
+            <p class='wordlist-item'>Word N</p><p class='wordlist-item'>Word N</p>
+            <p class='wordlist-item'>Reallylongusthemost Word</p>
+            <p class='wordlist-item'>Word N</p><p class='wordlist-item'>Word N</p>
+        </div>
+    </div>
+
+    <div id='cards-container'>
+        <div id='cards-click-area' class='flex-col'></div>
+    </div>
+</div>
+
+
+
+<!-- load wordbank compiler (builds wordbanks from database) -->
+<script type='text/javascript' src="script/vocab.js"></script>
+
+<script type='text/javascript'>
+
+    //// WAVE 3 ////
+
+    // 2.5 hrs: game controller, vocab lists
+
+
+
+    // CSS var manipulation
+    const CSSVars = {
+        get : (k) => getComputedStyle(document.documentElement).getPropertyValue(k),
+        set : (k,v) => document.documentElement.style.setProperty(k,v)
+    };
+    
+    // DOM anchors
+    const navTitle = document.getElementById('nav-title');
+
+    const randInt = (min,max) => Math.floor(Math.random() * (max-min+1)) + min;
+    const ALPHABET = `ABCDEFGHIJKLMNOPSTUVWXY'ʔ`; // chukchansi adds glottal stops ['ʔ], and doesn't have [qrz]
+
+
+
+    // gamestate controller
+    let controller = {
+        // constants and settings
+
+        // word data
+        wordsCHK : [], // array of chukchansi words
+        wordsENG : [], // array or corresponding english translations, coindex with wordsCHK
+        matched : [], // array of bool, coindex with wordsCHK
+        numMatched : () => {
+            let n = 0;
+            for (let pair of controller.matched)
+                if (controller.matched[pair])
+                    n++;
+            return n;
+        },
+        allMatched : () => controller.numFound() == controller.matched.length,
+
+        // gamestate interaction
+        newGame : (wordlistCHK,wordlistENG) => {
+            //
+        },
+
+        // gamestate
+        dimensions : [4,4], // [rows,cols]
+        grid : [], // current game board
+        isMatch : (i,j) => {
+            if (i == j || i < 0 || j < 0 || controller.grid.length <= i || controller.grid.length <= j) return false;
+            return (controller.grid[i] == controller.grid[j])
+        }
+    };
+
+    // window.addEventListener('resize', e => {
+    //     navTitle.innerHTML = (window.innerWidth < window.innerHeight) ? 'Chk Wordsearch' : 'Chukchansi Wordsearch';
+    // });
+    // navTitle.innerHTML = (window.innerWidth < window.innerHeight) ? 'Chk Wordsearch' : 'Chukchansi Wordsearch';
+
+    //////////////////////
+    
+    // init //
+
+    // curated vocab lists
+    const vocab = [
+        {
+            name : `Colors`,
+            chk : [`shik'win`,`saliik'in`,`habilk'ay'`,`sakaakaʔ`,`ʔalk'ik'in`,`ch'iwik'ay'`,`lisanyuʔ`,`mukaaniʔ`,`kapew'neʔ`,`humk'uk'un`,`limik'`],
+            eng : [   `white`,     `pink`,       `red`,  `orange`,    `yellow`, `green/blue`,    `blue`,  `purple`,    `brown`,      `grey`, `black`]
+        },
+        {
+            name : `Sox and Siksikaʔ`,
+            chk : [  `Sox`,`Siksikaʔ`,`ʔoshto`,`woodiyga`, `namix`,`ʔutuytaʔ`,`ʔadil'`,`t'uluntaʔ`,            `shaapintaʔ`,`limeek'am`],
+            eng : [`Skunk`,`Stinkbug`,  `fire`,   `dance`,`friend`,  `pushed`,  `down`,   `burned`,`went out, extinguished`,    `black`]
+        }
+    ];
+
+    // init new game
+    controller.newGame(vocab[0].chk, vocab[0].eng);
+
+
+    
+</script>
+
+</body>
+</html>
