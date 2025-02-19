@@ -219,6 +219,7 @@
             color: var(--text-dark);
             background-color: var(--background-light);
 
+            position: relative; /* allow children to anchor */
             scroll-margin-top: var(--nav-height); /* adjust for navbar when auto-scrolling */
             flex-grow: 1;
         }
@@ -317,6 +318,10 @@
 
             margin-bottom: 1.0em;
             padding: 0.25em 0px;
+        }
+
+        .reader-download-button {
+            /*  */
         }
 
         /**** AUDIO PLAYER UI ****/
