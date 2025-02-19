@@ -3,22 +3,215 @@
 
 <head>
 	<meta charset = 'utf-8'>
-	<title>Chukchansi-English Printed Dictionary</title>
+	<title>Chukchansi-English Printed Dictionary, 6th Edition</title>
     <meta name='robots' content='index, follow'>
     <meta name='description' content='The print edition of the Chukchansi bilingual dictionary in pdf format.'>
     <meta name='viewport' content='width=device-width, initial-scale=1'>
     <style>
+		:root {
+			--background-nav: #461220; /* navbar */
+            --text-nav: #ffd994; /* previously #ffdab3 */
+            --border-nav: #64182c; /* #64182c, #771932 */
+
+            --background-nav-selected: #6b4226;
+            --background-nav-unselected: #eac8a2;
+
+			--background-light: #f2e3d3; /* main content bg */
+			--background-inset: #dbb78f; /* inset panels; vibrant bg */
+			--background-medium: #bfa07e; /* side panels; muted bg */
+			--background-dark: #ad8e6c; /* fractionally darker interactibles bg */
+			--text-dark: #4f3a09; /* main content text */
+			--text-medium: #806d46; /* interactible text */
+			--text-light: #fdf7ea;
+
+			--border-dark: #4f3a09; /* content separation */
+			--border-medium: #75544b; /* inset panel border */
+			--border-light: #bfa07e; /* interactible textbox border */
+
+            --popout-shadow: 0 0 10px #00000038;
+
+			--layer-front: 2; /* elems that hover over content (hanging tabs, search history) */
+			--layer-nav: 3; /* nav elements are always topmost */
+			--layer-overlay: 5; /* modal overlays */
+
+            /* dynamic units calculated for mobile-first; see media queries for desktop */
+            --fluid-font-size: max(2.5vh, calc(1rem + 1.0vw));
+            /* --fluid-font-size: calc(1rem + 1.0vw); */
+            /* --fluid-font-size: 2.5vh; */
+            --nav-pad: 0.25em;
+            --content-pad: 0.6rem;
+            --title-font-size: calc(1.17 * var(--fluid-font-size)); /* unsure why 1.17, but it seems to be pixel-perfect at all sizes */
+            --nav-height: calc(1.75 * var(--fluid-font-size)); /* ref height for content anchors */
+
+			--thumbnail-position: center center / cover no-repeat;
+		}
+
 		* {
 			margin: 0px;
 			padding: 0px;
-            height: 100%;
+			box-sizing: border-box;
 			font-family: 'Times New Roman';
 		}
+		body {
+			background-color: var(--background-nav);
+            font-size: var(--fluid-font-size);
+            overflow: hidden;
+		}
+
+        /* flexbox */
+		.flex-row {
+			display: flex;
+			flex-direction: row;
+			align-items: start;
+		}
+		.flex-col {
+			display: flex;
+			flex-direction: column;
+		}
+
+        /**** NAV BAR ****/
+
+		#nav-bar {
+			color: var(--text-nav);
+			background-color: var(--background-nav);
+            border-bottom: 1px solid var(--border-nav);
+
+			position: sticky;
+			padding: var(--nav-pad);
+			top: 0px;
+			width: 100%;
+            font-size: var(--title-font-size);
+            text-align: center;
+
+			z-index: var(--layer-nav); /* nav elems and hanging tabs are on top of other content, but not fullscreen modals */
+		}
+        #nav-title {
+            /* unstyle <h1> */
+            font-size: var(--title-font-size);
+            line-height: var(--title-font-size);
+            font-weight: normal;
+        }
+        #nav-menu {
+            /* https://www.sliderrevolution.com/resources/css-dropdown-menu/ */
+            cursor: pointer;
+
+            display: inline-block;
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            width: var(--nav-height);
+            height: var(--nav-height);
+        }
+        #nav-menu ul {
+            cursor: default;
+            color: var(--text-dark);
+            background-color: var(--background-nav-unselected);
+            /* border-top: 1px solid var(--text-light); */
+            border-bottom: 1px solid var(--border-light);
+
+            visibility: hidden;
+            position: absolute;
+            top: var(--nav-height);
+            left: 0px;
+            width: 100vw;
+            padding: 0.25em;
+
+            text-align: left;
+            list-style: none;
+            flex-wrap: wrap;
+        }
+        #nav-menu div + div {
+            border-left: 1px solid var(--text-dark);
+        }
+        #nav-menu ul li {
+            cursor: pointer;
+            color: var(--text-dark);
+            /* padding: 0.15em 0.75em; */
+            font-size: 0.8em;
+        }
+        #nav-menu ul li:hover {
+            color: var(--text-nav);
+            background-color: var(--background-nav-selected);
+        }
+        #nav-menu:focus-within > ul, #nav-menu:hover ul {
+            visibility: visible;
+        }
+        #nav-menu ul li a {
+            /* border: 1px solid blue; */
+            display: inline-block;
+            width: 100%;
+            padding: 0.15em 0.75em;
+            color: inherit;
+            text-decoration: inherit;
+        }
+        .nav-greyed-out {
+            cursor: default;
+            color: var(--text-dark);
+            padding: 0.15em 0.75em;
+            font-size: 0.8em;
+            opacity: 50%;
+        }
+
+        /**** PDF DISPLAY ****/
+
+        #pdf-display {
+            width: 100%;
+            height: calc(100vh - var(--nav-height));
+        }
+
+        #error-main {
+            color: var(--text-dark);
+            background-color: var(--background-light);
+
+            width: 100%;
+            height: calc(100vh - var(--nav-height));
+            padding: 1em;
+            font-size: 0.8em;
+            text-align: center;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
     </style>
 </head>
 
 <body>
-    <object id="pdfdisplay" data="data/Chukchansi-English Dictionary 2023.pdf" type="application/pdf" style="width:100%;">
-        <div>No online PDF viewer installed</div>
+    <div id='nav-bar'>
+        <h1 id='nav-title'>Chukchansi Dictionary 6th ed.</h1>
+        <nav id='nav-menu' role='navigation'>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="24" height="24" stroke-width="1.25" style='width:100%;height:100%;pointer-events:none;'>
+                <path d="M5 8l14 0"></path>
+                <path d="M5 12l14 0"></path>
+                <path d="M5 16l14 0"></path>
+            </svg>
+            <ul id='nav-dropdown' class='flex-row'>
+                <div class='flex-col'>
+                    <!-- <li><a>Home</a></li> -->
+                    <p class='nav-greyed-out'>Home</p>
+                </div>
+                <div class='flex-col'>
+                    <li><a href='speaking-dictionary'>Speaking Dictionary</a></li>
+                    <li><a href='pdf-dictionary'>PDF Dictionary</a></li>
+                    <li><a href='stories'>Story Reader</a></li>
+                    <li><a href='wordsearch'>Wordsearch</a></li>
+                </div>
+            </ul>
+        </nav>
+    </div>
+    <object id='pdf-display' data='mdata/Chukchansi-English Dictionary 2023.pdf' type='application/pdf'>
+        <div id='error-main'>
+            <p>Oops, your browser can't display PDFs directly!</p>
+            &nbsp; <!-- <br> doesn't work in flexbox, so add whitespace code instead -->
+            <p>Instead, you can directly download the pdf dictionary <a href='data/Chukchansi-English Dictionary 2023.pdf'>here</a>.</p>
+            <p>Fresno State University is also hosting a copy <a href='https://fresnostatecah.com/wp-content/uploads/2023/10/2023dictionary-chuk_eng-cover-merged.pdf'>here</a>.</p>
+            &nbsp;
+            <p></p>
+            &nbsp;
+            <p></p>
+            &nbsp;
+            <p>(If you're using Firefox, the PDF display broke in a recent update, so hold tight while they work on that.)</p>
+        </div>
     </object>
 </body>
