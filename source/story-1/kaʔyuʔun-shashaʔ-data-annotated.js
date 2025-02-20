@@ -1,6 +1,6 @@
 
 let story_kaʔyuʔun_shashaʔ = {
-	audio : `source/story-1/kaʔyuʔun-shashaʔ-audio.wav`,
+	audio : `source/story-1/kaʔyuʔun-shashaʔ-audio.mp3`,
 	titleENG : `Why Coyote's Eyes are the Best`,
 	titleCHK : `Hawitmi Kaʔyuʔun Shashaʔ Mich Gayis`,
 	titleShortENG : `Coyote's Eyes`,
