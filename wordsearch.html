@@ -85,6 +85,11 @@
             flex-direction: column;
             align-items: center;
         }
+        .flex-adapt-reverse {
+            flex-direction: row;
+            align-items: normal;
+            justify-content: center;
+        }
 
         /**** NAV BAR ****/
 
@@ -181,15 +186,17 @@
             flex-direction: column-reverse;
             justify-content: start;
         }
-        #wordlist {
-            border-radius: 0.5em;
-            box-shadow: var(--popout-shadow);
+        #wordlist-wrapper {
+            /* border-radius: 0.5em; */
+            /* box-shadow: var(--popout-shadow); */
 
-            display: inline-block;
             width: var(--wordsearch-width);
-            /* width: calc(1.5em * var(--wordsearch-grid-size)); */
+            font-size: 0.8em;
+
+            align-items: center;
+            gap: var(--content-pad);
         }
-        #wordsearch-container {
+        #wordsearch-wrapper {
             user-select: none;
             color: var(--text-dark);
             background-color: var(--background-light);
@@ -205,23 +212,58 @@
             line-height: var(--wordsearch-tile-font-size);
         }
 
+        /**** NEW GAME HEADER ****/
+
+        #new-game-button {
+            cursor: pointer;
+            color: var(--text-nav);
+            background-color: var(--background-nav);
+            border-radius: 0.5em;
+            filter: drop-shadow(var(--popout-shadow));
+
+            width: 100%;
+            padding: 0.5em;
+            text-align: center;
+            text-decoration: none;
+        }
+        #new-game-button:hover {
+            text-decoration: underline;
+        }
+
         /**** WORD LIST ****/
 
+        #wordlist {
+            background-color: var(--background-inset);
+            border-radius: 0.5em;
+            filter: drop-shadow(var(--popout-shadow));
+
+            flex-grow: 1;
+        }
         .wordlist-header {
             color: var(--text-nav);
             background-color: var(--background-nav);
             border-radius: 0.5em 0.5em 0 0;
+
             padding: 0.25em;
             align-items: center;
         }
-        #button-new-game {
-            cursor: pointer;
-            color: var(--text-nav);
+        .wordlist-header > div {
+            width: 100%;
+            padding: 0 0.5em;
+            
+            align-items: center;
+            justify-content: space-between;
+        }
+        #wordlist-difficulty {
+            color: var(--background-nav);
+            background-color: var(--text-nav);
+            border-radius: 1.0em;
+
+            padding: 0em 0.5em;
             font-size: 0.8em;
         }
         #wordlist-content {
             color: var(--text-dark);
-            /* border: 1px solid red; */
 
             display: flex;
             padding: 0.5em;
@@ -237,7 +279,7 @@
             display: inline-block;
             /* margin: 0.25em; */
             padding: 0.25em 0.5em;
-            font-size: 0.8em;
+            /* font-size: 0.8em; */
         }
         .highlighted {
             opacity: 0.3;
@@ -360,15 +402,22 @@
                 align-items: normal;
 				justify-content: center;
 			}
+            .flex-adapt-reverse {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
 
             #content {
                 flex-direction: row;
                 align-items: center;
                 justify-content: center;
             }
-            #wordlist {
-                width: 10em;
+            #wordlist-wrapper {
+                width: 15em;
                 height: var(--wordsearch-width);
+                /* flex-direction: column-reverse; */
+                justify-content: start;
             }
             .wordlist-item {
                 display: block;
@@ -416,8 +465,36 @@
     </nav>
 </div>
 <div id='content' class='flex-adapt'>
-    <div id='wordlist' class='flex-col'>
-        <div class='flex-row wordlist-header'>
+    <div id='wordlist-wrapper' class='flex-col'>
+        <!-- <div id='new-game-button'>+ New Game</div> -->
+        <div id='wordlist' class='flex-col'>
+            <div class='flex-col wordlist-header'>
+                <!-- <p>Hawitmi Siksikaʔ Limeek’ataʔ</p> -->
+                <div class='flex-row'>
+                    <p id='wordlist-progress'>0/0</p>
+                    <div class='flex-sep'></div>
+                    <p id='wordlist-difficulty'>Hard</p>
+                </div>
+                <!-- <p id='wordlist-progress'>0/0</p>
+                <div class='flex-sep'></div>
+                <button id='button-new-game' onclick='controller.newGame(targetWordlist)'>+ New Game</button> -->
+            </div>
+            <div id='wordlist-content'>
+                <p class='wordlist-item'>Word 1</p>
+                <p class='wordlist-item highlighted'>Long Word 2</p>
+                <p class='wordlist-item'>Reallylongusthemost Word</p>
+                <p class='wordlist-item'>Word N</p><p class='wordlist-item'>Word N</p>
+                <p class='wordlist-item'>Word N</p><p class='wordlist-item'>Word N</p>
+                <p class='wordlist-item'>Word N</p><p class='wordlist-item'>Word N</p>
+                <p class='wordlist-item'>Reallylongusthemost Word</p>
+                <p class='wordlist-item'>Word N</p><p class='wordlist-item'>Word N</p>
+            </div>
+            <!-- <div class='flex-sep'></div>
+            <div id='new-game-button'>+ New Game</div> -->
+        </div>
+        <div id='new-game-button' onclick='controller.newGame(targetWordlist)'>New Game</div>
+        
+        <!-- <div class='flex-row wordlist-header'>
             <p id='wordlist-progress'>0/0</p>
             <div class='flex-sep'></div>
             <button id='button-new-game' onclick='controller.newGame(targetWordlist)'>+ New Game</button>
@@ -431,10 +508,10 @@
             <p class='wordlist-item'>Word N</p><p class='wordlist-item'>Word N</p>
             <p class='wordlist-item'>Reallylongusthemost Word</p>
             <p class='wordlist-item'>Word N</p><p class='wordlist-item'>Word N</p>
-        </div>
+        </div> -->
     </div>
 
-    <div id='wordsearch-container'>
+    <div id='wordsearch-wrapper'>
         <div id='wordsearch-click-area' class='flex-col'></div>
         <div id='cursor-caterpillar' class='caterpillar'></div>
     </div>
@@ -477,6 +554,7 @@
     // 1.5 hrs: admin stuff, nav standardization
     // 4.0 hrs: make ui fully dynamic, misc bug fixes
     // 2.0 hrs: create story vocab lists, dynamic wordbanks/wordlists
+    // 2.0 hrs: UI update, difficulty selection prep
 
 
 
@@ -491,7 +569,7 @@
     const wordlist = document.getElementById('wordlist-content');
     const progress = document.getElementById('wordlist-progress');
     const wordsearch = document.getElementById('wordsearch-click-area');
-    const wordsearchContainer = document.getElementById('wordsearch-container');
+    const wordsearchContainer = document.getElementById('wordsearch-wrapper');
     const cursorCaterpillar = document.getElementById('cursor-caterpillar');
 
     const randInt = (min,max) => Math.floor(Math.random() * (max-min+1)) + min;
@@ -688,18 +766,18 @@
                 console.warn(`Regeneration successful.`);
             }
         }
-        // // fill in remaining blanks with random chars
-        // for (let row = 0; row < sidelen; row++) {
-        //     let gridrow = '';
-        //     for (let col = 0; col < sidelen; col++) {
-        //         if (controller.grid[row][col] == '.') {
-        //             gridrow = gridrow + ALPHABET[randInt(0,ALPHABET.length-1)];
-        //         } else {
-        //             gridrow = gridrow + controller.grid[row][col];
-        //         }
-        //     }
-        //     controller.grid[row] = gridrow;
-        // }
+        // fill in remaining blanks with random chars
+        for (let row = 0; row < sidelen; row++) {
+            let gridrow = '';
+            for (let col = 0; col < sidelen; col++) {
+                if (controller.grid[row][col] == '.') {
+                    gridrow = gridrow + ALPHABET[randInt(0,ALPHABET.length-1)];
+                } else {
+                    gridrow = gridrow + controller.grid[row][col];
+                }
+            }
+            controller.grid[row] = gridrow;
+        }
 
         // console.log(controller.grid);
     }
