@@ -476,6 +476,7 @@
     // 0.5 hrs: fix wordsearch breaking after file name standardization; add failsafe for future
     // 1.5 hrs: admin stuff, nav standardization
     // 4.0 hrs: make ui fully dynamic, misc bug fixes
+    // 2.0 hrs: create story vocab lists, dynamic wordbanks/wordlists
 
 
 
@@ -609,30 +610,7 @@
 
 
 
-    // compile word bank
-    function getWordlist (wordbank, numWords, minLen=3, maxLen=8) {
-        let words = [];
-        for (let word of wordbank.keys()) words.push(word);
-
-        let wordset = new Set();
-        let breakout = 1000;
-        while (--breakout > 0 && wordset.size < numWords) {
-            let word = words[randInt(0,words.length-1)];
-            if (word.length >= minLen && word.length <= maxLen) {
-                wordset.add(word);
-            }
-        }
-        console.log(wordset);
-
-        if (wordset > 0) {
-            console.error(`Wordbank did not contain sufficient words matching input settings.`);
-            return [];
-        } else {
-            let wordlist = [];
-            for (let word of wordset.keys()) wordlist.push(word);
-            return wordlist;
-        }
-    }
+    
 
 
     
@@ -710,18 +688,18 @@
                 console.warn(`Regeneration successful.`);
             }
         }
-        // fill in remaining blanks with random chars
-        for (let row = 0; row < sidelen; row++) {
-            let gridrow = '';
-            for (let col = 0; col < sidelen; col++) {
-                if (controller.grid[row][col] == '.') {
-                    gridrow = gridrow + ALPHABET[randInt(0,ALPHABET.length-1)];
-                } else {
-                    gridrow = gridrow + controller.grid[row][col];
-                }
-            }
-            controller.grid[row] = gridrow;
-        }
+        // // fill in remaining blanks with random chars
+        // for (let row = 0; row < sidelen; row++) {
+        //     let gridrow = '';
+        //     for (let col = 0; col < sidelen; col++) {
+        //         if (controller.grid[row][col] == '.') {
+        //             gridrow = gridrow + ALPHABET[randInt(0,ALPHABET.length-1)];
+        //         } else {
+        //             gridrow = gridrow + controller.grid[row][col];
+        //         }
+        //     }
+        //     controller.grid[row] = gridrow;
+        // }
 
         // console.log(controller.grid);
     }
@@ -853,37 +831,102 @@
     
     // init //
 
-    // build word bank of unique words
+    // build word bank of unique words from stories
     let stories = [
         story_sox_siksikaʔ,
         story_kaʔyuʔun_shashaʔ,
         story_ʔuplalliʔ_deemaysuʔ,
         story_shelel_shilithanaʔ
     ];
-    let wordbank_sox_siksika = new Set();
-    let wordlist_sox_siksika_gen;
-    if (typeof story_sox_siksikaʔ !== 'undefined') {    
-        for (let i = 0; i < story_sox_siksikaʔ.timestampsBySentence.length; i+=3) {
-            const timestamp = story_sox_siksikaʔ.timestampsBySentence[i];
-            const textCHK = story_sox_siksikaʔ.timestampsBySentence[i+1];
-            const textENG = story_sox_siksikaʔ.timestampsBySentence[i+2];
+    const storyWordbanks = stories.map(storyData => {
+        if (typeof storyData == 'undefined') {
+            console.error('Invalid story data.');
+            return undefined;
+        }
+
+        let wordbank = new Set();
+        for (let i = 0; i < storyData.timestampsBySentence.length; i+=3) {
+            const timestamp = storyData.timestampsBySentence[i];
+            const textCHK = storyData.timestampsBySentence[i+1];
+            const textENG = storyData.timestampsBySentence[i+2];
             // stories may have ’ instead of ' for formatting; make the replacement, then scrub non-alphabetic chars
-            let words = textCHK.replaceAll("’","'").replaceAll(/[^a-zA-Z'ʔ ]/g,'').split(' ');
+            const words = textCHK.replaceAll("’","'").replaceAll(/[^a-zA-Z'ʔ ]/g,'').split(' ');
             for (let word of words) {
-                wordbank_sox_siksika.add(word.toLowerCase());
+                wordbank.add(word.toLowerCase());
             }
         }
-        wordlist_sox_siksika_gen = getWordlist(wordbank_sox_siksika, 10, controller.minWordlen, controller.maxWordlen);
-    } else {
-        console.error('File not found. Defaulting to static wordlist.');
+        // console.log(wordbank);
+
+        return wordbank;
+    });
+
+    // compile word banks
+    function getWordlist (wordbank, numWords, minLen=3, maxLen=8) {
+        let words = [];
+        for (let word of wordbank.keys()) words.push(word);
+
+        let wordset = new Set();
+        let breakout = 1000;
+        while (--breakout > 0 && wordset.size < numWords) {
+            let word = words[randInt(0,words.length-1)];
+            if (word.length >= minLen && word.length <= maxLen) {
+                wordset.add(word);
+            }
+        }
+        // console.log(wordset);
+
+        if (wordset > 0) {
+            console.error(`Wordbank did not contain sufficient words matching settings.`);
+            return [];
+        } else {
+            let wordlist = [];
+            for (let word of wordset.keys()) wordlist.push(word);
+            return wordlist;
+        }
     }
-    console.log(wordbank_sox_siksika);
+
+    
+
+    // let wordbank_sox_siksika = new Set();
+    // let wordlist_sox_siksika_gen;
+    // if (typeof story_sox_siksikaʔ !== 'undefined') {    
+    //     for (let i = 0; i < story_sox_siksikaʔ.timestampsBySentence.length; i+=3) {
+    //         const timestamp = story_sox_siksikaʔ.timestampsBySentence[i];
+    //         const textCHK = story_sox_siksikaʔ.timestampsBySentence[i+1];
+    //         const textENG = story_sox_siksikaʔ.timestampsBySentence[i+2];
+    //         // stories may have ’ instead of ' for formatting; make the replacement, then scrub non-alphabetic chars
+    //         let words = textCHK.replaceAll("’","'").replaceAll(/[^a-zA-Z'ʔ ]/g,'').split(' ');
+    //         for (let word of words) {
+    //             wordbank_sox_siksika.add(word.toLowerCase());
+    //         }
+    //     }
+    //     wordlist_sox_siksika_gen = getWordlist(wordbank_sox_siksika, 10, controller.minWordlen, controller.maxWordlen);
+    // } else {
+    //     console.error('File not found. Defaulting to static wordlist.');
+    // }
+    // console.log(wordbank_sox_siksika);
     
     // default curated word list in case things go wrong
-    const wordlist_sox_siksika = ["Sox","Siksikaʔ","ʔoshto","woodiyga","namix","ʔutuytaʔ","henew","t'uluntaʔ","shaapintaʔ","limeek'am"];
+    const storyVocabWordlists = {
+        "How Stinkbug Became Black"             : ["Sox","Siksikaʔ","ʔoshto","woodiyga","namix","ʔutuytaʔ","henew","t'uluntaʔ","shaapintaʔ","limeek'am"],
+            // Skunk, Stinkbug, fire, dance, friend, pushed, some, burned, extinguished, became black
+        "Why Coyote's Eyes are the Best"        : ["Lopis","Kaʔyuʔ","shashaaʔan","wakaayaw","wech'eeta","ch'edmat","gayis","bajxaʔli","hoych'it","taʔishtaʔ"],
+            // Fish, Coyote, eyes, river, stick, think, good, bad, want, see
+        "Dove and Hummingbird Race Each Other"  : ["ʔuplalliʔ","deemay'suʔ","baanewshit","hoy'nit","ʔayax","wentaw","hayk'itaw","hoyonhiy'","ch'awit","hidyaʔ"],
+            // Dove, Hummingbird, race each other, fly, fast, start, finish (line), wing, win, everybody
+        "A Rock to be Jumped"                   : ["shelel'","shil't'eʔ","hiky'eʔ","lihmit","bohloʔ","xishweʔ","texeetan'","noneeʔi","mokeela","peeli"]
+            // rock, jump, play, run, grow, scratch, hurt, men, women, road
+    };
+    const storyRandomWordlists = {
+        "How Stinkbug Became Black"             : getWordlist(storyWordbanks[0], 10, controller.minWordlen, controller.maxWordlen),
+        "Why Coyote's Eyes are the Best"        : getWordlist(storyWordbanks[1], 10, controller.minWordlen, controller.maxWordlen),
+        "Dove and Hummingbird Race Each Other"  : getWordlist(storyWordbanks[2], 10, controller.minWordlen, controller.maxWordlen),
+        "A Rock to be Jumped"                   : getWordlist(storyWordbanks[3], 10, controller.minWordlen, controller.maxWordlen)
+    };
     
     // anchor for global access
-    let targetWordlist = wordlist_sox_siksika_gen ?? wordlist_sox_siksika;
+    // let targetWordlist = storyVocabWordlists[Object.keys(storyVocabWordlists)[3]];
+    let targetWordlist = storyRandomWordlists[Object.keys(storyRandomWordlists)[3]];
 
     // init new game
     controller.newGame(targetWordlist);
