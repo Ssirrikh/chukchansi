@@ -81,34 +81,12 @@
             flex-direction: column;
             align-items: center;
         }
-
-        /* mobile-first styling for better load times on less-powerful devices */
-        @media (max-aspect-ratio: 5/4) { /* mobile mode */
-            #selection-panel {
-                width: 100vw;
-                max-height: 50vh;
-            }
-            .player-panel {
-                width: calc(100vw - 0.5em - 0.5em); /* prevent panel from shrinking horizontally on mobile if content is skinny */
-            }
+        .flex-adapt-reverse {
+            display: flex;
+            flex-direction: row;
+            align-items: normal;
+            justify-content: center;
         }
-		@media (min-aspect-ratio: 5/4) { /* desktop mode */
-            :root {
-                --title-font-size: 1.0em;
-                --nav-height: calc(1.5 * var(--fluid-font-size)); /* ref height for content anchors; 1.0em text + 2*0.25em padding */
-            }
-			.flex-adapt {
-				flex-direction: row;
-                align-items: normal;
-				justify-content: center;
-			}
-            #selection-panel {
-                position: sticky;
-                top: calc(var(--nav-height) + var(--content-pad));
-                width: 33vw;
-                max-height: calc(100vh - var(--nav-height) - 2 * var(--content-pad));
-            }
-		}
 
 		/**** NAV BAR ****/
 
@@ -198,7 +176,7 @@
         #content { /* fullscreen container so subpanels can position:sticky independently of each other */
             background-color: var(--background-light);
             min-height: calc(100vh - var(--nav-height));
-            padding: 0 var(--content-pad);
+            /* padding: 0 var(--content-pad); */
             gap: var(--content-pad);
         }
 		#selection-panel { /* left/top panel: select story */
@@ -207,6 +185,7 @@
             border-radius: 0.5em;
             filter: drop-shadow(var(--popout-shadow));
             /* box-shadow: var(--popout-shadow); */
+            z-index: var(--layer-front); /* ensure shadow correctly overlays neighboring content */
 
             display: inline-block;
             margin-top: var(--content-pad);
@@ -311,17 +290,75 @@
         .reader-highlight {
             background-color: var(--background-inset);
         }
-        #scroll-to-top {
-            cursor: pointer;
-            background-color: var(--background-inset);
-            /* filter: drop-shadow(var(--popout-shadow)); */
 
-            margin-bottom: 1.0em;
-            padding: 0.25em 0px;
+        #reader-end {
+            background-color: var(--background-inset);
+
+            margin-top: 1.0em;
+            padding: 0.5em;
+            gap: 0.5em;
+        }
+        #reader-end button {
+            cursor: pointer;
+            background-color: var(--background-light);
+            /* border-radius: 1.0em; */
+            filter: drop-shadow(0 0 4px #0004);
+            padding: 0.25em 1.0em;
+
+            width: 100%;
+            font-size: 1.0em; /* need to explicitly set font-size to avoid "readability adjustment" that makes text tiny */
+        }
+        #reader-end button:hover {
+            color: var(--text-nav);
+            background-color: var(--background-nav-selected);
+        }
+
+        #reader-downloads {
+            /* border: 1px solid blue; */
+            width: 100%;
+            padding: 0 0.5em;
+            font-size: 0.8em;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5em;
+        }
+        #reader-downloads > p {
+            /* font-size: 0.8em; */
+        }
+        #reader-downloads > div {
+            gap: 0.5em;
+        }
+        #reader-downloads > div > a {
+            cursor: pointer;
+            color: var(--text-nav);
+            background-color: var(--background-nav-selected);
+            border-radius: 1em;
+            filter: drop-shadow(var(--popout-shadow));
+            padding: 0.25em 0.75em;
+            text-decoration: none;
+        }
+        #reader-downloads > div > a:hover {
+            text-decoration: underline;
+        }
+        #reader-nav {
+            /* border: 1px solid red; */
+            width: 100%;
+            align-items: center;
+            justify-content: space-around;
+            gap: 0.5em;
         }
 
         .reader-download-button {
-            /*  */
+            cursor: pointer;
+            border: 1px solid red;
+
+            position: sticky;
+            bottom: 0.5em;
+            /* right: 0.5em; /* has no effect for some reason? overridden by flexbox? */
+            width: 1em;
+            height: 1em;
+
+            align-self: end;
         }
 
         /**** AUDIO PLAYER UI ****/
@@ -329,15 +366,17 @@
         .player-panel {
             color: var(--text-dark);
             background-color: var(--background-inset);
-            border: 0.2em solid var(--border-dark);
-            border-radius: 1em;
             filter: drop-shadow(var(--popout-shadow));
-            /* box-shadow: var(--popout-shadow); */
 
             position: sticky;
-            margin: 0.5em;
             padding: 0.5em;
-            top: calc(0.5em + var(--nav-height));
+            /* top: var(--nav-height); */
+            
+            border: 0.2em solid var(--border-dark);
+            border-radius: 1em;
+            margin: var(--content-pad);
+            top: calc(var(--content-pad) + var(--nav-height));
+            width: calc(100vw - 2 * var(--content-pad)); /* prevent panel from shrinking horizontally on mobile if content is skinny */
 
             justify-content: center;
             align-items: center;
@@ -507,6 +546,53 @@
             background: linear-gradient(transparent, var(--background-medium) 70%);
             bottom: 0;
         }
+
+
+
+        /**** MEDIA QUERIES ****/
+
+        /* mobile-first styling for better load times on less-powerful devices */
+        @media (max-aspect-ratio: 5/4) { /* mobile mode */
+            #selection-panel {
+                width: 100vw;
+                max-height: 50vh;
+            }
+            .player-panel {
+                /*width: calc(100vw - 0.5em - 0.5em); /* prevent panel from shrinking horizontally on mobile if content is skinny */
+                /*width: calc(100vw); /* prevent panel from shrinking horizontally on mobile if content is skinny */
+            }
+        }
+		@media (min-aspect-ratio: 5/4) { /* desktop mode */
+            :root {
+                --title-font-size: 1.0em;
+                --nav-height: calc(1.5 * var(--fluid-font-size)); /* ref height for content anchors; 1.0em text + 2*0.25em padding */
+            }
+            #content {
+                padding-left: var(--content-pad);
+            }
+			.flex-adapt {
+				flex-direction: row;
+                align-items: normal;
+				justify-content: center;
+			}
+            .flex-adapt-reverse {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            .player-panel {
+                width: auto;
+            }
+            #selection-panel {
+                position: sticky;
+                top: calc(var(--nav-height) + var(--content-pad));
+                width: 33vw;
+                max-height: calc(100vh - var(--nav-height) - 2 * var(--content-pad));
+            }
+            #scroll-to-selection {
+                display: none;
+            }
+		}
 		
 	</style>
 </head>
@@ -621,6 +707,18 @@
             </div>
         </div>
         <div id='reader-content' class='flex-col' aria-hidden='true'></div>
+        <div id='reader-end' class='flex-col'>
+            <div id='reader-downloads' class='flex-row'>
+                <p>Want to download the story?</p>
+                <div class='flex-row'>
+                    <a id='reader-download-audio'>MP3</a>
+                </div>
+            </div>
+            <div id='reader-nav' class='flex-row'>
+                <button id='scroll-to-story' onclick='scrollToStory()'>Top of Story</button>
+                <button id='scroll-to-selection' onclick='scrollToSelection()'>Story Selection</button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -683,6 +781,8 @@
     // 6.0 hrs: add nav menu
     // 6.0 hrs: cleanup, mobile optimization, layout improvements
     // 0.5 hrs: fix issue that made nav links hard to click
+    // 4.0 hrs: UX improvements
+    // 2.5 hrs: begin adding audio downloads
 
 
     
@@ -696,6 +796,9 @@
     const readerTitle = document.getElementById('reader-title');
     const readerSubtitle = document.getElementById('reader-subtitle');
     const readerContent = document.getElementById('reader-content');
+    const readerFooter = document.getElementById('reader-end');
+    const readerDownloadsSection = document.getElementById('reader-downloads');
+    const readerDownloadAudio = document.getElementById('reader-download-audio')
     const playerTime = document.getElementById('player-time');
     const playerDuration = document.getElementById('player-duration');
     const playerProgressContiner = document.getElementById('player-progress');
@@ -745,7 +848,7 @@
             if (storyReader.player.paused && storyReader.player.currentTime >= storyReader.player.duration-0.5) {
                 // if finished playing, reset to earliest timestamp
                 storyReader.setSectionId(0,0);
-                scrollToTop();
+                scrollToStory();
                 
             }
             (storyReader.player.paused) ? storyReader.player.play() : storyReader.player.pause();
@@ -852,6 +955,8 @@
         storyReader.loadingComplete = false;
         readerContent.innerHTML = '';
         playerLoadingScreen.style.visibility = 'visible';
+        readerFooter.style.display = 'none';
+        readerDownloadsSection.style.display = 'none';
 
         // begin fetching audio
         storyReader.setSrc(storyData.audio);
@@ -889,15 +994,24 @@
             }
             contentStr += `</div>`;
         }
-        contentStr += `<p id='scroll-to-top' onclick='scrollToTop()'>Scroll to Top</p>`;
         console.log(`LOAD Dynamic content generated after ${(performance.now()-storyReader.loadStart).toFixed(0)} ms.`);
 
         // render content to screen only after audio is playable
         function trySetInitialTime (t0) {
             if (storyReader.player.currentTime == t0) {
+                // render story content
                 console.log(`LOAD First section seekable after ${(performance.now()-storyReader.loadStart).toFixed(0)} ms.`);
                 readerContent.innerHTML = contentStr;
                 storyReader.setSectionId(0);
+                // render content footer
+                if (storyReader.currentStoryData.audio) {
+                    readerDownloadAudio.href = storyReader.currentStoryData.audio;
+                    readerFooter.style.display = ''; // display:'' removes element-level value and resets to class/id value
+                    readerDownloadsSection.style.display = '';
+                } else {
+                    console.error('Audio download unreachable.');
+                }
+                // remove loading screen
                 playerLoadingScreen.style.visibility = 'hidden';
                 console.log(`LOAD Dynamic content rendered after ${(performance.now()-storyReader.loadStart).toFixed(0)} ms.`);
             } else if (storyReader.player.readyState >= 2) {
@@ -926,8 +1040,11 @@
 
     /////////////////////
 
-    function scrollToTop () {
+    function scrollToStory () {
         storyReaderPanel.scrollIntoView({ block: 'start', behavior: 'smooth' }); // has scroll-margin-top to account for navbar
+    }
+    function scrollToSelection () {
+        window.scrollTo({ top: 0, left: 0, behavior: 'smooth' }); // has scroll-margin-top to account for navbar
     }
 
     function seekTo (p = 0.0) {
