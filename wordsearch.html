@@ -230,6 +230,14 @@
             text-decoration: underline;
         }
 
+        #new-game-wrapper {
+            background-color: var(--background-light);
+            display: none; /* invisible until toggled on */
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
         /**** WORD LIST ****/
 
         #wordlist {
@@ -466,7 +474,6 @@
 </div>
 <div id='content' class='flex-adapt'>
     <div id='wordlist-wrapper' class='flex-col'>
-        <!-- <div id='new-game-button'>+ New Game</div> -->
         <div id='wordlist' class='flex-col'>
             <div class='flex-col wordlist-header'>
                 <!-- <p>Hawitmi Siksikaʔ Limeek’ataʔ</p> -->
@@ -475,40 +482,17 @@
                     <div class='flex-sep'></div>
                     <p id='wordlist-difficulty'>Hard</p>
                 </div>
-                <!-- <p id='wordlist-progress'>0/0</p>
-                <div class='flex-sep'></div>
-                <button id='button-new-game' onclick='controller.newGame(targetWordlist)'>+ New Game</button> -->
             </div>
             <div id='wordlist-content'>
                 <p class='wordlist-item'>Word 1</p>
-                <p class='wordlist-item highlighted'>Long Word 2</p>
-                <p class='wordlist-item'>Reallylongusthemost Word</p>
-                <p class='wordlist-item'>Word N</p><p class='wordlist-item'>Word N</p>
-                <p class='wordlist-item'>Word N</p><p class='wordlist-item'>Word N</p>
-                <p class='wordlist-item'>Word N</p><p class='wordlist-item'>Word N</p>
-                <p class='wordlist-item'>Reallylongusthemost Word</p>
-                <p class='wordlist-item'>Word N</p><p class='wordlist-item'>Word N</p>
+                <p class='wordlist-item highlighted'>Word 2</p>
             </div>
             <!-- <div class='flex-sep'></div>
             <div id='new-game-button'>+ New Game</div> -->
+            <div id='new-game-wrapper'>[new game stuff]</div>
         </div>
-        <div id='new-game-button' onclick='controller.newGame(targetWordlist)'>New Game</div>
-        
-        <!-- <div class='flex-row wordlist-header'>
-            <p id='wordlist-progress'>0/0</p>
-            <div class='flex-sep'></div>
-            <button id='button-new-game' onclick='controller.newGame(targetWordlist)'>+ New Game</button>
-        </div>
-        <div id='wordlist-content'>
-            <p class='wordlist-item'>Word 1</p>
-            <p class='wordlist-item highlighted'>Long Word 2</p>
-            <p class='wordlist-item'>Reallylongusthemost Word</p>
-            <p class='wordlist-item'>Word N</p><p class='wordlist-item'>Word N</p>
-            <p class='wordlist-item'>Word N</p><p class='wordlist-item'>Word N</p>
-            <p class='wordlist-item'>Word N</p><p class='wordlist-item'>Word N</p>
-            <p class='wordlist-item'>Reallylongusthemost Word</p>
-            <p class='wordlist-item'>Word N</p><p class='wordlist-item'>Word N</p>
-        </div> -->
+        <!-- <div id='new-game-button' onclick='controller.newGame(targetWordlist)'>New Game</div> -->
+        <div id='new-game-button' onclick='document.getElementById("new-game-wrapper").style.display = (document.getElementById("new-game-wrapper").style.display=="none") ? "block" : "none"'>New Game</div>
     </div>
 
     <div id='wordsearch-wrapper'>
@@ -554,7 +538,7 @@
     // 1.5 hrs: admin stuff, nav standardization
     // 4.0 hrs: make ui fully dynamic, misc bug fixes
     // 2.0 hrs: create story vocab lists, dynamic wordbanks/wordlists
-    // 2.0 hrs: UI update, difficulty selection prep
+    // 2.5 hrs: UI update, difficulty selection prep
 
 
 
