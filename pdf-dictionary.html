@@ -165,7 +165,7 @@
 
             width: 100%;
             height: calc(100vh - var(--nav-height));
-            padding: 1em;
+            /* padding: 1em; */
             font-size: 0.8em;
             text-align: center;
 
@@ -173,6 +173,16 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
+        }
+        #error-main > div {
+            padding: 0.5em;
+        }
+        #error-main > div span {
+            white-space: nowrap;
+        }
+        #fallback-display {
+            width: 100%;
+            flex-grow: 1;
         }
     </style>
 </head>
@@ -201,17 +211,26 @@
         </nav>
     </div>
     <object id='pdf-display' data='data/Chukchansi-English Dictionary 2023.pdf' type='application/pdf'>
-        <div id='error-main'>
-            <p>Oops, your browser can't display PDFs directly!</p>
-            &nbsp; <!-- <br> doesn't work in flexbox, so add whitespace code instead -->
-            <p>Instead, you can directly download the pdf dictionary <a href='data/Chukchansi-English Dictionary 2023.pdf'>here</a>.</p>
+        <!-- <div id='error-main'>
+            <p>Oops, your browser can't display PDFs directly!</p> -->
+            <!-- <br> doesn't work in flexbox, so add whitespace code instead -->
+            <!--&nbsp; 
+            <p>If the PDF dictionary doesn't download automatically, click <a href='data/Chukchansi-English Dictionary 2023.pdf'>here</a>.</p>
             <p>Fresno State University is also hosting a copy <a href='https://fresnostatecah.com/wp-content/uploads/2023/10/2023dictionary-chuk_eng-cover-merged.pdf'>here</a>.</p>
             &nbsp;
             <p></p>
             &nbsp;
             <p></p>
             &nbsp;
-            <p>(If you're using Firefox, the PDF display broke in a recent update, so hold tight while they work on that.)</p>
+            <p>(If you're using Firefox, the PDF viewer broke in a recent update, so hold tight while they work on that.)</p> -->
+
+            <!-- <script type='text/javascript'>console.log('Downloading pdf...'); window.location.href = 'data/Chukchansi-English Dictionary 2023.pdf';</script> -->
+        <!-- </div> -->
+        <div id='error-main'>
+            <div>
+                <p>Oops, your browser can't display PDFs directly! We'll try using google drive to display it below instead. If that still doesn't work, you can simply <a href='data/Chukchansi-English Dictionary 2023.pdf'><span>download the dictionary</span></a>.</p>
+            </div>
+            <iframe id='fallback-display' src='https://docs.google.com/gview?url=https://fresnostatecah.com/wp-content/uploads/2023/10/2023dictionary-chuk_eng-cover-merged.pdf&embedded=true' frameborder='0'></iframe>
         </div>
     </object>
 </body>
