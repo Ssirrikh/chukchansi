@@ -87,12 +87,6 @@
             align-items: normal;
             justify-content: center;
         }
-        .flex-adapt-reverse {
-            display: flex;
-            flex-direction: row;
-            align-items: normal;
-            justify-content: center;
-        }
 
 		/**** NAV BAR ****/
 
@@ -522,27 +516,6 @@
 
 
 
-        #fade-top, #fade-bottom {
-            display: inline-block;
-            position: fixed;
-            left: 0;
-            width: 100%;
-            height: var(--content-pad);
-            z-index: var(--layer-front);
-        }
-        #fade-top {
-            /* background: linear-gradient(var(--background-medium), var(--background-medium), transparent); */
-            background: linear-gradient(transparent, var(--background-medium) 70%);
-            top: var(--nav-height);
-        }
-        #fade-bottom {
-            /* background: linear-gradient(transparent, var(--background-medium), var(--background-medium)); */
-            background: linear-gradient(transparent, var(--background-medium) 70%);
-            bottom: 0;
-        }
-
-
-
         /**** MEDIA QUERIES ****/
 
         /* mobile-first styling for better load times on less-powerful devices */
@@ -610,8 +583,6 @@
         </ul>
     </nav>
 </div>
-<!-- <div id='fade-top'></div> -->
-<!-- <div id='fade-bottom'></div> -->
 <div id='content' class='flex-adapt'>
     <div> <!-- need wrapper div so position:sticky plays nice with flexbox -->
         <div id='selection-panel' class='flex-col'>
