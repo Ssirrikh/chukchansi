@@ -3,14 +3,886 @@
 
 <head>
 	<meta charset = 'utf-8'>
-	<title>Chukchansi-English Speaking Dictionary</title>
-	<link rel='stylesheet' href='style/style.css'>
+	<title>Chukchansi Speaking Dictionary</title>
+	<!-- <link rel='stylesheet' href='style/style.css'> -->
     <meta name='robots' content='index, follow'>
-    <meta name='description' content='The online Chukchansi speaking dictionary is an interactive web app with translations, example sentences, and recordings of native speakers. A resource for students, language learners, and linguistic research.'>
-	<meta name='viewport' content='width=device-width, initial-scale=1'>
-</head>
+    <meta name='description' content='The Chukchansi speaking dictionary is an interactive web app with translations, example sentences, and recordings of native speakers. A resource for students, language learners, and linguistic research.'>
+	<meta name='viewport' content='width=device-width, initial-scale=1, interactive-widget=resizes-content'>
+	<!-- interactive-widget=resizes-content necessary for any page with text input, so page updates to accomodate onscreen keyboard -->
+	<style>
+		:root {
+			--background-nav: #461220; /* navbar */
+            --text-nav: #ffd994; /* previously #ffdab3 */
+            --border-nav: #64182c; /* #64182c, #771932 */
 
+            --background-nav-selected: #6b4226;
+            --background-nav-unselected: #eac8a2;
+
+			--background-light: #f2e3d3; /* main content bg */
+			--background-inset: #dbb78f; /* inset panels; vibrant bg */
+			--background-medium: #bfa07e; /* side panels; muted bg */
+			--background-dark: #ad8e6c; /* fractionally darker interactibles bg */
+			--text-dark: #4f3a09; /* main content text */
+			--text-medium: #806d46; /* interactible text */
+			--text-light: #fdf7ea;
+
+			--border-dark: #4f3a09; /* content separation */
+			--border-medium: #75544b; /* inset panel border */
+			--border-light: #bfa07e; /* interactible textbox border */
+
+            --popout-shadow: 0 0 10px #00000038;
+
+			--layer-front: 2; /* elems that hover over content (hanging tabs, search history) */
+			--layer-nav: 3; /* nav elements are always topmost */
+			--layer-overlay: 5; /* modal overlays */
+
+            /* dynamic units calculated for mobile-first; see media queries for desktop */
+            --fluid-font-size: max(2.5vh, calc(1rem + 1.0vw));
+            --nav-pad: 0.25em;
+            --content-pad: 0.6rem;
+            --title-font-size: calc(1.17 * var(--fluid-font-size)); /* unsure why 1.17, but it seems to be pixel-perfect at all sizes */
+            --nav-height: calc(1.75 * var(--fluid-font-size)); /* ref height for content anchors */
+			--panel-border: 2px solid var(--border-dark);
+
+			--search-padding-compact: 0.0em 0.5em;
+			--search-padding-comfortable: 0.3em 0.5em;
+
+			/* mobile browser url bars take up space without shrinking 100vh; we need to dynamically set a var to the "true height" with JS later on */
+			--screen-height: 100vh;
+
+			--thumbnail-position: center center / cover no-repeat;
+			--icon-image: url('../source/image.png');
+			--icon-audio: url('../source/audio.png');
+		}
+
+		* {
+			margin: 0px;
+			padding: 0px;
+			box-sizing: border-box;
+			font-family: 'Times New Roman';
+		}
+		body {
+			background-color: var(--background-nav);
+            font-size: var(--fluid-font-size);
+			overflow: hidden;
+		}
+        button {
+            color: var(--text-dark);
+            background-color: transparent;
+            border: none;
+            outline: none;
+        }
+        h1, h2, h3 {
+            font-weight: normal;
+        }
+
+		/* flexbox */
+		.flex-sep {
+			width: 0;
+			flex-grow: 1;
+		}
+		.flex-row {
+			display: flex;
+			flex-direction: row;
+			align-items: start;
+		}
+		.flex-col {
+			display: flex;
+			flex-direction: column;
+		}
+        .flex-adapt {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .flex-adapt-reverse {
+            display: flex;
+            flex-direction: row;
+            align-items: normal;
+            justify-content: center;
+        }
+		.flex-centered {
+			align-items: center;
+			justify-content: center;
+		}
+
+
+
+		/**** BEHAVIOR ****/
+
+		.no-scrollbar {
+			overflow: scroll;
+			-ms-overflow-style: none;  /* Hide scrollbar for IE and Edge */
+			scrollbar-width: none;  /* Hide scrollbar for Firefox */
+		}
+		.no-scrollbar::-webkit-scrollbar { display: none; } /* Hide scrollbar for Chrome, Safari and Opera */
+
+        
+
+		/**** NAV BAR ****/
+
+		#nav-bar {
+			color: var(--text-nav);
+			background-color: var(--background-nav);
+            border-bottom: 1px solid var(--border-nav);
+
+			position: sticky;
+			padding: var(--nav-pad);
+			top: 0px;
+			width: 100%;
+            font-size: var(--title-font-size);
+            text-align: center;
+
+			z-index: var(--layer-nav); /* nav elems and hanging tabs are on top of other content, but not fullscreen modals */
+		}
+        #nav-title {
+            /* unstyle <h1> */
+            font-size: var(--title-font-size);
+            line-height: var(--title-font-size);
+            font-weight: normal;
+        }
+        #nav-menu {
+            /* https://www.sliderrevolution.com/resources/css-dropdown-menu/ */
+            cursor: pointer;
+
+            display: inline-block;
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            width: var(--nav-height);
+            height: var(--nav-height);
+        }
+        #nav-menu ul {
+            cursor: default;
+            color: var(--text-dark);
+            background-color: var(--background-nav-unselected);
+            /* border-top: 1px solid var(--text-light); */
+            border-bottom: 1px solid var(--border-light);
+
+            visibility: hidden;
+            position: absolute;
+            top: var(--nav-height);
+            left: 0px;
+            width: 100vw;
+            /* width: 100%; */
+            padding: 0.25em;
+
+            text-align: left;
+            list-style: none;
+            flex-wrap: wrap;
+        }
+        #nav-menu div + div {
+            border-left: 1px solid var(--text-dark);
+        }
+        #nav-menu ul li {
+            cursor: pointer;
+            color: var(--text-dark);
+            /* padding: 0.15em 0.75em; */
+            font-size: 0.8em;
+        }
+        #nav-menu ul li:hover {
+            color: var(--text-nav);
+            background-color: var(--background-nav-selected);
+        }
+        #nav-menu:focus-within > ul, #nav-menu:hover ul {
+            visibility: visible;
+        }
+        #nav-menu ul li a {
+            /* border: 1px solid blue; */
+            display: inline-block;
+            width: 100%;
+            padding: 0.15em 0.75em;
+            color: inherit;
+            text-decoration: inherit;
+        }
+        .nav-greyed-out {
+            cursor: default;
+            color: var(--text-dark);
+            padding: 0.15em 0.75em;
+            font-size: 0.8em;
+            opacity: 50%;
+        }
+
+		/**** SITE LAYOUT ****/
+
+		/* #main {
+			width: 100vw;
+			height: 100%;
+		} */
+        #content {
+			color: var(--text-dark);
+            background-color: var(--background-inset);
+			/* height: calc(100vh - var(--nav-height) - 70px); */
+			height: calc(var(--screen-height) - var(--nav-height));
+        }
+		#search-wrapper {
+			background-color: var(--background-inset);
+			
+			width: 100%;
+			min-width: 10em;
+			height: 100%;
+		}
+		#dictionary-wrapper {
+			background-color: var(--background-light);
+
+			position: absolute;
+			top: var(--nav-height);
+			left: 0;
+			width: 100%;
+			height: calc(100vh - var(--nav-height));
+			padding: 1em;
+
+			gap: 1em;
+		}
+
+		/**** HANGING TABS ****/
+
+		.hanging-tab {
+			cursor: pointer;
+			background-color: var(--background-nav-unselected);
+			border: max(0.2em,2px) solid var(--border-dark);
+			border-top: none;
+			border-radius: 0 0 0.5em 0.5em;
+
+			padding: 0.2em 0.5em;
+			font-size: 0.8em;
+		}
+		.hanging-tab-area-search, .hanging-tab-area-entry {
+			/* negative space at top of panel to make room for hanging tabs */
+			background-color: var(--background-light);
+
+			width: 100%;
+			height: 1.5em;
+		}
+		#hanging-tab-collection-right {
+			/* border: 1px solid red; */
+			position: absolute;
+			top: var(--nav-height);
+			right: 0;
+			padding: 0 0.5em;
+			gap: 0.25em;
+		}
+		#hanging-tab-language-toggle {
+			gap: 0.5em;
+		}
+
+		.toggle-button {
+			background-color: var(--background-inset);
+			border: max(0.1em,2px) solid var(--border-dark);
+			border-radius: 1.0em;
+
+			width: 1.75em;
+			height: 1.0em;
+			padding: 1px;
+			
+			/* justify-content: start; */
+			align-items: center;
+		}
+		.toggle-button-active {
+			justify-content: end;
+		}
+		.toggle-button-slider {
+			background-color: var(--text-dark);
+			border-radius: 1.0em;
+			width: 70%;
+			height: 100%;
+		}
+
+
+
+		/**** SEARCH BAR ****/
+
+		#search-bar-wrapper {
+			--spacing: 0em;
+			border-bottom: var(--panel-border);
+			background-color: var(--background-light);
+
+			/* padding: 0 0.5em; */
+			padding: 0.5em 0.5em 0 0.5em;
+			/* act as anchor for children */
+			position: relative;
+			
+			flex-shrink: 0;
+			flex-grow: 0;
+		}
+		#search-bar-input {
+			background-color: var(--text-light);
+			border: 1px solid transparent;
+			outline: 1px solid var(--border-light);
+			border-radius: 1.0em;
+
+			width: 100%;
+			padding: 0.1em 0.7em;
+
+			/* unstyle text input */
+			color: var(--text-dark);
+			font-size: 1em;
+		}
+		#search-bar-input:focus {
+			/* use border+outline to fake changing border-width w/o moving other elements */
+			border: 1px solid var(--border-medium);
+			outline: 1px solid var(--border-medium);
+		}
+
+		/**** SEARCH FILTERS ****/
+
+		#search-filters-button {
+			cursor: pointer;
+			padding: 0.2em;
+			gap: 0.25em;
+		}
+		#search-filters-wrapper {
+			background-color: var(--background-light);
+			/* border: 2px solid magenta; */
+			width: 100%;
+			gap: 0.25em;
+
+			/* enable these to make filter panel hover on top of search results */
+			/* position: absolute; */
+			/* right: 0; */
+			/* top: 100%; */
+		}
+		.search-filters-hidden {
+			display: none;
+		}
+		.filters-label {
+			border-bottom: 1px solid var(--text-dark);
+			padding: 0.1em 0.5em;
+			justify-content: start;
+			gap: 0.25em;
+		}
+		.filters-all-none-wrapper {
+			gap: max(0.1em, 2px);
+		}
+		.pair-button-left, .pair-button-right {
+			cursor: pointer;
+			background-color: var(--background-inset);
+			border: 1px solid var(--border-light);
+			width: 4.5em;
+			padding: 0.2em;
+			text-align: center;
+
+			/* unstyle button */
+			color: var(--text-medium);
+			font-size: 0.6em;
+		}
+		.pair-button-left {
+			border-radius: 1em 0 0 1em;
+			padding-left: 0.5em;
+		}
+		.pair-button-right {
+			border-radius: 0 1em 1em 0;
+			padding-right: 0.5em;
+		}
+		.filter-bubble-wrapper {
+			padding: 0.1em;
+			gap: 0.25em;
+			flex-wrap: wrap;
+		}
+		.filter-bubble-wrapper > button {
+			cursor: pointer;
+			color: var(--text-nav);
+			background-color: var(--background-nav-selected);
+			border-radius: 1.0em;
+			padding: 0.25em 1.0em;
+		}
+		#search-filters-minimize {
+			cursor: pointer;
+			/* border: 1px solid red; */
+			height: 1.5em;
+		}
+
+		/**** SEARCH RESULTS ****/
+
+		#search-results-header {
+			background-color: var(--background-inset);
+			/* border-bottom: 1px solid var(--background-inset); */
+			padding: 0.5em 1.0em;
+			font-size: 0.8em;
+		}
+		#search-results-footer {
+			background-color: var(--background-inset);
+			/* border-top: 1px solid var(--background-inset); */
+			padding: 0.25em 1.0em;
+			font-size: 0.6em;
+		}
+		#search-results-wrapper {
+			background-color: var(--background-nav-unselected);
+			font-size: 0.8em;
+			padding: 0.25em;
+			/* gap: 0.20em; */
+			flex-grow: 1;
+			overflow: scroll;
+		}
+		.search-result {
+			/* these were the old visuals from the previous design */
+			/* background-color: var(--background-light); */
+			/* border: max(0.1em,2px) solid var(--border-medium); */
+
+			cursor: pointer;
+			border: 1px solid transparent;
+			/* border-radius: 0.25em; */
+			/* padding: var(--search-padding-compact); */
+			padding: var(--search-padding-comfortable);
+			/* font-size: 0.8em; */
+			gap: 0.25em;
+		}
+		.search-result:hover {
+			background-color: var(--background-light);
+			/* border: 1px solid var(--border-light); */
+		}
+		.search-result + .search-result {
+			border-top: 1px solid var(--border-light);
+		}
+		.search-result-catg {
+			color: var(--text-medium);
+			width: 2.5em;
+			font-size: 0.8em;
+			text-align: center;
+			flex-grow: 0;
+			flex-shrink: 0;
+		}
+		.search-result-word {
+			overflow: hidden;
+			flex-grow: 1;
+		}
+		.search-result-media {
+			gap: 0.5em;
+			flex-grow: 0;
+			flex-shrink: 0;
+		}
+
+		/**** SEARCH FOOTER ****/
+
+		#search-statistics {
+			color: var(--text-medium);
+			font-size: 0.6em;
+		}
+		#search-return-to-entry {
+			border-top: var(--panel-border);
+			background-color: var(--background-light);
+			padding: 0.5em;
+			gap: 0.25em;
+		}
+		#search-return-to-entry > div {
+			color: var(--text-nav);
+			background-color: var(--background-nav);
+
+			width: 100%;
+			padding: 0.5em;
+			text-align: center;
+		}
+
+
+
+		/**** DICTIONARY HEADER ****/
+
+		.dictionary-header {
+			align-items: start;
+			gap: 0.25em;
+			flex-wrap: wrap;
+		}
+		#dictionary-word {
+			font-size: 1.7em;
+			font-weight: bold;
+		}
+		#dictionary-catg {
+			font-size: 0.8em;
+			font-style: italic;
+		}
+		#dictionary-translation {
+			font-size: 1.5em;
+		}
+
+		.dictionary-section {
+			/* margin-left: 2.0em; */
+			/* gap: 0.5em; */
+		}
+		.dictionary-section > div {
+			/* border: 1px solid blue; */
+			padding: 0.2em 0;
+			gap: 1em;
+			align-items: center;
+			flex-wrap: wrap;
+		}
+		.dictionary-section > div + div {
+			/* border-top: 1px solid var(--border-medium); */
+		}
+		.dictionary-section-title {
+			/* margin: 0.5em 0; */
+			font-size: 1.0em;
+			text-decoration: underline;
+		}
+		.dictionary-word-form-label {
+			/* border: 1px solid red; */
+			width: 6em;
+			padding: 0 0.5em;
+			font-weight: bold;
+			text-align: right;
+			flex-grow: 0;
+			flex-shrink: 0;
+		}
+		.dictionary-word-form {
+			/* flex-grow: 1; */
+		}
+
+		.dictionary-audio, .dictionary-no-audio {
+			width: 1.0em;
+			height: 1.0em;
+			flex-grow: 0;
+			flex-shrink: 0;
+		}
+		.dictionary-audio {
+			background: var(--icon-audio) var(--thumbnail-position);
+		}
+
+
+		/**** PURE CSS ICONS ****/
+
+		.icon-wrapper {
+			width: 1em;
+			height: 1em;
+		}
+		.arrow-down {
+			--w: 0.6em;
+			--thickness: 0.15em;
+			--color: var(--text-dark);
+            --border: var(--thickness) solid var(--color);
+
+            border-top: var(--border);
+            border-right: var(--border);
+			transform: rotate(135deg);
+
+            display: inline-block;
+            width: var(--w);
+            height: var(--w);
+		}
+		.arrow-up {
+			--w: 0.6em;
+			--thickness: 0.15em;
+			--color: var(--text-dark);
+            --border: var(--thickness) solid var(--color);
+
+            border-top: var(--border);
+            border-right: var(--border);
+			transform: rotate(-45deg) translate(-30%,30%);
+
+            display: inline-block;
+            width: var(--w);
+            height: var(--w);
+		}
+
+		.header-arrow-up {
+            --thickness: 0.2em;
+            --border: var(--thickness) solid var(--background-light);
+            /* --border: var(--thickness) solid var(--background-nav-selected); */
+            border-top: var(--border);
+            border-right: var(--border);
+            transform: rotate(-45deg) translate(0,50%);
+            filter: drop-shadow(0 0 1px #000);
+
+            display: inline-block;
+            width: 0.8em;
+            height: 0.8em;
+        }
+
+		.icon-image, .icon-audio, .icon-no-media {
+			width: 1.25em;
+			height: 1.25em;
+		}
+		.icon-image {
+			background: var(--icon-image) var(--thumbnail-position);
+		}
+		.icon-audio {
+			background: var(--icon-audio) var(--thumbnail-position);
+		}
+
+		.searchResultAudioIcon {
+			width:20px;
+			height:20px;
+			float:right;
+			
+			background: var(--icon-audio);
+			background-size: contain;
+		}
+		.searchResultImageIcon {
+			width:20px;
+			height:20px;
+			float:right;
+			
+			background: var(--icon-image);
+			background-size: contain;
+		}
+
+
+
+		/**** MEDIA QUERIES ****/
+
+        /* mobile-first styling for better load times on less-powerful devices */
+        @media (max-aspect-ratio: 5/4) { /* mobile mode */
+            /*  */
+        }
+		@media (min-aspect-ratio: 5/4) { /* desktop mode */
+            :root {
+                --title-font-size: 1.0em;
+                --nav-height: calc(1.5 * var(--fluid-font-size)); /* ref height for content anchors; 1.0em text + 2*0.25em padding */
+            }
+			.flex-adapt {
+				flex-direction: row;
+                align-items: normal;
+				justify-content: center;
+			}
+            .flex-adapt-reverse {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
+			#search-wrapper {
+				border-right: var(--panel-border);
+				width: max(30vw,24em);
+				font-size: 0.8em;
+			}
+			#search-results-wrapper {
+				/* prevent search results being completely hidden on extremely short but wide windows */
+				min-height: 5em;
+			}
+
+			#dictionary-wrapper {
+				position: static;
+				font-size: 0.8em;
+				flex-grow: 1;
+			}
+			.dictionary-header {
+				gap: 1em;
+				align-items: baseline;
+				justify-content: start;
+			}
+			#dictionary-word {
+				font-size: 2.0em;
+			}
+			.dictionary-section {
+				margin-left: 2em;
+			}
+			
+			.icon-image, .icon-audio, .icon-no-media {
+				width: 1em;
+				height: 1em;
+			}
+
+			/* disable mobile-only elements in desktop mode */
+			#search-return-to-entry, .hanging-tab-area-search {
+				display: none;
+			}
+		}
+	</style>
+</head>
 <body>
+
+<!-- NAV BAR -->
+<div id='nav-bar'>
+	<h1 id='nav-title'>Chukchansi Dictionary</h1>
+	<nav id='nav-menu' role='navigation'>
+		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="24" height="24" stroke-width="1.25" style='width:100%;height:100%;pointer-events:none;'>
+			<path d="M5 8l14 0"></path>
+			<path d="M5 12l14 0"></path>
+			<path d="M5 16l14 0"></path>
+		</svg>
+		<ul id='nav-dropdown' class='flex-row'>
+			<div class='flex-col'>
+				<!-- <li><a>Home</a></li> -->
+				<p class='nav-greyed-out'>Home</p>
+			</div>
+			<div class='flex-col'>
+				<li><a href='speaking-dictionary'>Speaking Dictionary</a></li>
+				<li><a href='pdf-dictionary'>PDF Dictionary</a></li>
+				<li><a href='stories'>Story Reader</a></li>
+				<li><a href='wordsearch'>Wordsearch</a></li>
+			</div>
+		</ul>
+	</nav>
+</div>
+
+<!-- CONTENT -->
+<div id='content' class='flex-row no-scrollbar'>
+	<div id='search-wrapper' class='flex-col'>
+		<div id='search-bar-wrapper' class='flex-col'>
+			<div class='hanging-tab-area-search'></div>
+			<input type='text' id='search-bar-input' placeholder='Search...'>
+			<div class='flex-row'>
+				<!-- <p id='search-statistics'>1695 entries</p> -->
+				<div class='flex-sep'></div>
+				<div id='search-filters-button' class='flex-row' onclick='toggleShowFilters()'>
+					<p>Filters:</p>
+					<div class='flex-row flex-centered icon-wrapper'>
+						<div id='search-filters-icon' class='arrow-down'></div>
+					</div>
+				</div>
+			</div>
+			<div id='search-filters-wrapper' class='flex-col search-filters-hidden'>
+				<div class='flex-row flex-centered filters-label'>
+					<p>Part of speech:</p>
+					<div class='flex-sep'></div>
+					<div class='flex-row flex-centered filters-all-none-wrapper'>
+						<button class='pair-button-left'>ALL</button>
+						<button class='pair-button-right'>NONE</button>
+					</div>
+				</div>
+				<div class='flex-row filter-bubble-wrapper'>
+					<button id='filter-toggle-catg-noun'>Noun</button>
+					<button id='filter-toggle-catg-verb'>Verb</button>
+					<button id='filter-toggle-catg-adjective'>Adjective</button>
+					<button id='filter-toggle-catg-adverb'>Adverb</button>
+					<button id='filter-toggle-catg-preposition'>Preposition</button>
+					<button id='filter-toggle-catg-misc'>Misc</button>
+				</div>
+				<div id='search-filters-minimize' class='flex-row flex-centered' onclick='hideFilters()'>
+					<div class='arrow-up'></div>
+				</div>
+			</div>
+		</div>
+		<div id='search-results-header' class='flex-row'>
+			<p style='width: 2.5em;'>Catg</p>
+			<p style='flex-grow: 1;'>Entry</p>
+			<p>Media</p>
+		</div>
+		<div id='search-results-wrapper' class='flex-col no-scrollbar'>
+			<div class='search-result'>Search Result 1</div>
+			<div class='search-result'>Search Result 2</div>
+			<div class='search-result'>Search Result 3</div>
+			<div class='search-result'>Search Result 4</div>
+			<div class='search-result'>Search Result 5</div>
+			<div class='search-result'>Search Result 6</div>
+			<div class='search-result'>Search Result 7</div>
+			<div class='search-result'>Search Result 8</div>
+			<div class='search-result'>Search Result 9</div>
+			<div class='search-result'>Search Result 10</div>
+			<div class='search-result'>Search Result 11</div>
+			<div class='search-result'>Search Result 12</div>
+			<div class='search-result'>Search Result 13</div>
+			<div class='search-result'>Search Result 14</div>
+			<div class='search-result'>Search Result 15</div>
+			<div class='search-result'>Search Result 16</div>
+			<div class='search-result'>Search Result 17</div>
+			<div class='search-result'>Search Result 18</div>
+			<div class='search-result'>Search Result 19</div>
+			<div class='search-result'>Search Result 20</div>
+			<div class='search-result'>Search Result 21</div>
+			<div class='search-result'>Search Result 22</div>
+			<div class='search-result'>Search Result 23</div>
+			<div class='search-result'>Search Result 24</div>
+			<div class='search-result'>Search Result 25</div>
+			<div class='search-result'>Search Result 26</div>
+			<div class='search-result'>Search Result 27</div>
+			<div class='search-result'>Search Result 28</div>
+			<div class='search-result'>Search Result 29</div>
+		</div>
+		<div id='search-results-footer' class='flex-row'>
+			<p id='search-statistic-entries'>1695 entries</p>
+			<div class='flex-sep'></div>
+			<p id='search-statistic-speed'>0.651 sec</p>
+		</div>
+		<div id='search-return-to-entry' class='flex-col'>
+			<p>Return to last entry:</p>
+			<div>"blackberry"</div>
+		</div>
+	</div>
+
+	<div id='dictionary-wrapper' class='flex-col no-scrollbar'>
+		<div class='flex-adapt dictionary-header'>
+			<h2 id='dictionary-word'>blackberry</h2>
+			<p id='dictionary-catg'>noun</p>
+			<!-- <p id='dictionary-translation'>maamil', maamila</p> -->
+		</div>
+		<!-- <div class='flex-col dictionary-section'>
+			<h2 class='dictionary-section-title'>FORMS</h2>
+			<div class='flex-row'>
+				<p class='dictionary-word-form-label'>Subject</p>
+				<div class='dictionary-audio'></div>
+				<p class='dictionary-word-form'>maamil'</p>
+			</div>
+			<div class='flex-row'>
+				<p class='dictionary-word-form-label'>Object</p>
+				<div class='dictionary-audio'></div>
+				<p class='dictionary-word-form'>maamila</p>
+			</div>
+			<div class='flex-row'>
+				<p class='dictionary-word-form-label'>Recent Past</p>
+				<div class='dictionary-no-audio'></div>
+				<p class='dictionary-word-form'>maamilin</p>
+			</div>
+			<div class='flex-row'>
+				<p class='dictionary-word-form-label'>Owned</p>
+				<div class='dictionary-no-audio'></div>
+				<p class='dictionary-word-form'>maamilam'</p>
+			</div>
+			<div class='flex-row'>
+				<p class='dictionary-word-form-label'>Tool</p>
+				<div class='dictionary-no-audio'></div>
+				<p class='dictionary-word-form'>maamilan</p>
+			</div>
+			<div class='flex-row'>
+				<p class='dictionary-word-form-label'>Precedent Gerundial</p>
+				<div class='dictionary-no-audio'></div>
+				<p class='dictionary-word-form'>maamilaw</p>
+			</div>
+		</div> -->
+		<div class='flex-col dictionary-section'>
+			<h2 class='dictionary-section-title'>FORMS</h2>
+			<div class='flex-row'>
+				<p class='dictionary-word-form-label'>Subject</p>
+				<p class='dictionary-word-form'>maamil'</p>
+				<div class='dictionary-audio'></div>
+			</div>
+			<div class='flex-row'>
+				<p class='dictionary-word-form-label'>Object</p>
+				<p class='dictionary-word-form'>maamila</p>
+				<div class='dictionary-audio'></div>
+			</div>
+			<div class='flex-row'>
+				<p class='dictionary-word-form-label'>Owner</p>
+				<p class='dictionary-word-form'>maamilin</p>
+				<div class='dictionary-no-audio'></div>
+			</div>
+			<div class='flex-row'>
+				<p class='dictionary-word-form-label'>Owned</p>
+				<p class='dictionary-word-form'>maamilam'</p>
+				<div class='dictionary-no-audio'></div>
+			</div>
+			<div class='flex-row'>
+				<p class='dictionary-word-form-label'>Tool</p>
+				<p class='dictionary-word-form'>maamilan</p>
+				<div class='dictionary-no-audio'></div>
+			</div>
+			<div class='flex-row'>
+				<p class='dictionary-word-form-label'>Place</p>
+				<p class='dictionary-word-form'>maamilaw</p>
+				<div class='dictionary-no-audio'></div>
+			</div>
+		</div>
+		<!-- <div class='flex-col dictionary-section'>
+			<h2 class='dictionary-section-title'>EXAMPLES</h2>
+			<div class='flex-row flex-centered'>
+				<div class='icon-audio'></div>
+				<p>maamil'</p>
+				<p>(Spoken by Holly Wyatt)</p>
+			</div>
+			<div class='flex-row flex-centered'>
+				<div class='icon-audio'></div>
+				<p>maamila</p>
+				<p>(Spoken by Holly Wyatt)</p>
+			</div>
+		</div> -->
+	</div>
+</div>
+<div id='hanging-tab-collection-right'>
+	<div id='hanging-tab-language-toggle' class='flex-row flex-centered hanging-tab' onclick='toggleLang()'>
+		<p id='lang-toggle-text'>en-ch</p>
+		<div id='lang-toggle-slider' class='flex-row toggle-button'>
+			<div class='toggle-button-slider'></div>
+		</div>
+	</div>
+</div>
 
 	<!-- create loading screen -->
 
@@ -56,12 +928,129 @@
 		// 0.5 hrs: display all word forms in both eng-chk and chk-eng (do not assume any chk fluency at this time)
 		// 1.5 hrs: update SEO across all pages; cleanup git branches
 		// 1.5 hrs: clobber nav menu into old framework
-		// 1.0 hrs: design work for mobile-friendly overhaul
+		// 2.5 hrs: design work for mobile-friendly overhaul
+		// 6.5 hrs: apply responsive design to search panel
+		// 6.5 hrs: add interactivity; redesign search filter system and search results
+		// 2.5 hrs: finalize search panel visuals; set up skeleton for dictionary entry display
 
 		//// TODO ////
 		//
 
 		/////////////////////////////////////////////////////////////////////
+
+		// CSS var manipulation
+		const CSSVars = {
+			get : (k) => getComputedStyle(document.documentElement).getPropertyValue(k),
+			set : (k,v) => document.documentElement.style.setProperty(k,v)
+		};
+
+		// content scaling
+		function onResize () {
+			// mobile browser url bars take up space without shrinking 100vh, so we need to set a "true height" variable
+			if (window.visualViewport) {
+				CSSVars.set('--screen-height', `${window.visualViewport.height}px`);
+			} else {
+				CSSVars.set('--screen-height', `${window.innerHeight}px`);
+			}
+			// can also use document.documentElement.clientHeight if we ever need another fallback
+			// CSSVars.set('--screen-height', `${document.documentElement.clientHeight}px`);
+		}
+		window.addEventListener('resize', onResize); // normal update
+		document.addEventListener('focusin', onResize); // mobile onscreen keyboards don't trigger resize, so force update when entering/exiting input
+		document.addEventListener('focusout', onResize);
+		onResize();
+
+
+
+		//// DOM ANCHORS ////
+
+		const langToggleText = document.getElementById('lang-toggle-text');
+		const langToggleSlider = document.getElementById('lang-toggle-slider');
+		const searchFiltersIcon = document.getElementById('search-filters-icon');
+		const searchFilters = document.getElementById('search-filters-wrapper');
+		const searchResults = document.getElementById('search-results-wrapper');
+		const searchStatisticEntries = document.getElementById('search-statistic-entries');
+		const searchStatisticSpeed = document.getElementById('search-statistic-speed');
+		
+		
+		
+		// interaction
+		let settings = {
+			toggleLang : false,
+			showFilters : false
+		};
+		function toggleLang () {
+			settings.toggleLang = !settings.toggleLang;
+			if (settings.toggleLang) {
+				langToggleText.innerHTML = `ch-en`;
+				langToggleSlider.classList.add('toggle-button-active');
+			} else {
+				langToggleText.innerHTML = `en-ch`;
+				langToggleSlider.classList.remove('toggle-button-active');
+			}
+		}
+		function showFilters () {
+			settings.showFilters = true;
+			searchFiltersIcon.classList.remove('arrow-down');
+			searchFiltersIcon.classList.add('arrow-up');
+			searchFilters.classList.remove('search-filters-hidden');
+		}
+		function hideFilters () {
+			settings.showFilters = false;
+			searchFiltersIcon.classList.remove('arrow-up');
+			searchFiltersIcon.classList.add('arrow-down');
+			searchFilters.classList.add('search-filters-hidden');
+		}
+		function toggleShowFilters () {
+			if (settings.showFilters) {
+				hideFilters();
+			} else {
+				showFilters();
+			}
+		}
+
+
+		/////////////////////////
+
+		// build dictionary
+		let dictionary = new Dictionary(primary_eng, secondary_chk);
+		dictionary.loadData( parse_en_ch_v12(tsv_en_ch_v12) );
+
+
+
+		//// DYNAMIC CONTENT ////
+
+		const randI = (min,max) => Math.floor(Math.random() * (max - min + 1)) + min;
+		function populateSearchResults () {
+			const n = 214;
+			const t0_populateSearch = performance.now();
+
+			let contentStr = '';
+			for (let i = 0; i < n; i++) {
+				// const catg = ['n','v','adj','adv','prep'][randI(0,4)];
+				const catg = ['N','V','Adj','Adv','Prep'][randI(0,4)];
+				const word = ['Word','Longword','Reallylongusthemost','Multiple Words','Multi Short'][randI(0,4)];
+				const hasImage = Math.random() < 0.5;
+				const hasAudio = Math.random() < 0.5;
+				contentStr += `<div id='entry-${i}' class='flex-row flex-centered search-result'>`;
+					contentStr += `<p class='search-result-catg'>${catg}</p>`;
+					contentStr += `<p class='search-result-word'>${word}</p>`;
+					contentStr += `<div class='flex-row flex-centered search-result-media'>`;
+						contentStr += `<div class='${hasImage ? 'icon-image' : 'icon-no-media'}'></div>`;
+						contentStr += `<div class='${hasAudio ? 'icon-audio' : 'icon-no-media'}'></div>`;
+					contentStr += `</div>`;
+				contentStr += `</div>`;
+			}
+			searchResults.innerHTML = contentStr;
+
+			const dt = performance.now()-t0_populateSearch;
+			searchStatisticEntries.innerHTML = `${n} entries`;
+			searchStatisticSpeed.innerHTML = `${(dt/1000).toFixed(3)} sec`;
+			console.log(`Populated search results in ${dt} ms.`);
+		}
+		populateSearchResults();
+
+
 
 		//// ENV SETUP ////
 
@@ -112,9 +1101,7 @@
 			speakerNames:         ['Holly Wyatt', 'Jane Wyatt']
 		};
 
-		// build dictionary
-		let dictionary = new Dictionary(primary_eng, secondary_chk);
-		dictionary.loadData( parse_en_ch_v12(tsv_en_ch_v12) );
+		
 
 
 
@@ -753,7 +1740,7 @@
 
 		//// INIT ////
 
-		init(dictionary);
+		// init(dictionary);
 		console.log('Load time: ' + (Date.now() - t1) + ' ms');
 
 		/////////////////////////////////////////////////////////////////////
