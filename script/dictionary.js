@@ -532,22 +532,22 @@ function parse_en_ch_v13 (tsv) {
 	function getSynonyms (forms, word) {
 		word = word.toLowerCase();
 		for (const form of forms)
-			if (form && form.some(x => x.toLowerCase() == word))
-				return form.filter(x => x.toLowerCase() != word);
+			if (form && form.some(x => x.toLowerCase() === word))
+				return form.filter(x => x.toLowerCase() !== word);
 		return [];
 	}
 	function getFormNum (forms, word) {
 		word = word.toLowerCase();
 		for (let formNum = 0; formNum < forms.length; formNum++)
-			if (forms[formNum] && forms[formNum].some(x => x.toLowerCase() == word))
+			if (forms[formNum] && forms[formNum].some(x => x.toLowerCase() === word))
 				return formNum;
 		return -1;
 	}
-	function getSynonymID (forms, word) {
-		word = word.toLowerCase();
+	function getSynonymID (forms, synonym) {
+		synonym = synonym.toLowerCase();
 		for (let formNum = 0; formNum < forms.length; formNum++)
-			if (forms[i] && forms.some(x => x.toLowerCase() == word))
-				return forms[i].indexOf(word);
+			if (forms[formNum] && forms[formNum].some(x => x.toLowerCase() === synonym))
+				return forms[formNum].indexOf(synonym);
 		return -1;
 	}
 
@@ -583,6 +583,9 @@ function parse_en_ch_v13 (tsv) {
 
 			getPrimarySynonyms : (word) => getSynonyms(pForms,word),
 			getSecondarySynonyms : (word) => getSynonyms(sForms,word),
+
+			getPrimarySynonymID : (synonym) => getSynonymID(pForms,synonym),
+			getSecondarySynonymID : (synonym) => getSynonymID(sForms,synonym),
 
 			forEachPrimaryForm : (callback = (synonyms,formNum)=>{}) => {
 				for (let formNum = 0; formNum < pForms.length; formNum++)
@@ -816,11 +819,12 @@ class Dictionary {
 			callback(this._data[index], word);
 		}
 	}
-	forEachSynonym (callback = (entry,index)=>{}, reverse) {
+	forEachSynonym (callback = (entry,synonym,entryIndex,synonymIndex)=>{}, reverse) {
 		const orderedWords = (!this._togglePrimary) ? this._pOrderedEntryWords : this._sOrderedEntryWords;
 		for (let i = 0; i < orderedWords.length; i++) {
-			const [idWord,index] = !reverse ? orderedWords[i] : orderedWords[orderedWords.length-1 - i];
-			callback(this._data[index], idWord);
+			const [synonym,entryIndex] = !reverse ? orderedWords[i] : orderedWords[orderedWords.length-1 - i];
+			const synonymIndex = (!this._togglePrimary) ? this._data[entryIndex].getPrimarySynonymID(synonym) : this._data[entryIndex].getSecondarySynonymID(synonym);
+			callback(this._data[entryIndex], synonym, entryIndex, synonymIndex);
 		}
 	}
 	forEachEntry(callback = (entry,index)=>{}, reverse) {

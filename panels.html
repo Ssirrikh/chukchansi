@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang='en' xml:lang='en'>
+
+<head>
+	<meta charset = 'utf-8'>
+	<title>Chukchansi Speaking Dictionary</title>
+	<style>
+        * {
+			margin: 0;
+			padding: 0;
+            box-sizing: border-box;
+        }
+
+		/* Prevent page scrolling */
+		html, body {
+			height: 100%;
+			overflow: hidden; /* Prevent entire page scrolling */
+            font-size: calc(1rem + 1vh + 1vw);
+		}
+        button {
+            font-size: 1em;
+        }
+
+		.app-wrapper {
+			position: relative;
+			width: 100%;
+			height: 100vh;
+			overflow: hidden; /* Ensures no external scroll */
+		}
+
+		/* Panels: Positioned absolutely to fill screen */
+		.panel {
+            border: 4px solid red;
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background: white;
+			transition: transform 0.3s ease-in-out;
+			overflow: hidden; /* Prevent external scrolling */
+
+            display: flex;
+            gap: 1em;
+		}
+
+		/* Scrollable content inside panel */
+		.panel-content {
+			height: 100%;
+			overflow-y: auto; /* Allows content inside panel to scroll */
+			padding: 20px;
+			box-sizing: border-box;
+		}
+
+		/* Default state: Panel 2 is offscreen */
+		.panel-1 { transform: translateX(0); }
+		.panel-2 { transform: translateX(100%); }
+
+		/* Active state: Panel 2 slides in */
+		.app-wrapper.panel-2-active .panel-1 { transform: translateX(-100%); }
+		.app-wrapper.panel-2-active .panel-2 { transform: translateX(0); }
+
+	</style>
+</head>
+
+<body>
+
+<div class="app-wrapper">
+    <div class="panel panel-1 active">
+        <div class="panel-content">
+            <h1>Panel 1</h1>
+            <p>Scrollable content here...</p>
+            <button id="open-panel-2">Go to Panel 2</button>
+        </div>
+    </div>
+    <div class="panel panel-2">
+        <div class="panel-content">
+            <h1>Panel 2</h1>
+            <p>Scrollable content here...</p>
+            <button id="back-to-panel-1">Go to Panel 1</button>
+        </div>
+    </div>
+</div>
+
+<script type='text/javascript'>
+    document.addEventListener("DOMContentLoaded", () => {
+        const appWrapper = document.querySelector(".app-wrapper");
+        const btnToPanel2 = document.getElementById("open-panel-2");
+        const btnToPanel1 = document.getElementById("back-to-panel-1");
+
+        btnToPanel2.addEventListener("click", () => {
+            appWrapper.classList.add("panel-2-active");
+        });
+
+        btnToPanel1.addEventListener("click", () => {
+            appWrapper.classList.remove("panel-2-active");
+        });
+    });
+</script>
+
+</body>
+
+</html>
