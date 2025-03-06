@@ -3,20 +3,1038 @@
 
 <head>
 	<meta charset = 'utf-8'>
-	<title>Chukchansi-English Speaking Dictionary</title>
-	<link rel='stylesheet' href='style/style.css'>
+	<title>Chukchansi Speaking Dictionary</title>
+	<!-- <link rel='stylesheet' href='style/style.css'> -->
     <meta name='robots' content='index, follow'>
-    <meta name='description' content='The online Chukchansi speaking dictionary is an interactive web app with translations, example sentences, and recordings of native speakers. A resource for students, language learners, and linguistic research.'>
-	<meta name='viewport' content='width=device-width, initial-scale=1'>
-</head>
+    <meta name='description' content='The Chukchansi speaking dictionary is an interactive web app with translations, example sentences, and recordings of native speakers. A resource for students, language learners, and linguistic research.'>
+	<meta name='viewport' content='width=device-width, initial-scale=1, interactive-widget=resizes-content'>
+	<!-- interactive-widget=resizes-content necessary for any page with text input, so page updates to accomodate onscreen keyboard -->
+	<style>
+		:root {
+			--background-nav: #461220; /* navbar */
+            --text-nav: #ffd994; /* previously #ffdab3 */
+            --border-nav: #64182c; /* #64182c, #771932 */
 
+            --background-nav-selected: #6b4226;
+            --background-nav-unselected: #eac8a2;
+
+			--background-light: #f2e3d3; /* main content bg */
+			--background-inset: #dbb78f; /* inset panels; vibrant bg */
+			--background-medium: #bfa07e; /* side panels; muted bg */
+			--background-dark: #ad8e6c; /* fractionally darker interactibles bg */
+			--background-highlight-dark: #670408;
+			--text-dark: #4f3a09; /* main content text */
+			--text-medium: #806d46; /* interactible text */
+			--text-light: #fdf7ea;
+
+			--border-dark: #4f3a09; /* content separation */
+			--border-medium: #75544b; /* inset panel border */
+			--border-light: #bfa07e; /* interactible textbox border */
+
+            --popout-shadow: 0 0 10px #00000038;
+
+			--layer-front: 2; /* elems that hover over content (hanging tabs, search history) */
+			--layer-nav: 3; /* nav elements are always topmost */
+			--layer-overlay: 5; /* modal overlays */
+
+            /* dynamic units calculated for mobile-first; see media queries for desktop */
+            /* --fluid-font-size: max(2.5vh, calc(1rem + 1.0vw)); */
+			--fluid-font-size: max(2.5vh, calc(1rem + 0.9vw));
+            --nav-pad: 0.25em;
+            --content-pad: 0.6rem;
+            --title-font-size: calc(1.17 * var(--fluid-font-size)); /* unsure why 1.17, but it seems to be pixel-perfect at all sizes */
+            --nav-height: calc(1.75 * var(--fluid-font-size)); /* ref height for content anchors */
+			--panel-border: 2px solid var(--border-dark);
+
+			--search-padding-compact: 0.15em 0.5em;
+			--search-padding-comfortable: 0.3em 0.5em;
+
+			/* mobile browser url bars take up space without shrinking 100vh; we need to dynamically set a var to the "true height" with JS later on */
+			--screen-height: 100vh;
+
+			--thumbnail-position: center center / cover no-repeat;
+			--icon-image: url('./source/image.png');
+			--icon-audio: url('./source/audio.png');
+			--icon-info: url('./source/info.png');
+		}
+
+		* {
+			margin: 0px;
+			padding: 0px;
+			box-sizing: border-box;
+			font-family: 'Times New Roman';
+		}
+		body {
+			color: var(--text-nav);
+			background-color: var(--background-nav);
+			overflow: hidden;
+			
+			width: 100vw;
+			/* height: var(--screen-height); */
+			height: 100vh;
+            font-size: var(--fluid-font-size);
+
+			/* disable viewport scrolling on mobile browsers, so 2-panel layout works correctly */
+			/*position: fixed; /* disables horizontal scrolling, but allows user to scroll off the page vertically */
+			touch-action: none; /* completely disables scrolling, but also disables pinch-zooming */
+		}
+
+
+
+		#main {
+			border: 2px solid white;
+			overflow: hidden;
+
+			/* overflow:hidden + position:relative disables horizontal scrolling */
+			position: relative;
+			width: 100%;
+			/* height: var(--screen-height); */
+			height: 100%;
+		}
+		#panel-1, #panel-2 {
+			width: 100%;
+			height: 100%;
+			/* height: var(--screen-height); */
+			position: absolute;
+			top: 0;
+		}
+		#panel-1 {
+			border: 1px solid yellow;
+		}
+		#panel-2 {
+			border: 1px solid blue;
+			left: 50%;
+		}
+
+
+
+
+
+
+        button {
+            color: var(--text-dark);
+            background-color: transparent;
+            border: none;
+            outline: none;
+        }
+        h1, h2, h3 {
+            font-weight: normal;
+        }
+
+		/* flexbox */
+		.flex-sep {
+			width: 0;
+			flex-grow: 1;
+		}
+		.flex-row {
+			display: flex;
+			flex-direction: row;
+			align-items: start;
+		}
+		.flex-col {
+			display: flex;
+			flex-direction: column;
+		}
+        .flex-adapt {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .flex-adapt-reverse {
+            display: flex;
+            flex-direction: row;
+            align-items: normal;
+            justify-content: center;
+        }
+		.flex-centered {
+			align-items: center;
+			justify-content: center;
+		}
+
+
+
+		/**** BEHAVIOR ****/
+
+		.no-scrollbar {
+			overflow: scroll;
+			-ms-overflow-style: none;  /* Hide scrollbar for IE and Edge */
+			scrollbar-width: none;  /* Hide scrollbar for Firefox */
+		}
+		.no-scrollbar::-webkit-scrollbar { display: none; } /* Hide scrollbar for Chrome, Safari and Opera */
+
+        
+
+		/**** NAV BAR ****/
+
+		#nav-bar {
+			color: var(--text-nav);
+			background-color: var(--background-nav);
+            border-bottom: 1px solid var(--border-nav);
+
+			position: sticky;
+			padding: var(--nav-pad);
+			top: 0px;
+			width: 100%;
+            font-size: var(--title-font-size);
+            text-align: center;
+
+			z-index: var(--layer-nav); /* nav elems and hanging tabs are on top of other content, but not fullscreen modals */
+		}
+        #nav-title {
+            /* unstyle <h1> */
+            font-size: var(--title-font-size);
+            line-height: var(--title-font-size);
+            font-weight: normal;
+        }
+        #nav-menu {
+            /* https://www.sliderrevolution.com/resources/css-dropdown-menu/ */
+            cursor: pointer;
+
+            display: inline-block;
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            width: var(--nav-height);
+            height: var(--nav-height);
+        }
+        #nav-menu ul {
+            cursor: default;
+            color: var(--text-dark);
+            background-color: var(--background-nav-unselected);
+            /* border-top: 1px solid var(--text-light); */
+            border-bottom: 1px solid var(--border-light);
+
+            visibility: hidden;
+            position: absolute;
+            top: var(--nav-height);
+            left: 0px;
+            width: 100vw;
+            /* width: 100%; */
+            padding: 0.25em;
+
+            text-align: left;
+            list-style: none;
+            flex-wrap: wrap;
+        }
+        #nav-menu div + div {
+            border-left: 1px solid var(--text-dark);
+        }
+        #nav-menu ul li {
+            cursor: pointer;
+            color: var(--text-dark);
+            /* padding: 0.15em 0.75em; */
+            font-size: 0.8em;
+        }
+        #nav-menu ul li:hover {
+            color: var(--text-nav);
+            background-color: var(--background-nav-selected);
+        }
+        #nav-menu:focus-within > ul, #nav-menu:hover ul {
+            visibility: visible;
+        }
+        #nav-menu ul li a {
+            /* border: 1px solid blue; */
+            display: inline-block;
+            width: 100%;
+            padding: 0.15em 0.75em;
+            color: inherit;
+            text-decoration: inherit;
+        }
+        .nav-greyed-out {
+            cursor: default;
+            color: var(--text-dark);
+            padding: 0.15em 0.75em;
+            font-size: 0.8em;
+            opacity: 50%;
+        }
+
+		/**** SITE LAYOUT ****/
+
+        #content {
+			color: var(--text-dark);
+            background-color: var(--background-inset);
+			width: 100vw;
+			height: calc(var(--screen-height) - var(--nav-height));
+			position: relative;
+			overflow: hidden;
+        }
+		#search-wrapper {
+			background-color: var(--background-inset);
+			
+			width: 100%;
+			min-width: 10em;
+			height: 100%;
+		}
+		#dictionary-wrapper {
+			background-color: var(--background-light);
+
+			position: absolute;
+			/* top: var(--nav-height); */
+			left: 0;
+			width: 100%;
+			height: calc(var(--screen-height) - var(--nav-height));
+		}
+
+		/**** HANGING TABS ****/
+
+		.hanging-tab {
+			cursor: pointer;
+			color: var(--text-dark);
+			background-color: var(--background-nav-unselected);
+			border: max(0.2em,2px) solid var(--border-dark);
+			border-top: none;
+			border-radius: 0 0 0.5em 0.5em;
+
+			padding: 0.2em 0.5em;
+			font-size: 0.8em;
+		}
+		.hanging-tab-area-search, .hanging-tab-area-dictionary {
+			/* negative space at top of panel to make room for hanging tabs */
+			background-color: var(--background-light);
+
+			width: 100%;
+			height: 1.5em;
+		}
+		#hanging-tab-collection-right {
+			/* border: 1px solid red; */
+			position: absolute;
+			top: var(--nav-height);
+			right: 0;
+			padding: 0 0.5em;
+			gap: 0.25em;
+		}
+		#hanging-tab-language-toggle {
+			gap: 0.5em;
+		}
+
+		.toggle-button {
+			background-color: var(--background-inset);
+			border: max(0.1em,2px) solid var(--border-dark);
+			border-radius: 1.0em;
+
+			width: 1.75em;
+			height: 1.0em;
+			padding: 1px;
+			
+			/* justify-content: start; */
+			align-items: center;
+		}
+		.toggle-button-active {
+			justify-content: end;
+		}
+		.toggle-button-slider {
+			background-color: var(--text-dark);
+			border-radius: 1.0em;
+			width: 70%;
+			height: 100%;
+		}
+
+
+
+		/**** SEARCH BAR ****/
+
+		#search-bar-wrapper {
+			--spacing: 0em;
+			border-bottom: var(--panel-border);
+			background-color: var(--background-light);
+
+			/* padding: 0 0.5em; */
+			padding: 0.5em 0.5em 0 0.5em;
+			/* act as anchor for children */
+			position: relative;
+			
+			flex-shrink: 0;
+			flex-grow: 0;
+		}
+		#search-bar-input {
+			background-color: var(--text-light);
+			border: 1px solid transparent;
+			outline: 1px solid var(--border-light);
+			border-radius: 1.0em;
+
+			width: 100%;
+			padding: 0.1em 0.7em;
+
+			/* unstyle text input */
+			color: var(--text-dark);
+			font-size: 1em;
+		}
+		#search-bar-input:focus {
+			/* use border+outline to fake changing border-width w/o moving other elements */
+			border: 1px solid var(--border-medium);
+			outline: 1px solid var(--border-medium);
+		}
+
+		#search-bar-buttons-wrapper {
+			/* border: 1px solid red; */
+
+			position: absolute;
+			top: 2.0em;
+			right: 1em;
+			width: 1.5em;
+			height: 1.5em;
+		}
+		.search-bar-clear {
+			cursor: pointer;
+			/* border: 1px solid blue; */
+			width: 1em;
+			height: 1em;
+			font-size: 1.5em;
+		}
+
+		.icon-x-left, .icon-x-right {
+			background-color: var(--border-medium);
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			width: 2px;
+			height: 0.7em;
+		}
+		.icon-x-left {
+			transform: translate(-50%,-50%) rotate(45deg);
+		}
+		.icon-x-right {
+			transform: translate(-50%,-50%) rotate(-45deg);
+		}
+
+		/**** SEARCH FILTERS ****/
+
+		#search-filters-button {
+			cursor: pointer;
+			padding: 0.2em;
+			gap: 0.25em;
+		}
+		#search-filters-wrapper {
+			background-color: var(--background-light);
+			/* border: 2px solid magenta; */
+			width: 100%;
+			gap: 0.25em;
+
+			/* enable these to make filter panel hover on top of search results */
+			/* position: absolute; */
+			/* right: 0; */
+			/* top: 100%; */
+		}
+		.search-filters-hidden {
+			display: none;
+		}
+		.filters-label {
+			border-bottom: 1px solid var(--text-dark);
+			padding: 0.1em 0.5em;
+			font-size: 0.9em;
+			justify-content: start;
+			gap: 0.25em;
+		}
+		.filter-bubble-wrapper {
+			padding: 0.1em;
+			gap: 0.25em;
+			flex-wrap: wrap;
+		}
+		.filter-bubble {
+			cursor: pointer;
+			color: var(--border-light);
+			background-color: var(--background-light);
+			border: 1px solid var(--border-light);
+			border-radius: 1.0em;
+			padding: 0.25em 1.0em;
+		}
+		.filter-bubble-active {
+			color: var(--text-nav);
+			background-color: var(--background-nav-selected);
+			border: 1px solid var(--background-nav-selected);
+		}
+		.filter-bubble-semiactive {
+			color: var(--text-dark);
+			background-color: var(--background-inset);
+			border: 1px solid var(--border-medium);
+		}
+		#search-filters-minimize {
+			cursor: pointer;
+			height: 1.5em;
+		}
+
+		/**** SEARCH RESULTS ****/
+
+		#search-results-header {
+			background-color: var(--background-inset);
+			/* border-bottom: 1px solid var(--background-inset); */
+			padding: 0.5em 1.0em;
+			font-size: 0.8em;
+		}
+		#search-results-footer {
+			background-color: var(--background-light);
+			border-top: var(--panel-border);
+			padding: 0.25em 1.0em;
+			font-size: 0.6em;
+		}
+		#search-results-wrapper {
+			background-color: var(--background-nav-unselected);
+			/* background-color: var(--background-medium); */
+			font-size: 0.8em;
+			padding: 0.25em;
+			/* gap: 0.20em; */
+			/* gap: 2px; */
+			flex-grow: 1;
+			overflow: scroll;
+		}
+		.search-result {
+			/* these were the old visuals from the previous design */
+			/* background-color: var(--background-light); */
+			/* border: max(0.1em,1px) solid var(--border-medium); */
+			/* border-radius: 0.25em; */
+
+			cursor: pointer;
+			border: 1px solid transparent;
+			padding: var(--search-padding-compact);
+			/* padding: var(--search-padding-comfortable); */
+			/* font-size: 0.8em; */
+			gap: 0.25em;
+		}
+		.search-result:hover {
+			background-color: var(--background-light);
+			/* border: 1px solid var(--border-light); */
+			/* border: 1px solid var(--border-light); */
+			border-left: 0.25em solid var(--border-medium);
+			/* border: max(0.1em,1px) solid var(--border-dark); */
+			/* outline: 1px solid var(--border-dark); */
+			/* border-bottom: 1px solid var(--border-light); */
+			/* border-bottom: none; */
+		}
+		.search-result + .search-result {
+			border-top: 1px solid var(--border-light);
+		}
+		.search-result-catg {
+			color: var(--text-medium);
+			width: 2.5em;
+			font-size: 0.8em;
+			text-align: center;
+			flex-grow: 0;
+			flex-shrink: 0;
+		}
+		.search-result-word {
+			overflow: hidden;
+			flex-grow: 1;
+		}
+		.search-result-media {
+			gap: 0.5em;
+			flex-grow: 0;
+			flex-shrink: 0;
+		}
+		#search-no-results {
+			color: var(--border-medium);
+			padding: 0.5em;
+			font-size: 1.2em;
+			text-align: center;
+		}
+
+		/**** SEARCH FOOTER ****/
+
+		#search-statistics {
+			color: var(--text-medium);
+			font-size: 0.6em;
+		}
+		#search-goto-dictionary, #dictionary-goto-search {
+			/* border-top: var(--panel-border); */
+			background-color: var(--background-light);
+			padding: 0.5em;
+			gap: 0.25em;
+		}
+		#dictionary-goto-search {
+			border-top: var(--panel-border);
+		}
+		#search-goto-dictionary > div, #dictionary-goto-search > div {
+			cursor: pointer;
+			color: var(--text-nav);
+			background-color: var(--background-nav);
+
+			width: 100%;
+			padding: 0.5em;
+			text-align: center;
+		}
+		#search-goto-dictionary > p {
+			font-size: 0.8em;
+		}
+
+
+
+		/**** DICTIONARY ENTRY ****/
+
+		#dictionary-entry-wrapper {
+			padding: 1em;
+			padding-top: 1.5em;
+			gap: 1em;
+			flex-grow: 1;
+		}
+
+		.dictionary-header {
+			border-bottom: 1px solid var(--border-medium);
+			padding: 0.25em 0.5em;
+			align-items: start;
+			gap: 0em;
+			flex-wrap: wrap;
+		}
+		#dictionary-word {
+			font-size: 1.7em;
+			font-weight: bold;
+		}
+		#dictionary-catg {
+			font-size: 0.8em;
+			font-style: italic;
+		}
+		#dictionary-translation {
+			font-size: 1.5em;
+		}
+
+		.dictionary-section {
+			/* margin-left: 2.0em; */
+			/* gap: 0.5em; */
+		}
+		.dictionary-section > div {
+			/* border: 1px solid blue; */
+			padding: 0.2em 0;
+			gap: 1em;
+			align-items: center;
+			flex-wrap: wrap;
+		}
+		.dictionary-section > div + div {
+			/* border-top: 1px solid var(--border-medium); */
+		}
+		.dictionary-inset-section {
+			background-color: var(--background-inset);
+			border: 2px solid var(--border-medium);
+			border-radius: 0.25em;
+
+			width: 100%;
+			padding: 0.5em;
+
+			gap: 0.75em;
+		}
+		.dictionary-synonyms-section {
+			/* border: 1px solid red; */
+			font-size: 0.8em;
+			gap: 0.5em;
+			align-items: start;
+		}
+
+		.dictionary-section-title {
+			/* margin: 0.5em 0; */
+			font-size: 1.0em;
+			text-decoration: underline;
+		}
+		.dictionary-word-form-header {
+			/* border: 1px solid blue; */
+			width: 6em;
+			font-size: 0.8em;
+			justify-content: end;
+			flex-grow: 0;
+			flex-shrink: 0;
+		}
+		.dictionary-info-bubble {
+			background: var(--icon-info) var(--thumbnail-position);
+			opacity: 0;
+
+			width: 1em;
+			height: 1em;
+			font-size: 0.6em;
+			flex-grow: 0;
+			flex-shrink: 0;
+		}
+		.dictionary-word-form-label {
+			/* border: 1px solid red; */
+			padding: 0 0.1em;
+			font-weight: bold;
+			text-align: right;
+		}
+		.dictionary-word-form {
+			/* flex-grow: 1; */
+		}
+		.dictionary-sentence-wrapper {
+			/* flex-wrap: wrap; */
+			align-items: start;
+		}
+		.dictionary-sentence-form {
+			color: var(--border-medium);
+			/* border: 1px solid red; */
+			/* width: 6em; */
+			/* padding: 0 0.5em; */
+			font-size: 0.6em;
+			/* text-align: right; */
+			flex-grow: 0;
+			flex-shrink: 0;
+		}
+		.dictionary-sentence {
+			/*  */
+		}
+		.dictionary-sentence-translation {
+			font-style: italic;
+		}
+		.dictionary-synonym {
+			cursor: pointer;
+			font-weight: bold;
+			text-decoration: underline;
+		}
+		.dictionary-synonym:hover {
+			/* text-decoration: underline; */
+			font-style: italic;
+		}
+
+		.dictionary-audio, .dictionary-no-audio {
+			width: 1.0em;
+			height: 1.0em;
+			flex-grow: 0;
+			flex-shrink: 0;
+		}
+		.dictionary-audio {
+			cursor: pointer;
+			background: var(--icon-audio) var(--thumbnail-position);
+		}
+
+
+		/**** PURE CSS ICONS ****/
+
+		.icon-wrapper {
+			width: 1em;
+			height: 1em;
+		}
+		.arrow-down {
+			--w: 0.6em;
+			--thickness: 0.15em;
+			--color: var(--text-dark);
+            --border: var(--thickness) solid var(--color);
+
+            border-top: var(--border);
+            border-right: var(--border);
+			transform: rotate(135deg);
+
+            display: inline-block;
+            width: var(--w);
+            height: var(--w);
+		}
+		.arrow-up {
+			--w: 0.6em;
+			--thickness: 0.15em;
+			--color: var(--text-dark);
+            --border: var(--thickness) solid var(--color);
+
+            border-top: var(--border);
+            border-right: var(--border);
+			transform: rotate(-45deg) translate(-30%,30%);
+
+            display: inline-block;
+            width: var(--w);
+            height: var(--w);
+		}
+
+		.header-arrow-up {
+            --thickness: 0.2em;
+            --border: var(--thickness) solid var(--background-light);
+            /* --border: var(--thickness) solid var(--background-nav-selected); */
+            border-top: var(--border);
+            border-right: var(--border);
+            transform: rotate(-45deg) translate(0,50%);
+            filter: drop-shadow(0 0 1px #000);
+
+            display: inline-block;
+            width: 0.8em;
+            height: 0.8em;
+        }
+
+		.icon-image, .icon-audio, .icon-no-media {
+			width: 1.25em;
+			height: 1.25em;
+		}
+		.icon-image {
+			background: var(--icon-image) var(--thumbnail-position);
+		}
+		.icon-audio {
+			background: var(--icon-audio) var(--thumbnail-position);
+		}
+
+		.searchResultAudioIcon {
+			width:20px;
+			height:20px;
+			float:right;
+			
+			background: var(--icon-audio);
+			background-size: contain;
+		}
+		.searchResultImageIcon {
+			width:20px;
+			height:20px;
+			float:right;
+			
+			background: var(--icon-image);
+			background-size: contain;
+		}
+
+
+
+		/**** MEDIA QUERIES ****/
+
+        /* mobile-first styling for better load times on less-powerful devices */
+        @media (max-aspect-ratio: 5/4) { /* mobile mode */
+			/* dictionary only has 2-panel behavior in mobile mode */
+			#dictionary-wrapper {
+				transition: transform 0.3s ease;
+			}
+			.dictionary-unfocus {
+				transform: translate(100%,0%);
+				width: 0;
+				/* display: none; */
+			}
+        }
+		@media (min-aspect-ratio: 5/4) { /* desktop mode */
+            :root {
+                --title-font-size: 1.0em;
+                --nav-height: calc(1.5 * var(--fluid-font-size)); /* ref height for content anchors; 1.0em text + 2*0.25em padding */
+            }
+			.flex-adapt {
+				flex-direction: row;
+                align-items: normal;
+				justify-content: center;
+			}
+            .flex-adapt-reverse {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
+			#search-wrapper {
+				border-right: var(--panel-border);
+				width: max(30vw,24em);
+				font-size: 0.7em;
+			}
+			#search-results-wrapper {
+				/* prevent search results being completely hidden on extremely short but wide windows */
+				min-height: 5em;
+			}
+			#search-bar-buttons-wrapper {
+				top: 0.5em;
+			}
+
+			#dictionary-wrapper {
+				position: static;
+				font-size: 0.8em;
+				flex-grow: 1;
+			}
+			.dictionary-header {
+				gap: 1em;
+				align-items: baseline;
+				justify-content: start;
+			}
+			#dictionary-word {
+				font-size: 2.0em;
+			}
+			.dictionary-section {
+				margin-left: 2em;
+			}
+			.dictionary-inset-section {
+				gap: 0.25em;
+			}
+			.dictionary-sentence-wrapper {
+				gap: 0.5em;
+				align-items: baseline;
+				justify-content: start;
+			}
+			.dictionary-synonyms-section {
+				align-items: baseline;
+				justify-content: start;
+			}
+			
+			.icon-image, .icon-audio, .icon-no-media {
+				width: 1em;
+				height: 1em;
+			}
+
+			/* disable mobile-only elements in desktop mode */
+			#search-goto-dictionary, #dictionary-goto-search, .hanging-tab-area-search {
+				display: none;
+			}
+		}
+	</style>
+</head>
 <body>
+
+<!-- <div id='main'>
+	<div id='panel-1'></div>
+	<div id='panel-2'></div>
+</div> -->
+
+<!-- NAV BAR -->
+<div id='nav-bar'>
+	<h1 id='nav-title'>Chukchansi Dictionary</h1>
+	<nav id='nav-menu' role='navigation'>
+		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="24" height="24" stroke-width="1.25" style='width:100%;height:100%;pointer-events:none;'>
+			<path d="M5 8l14 0"></path>
+			<path d="M5 12l14 0"></path>
+			<path d="M5 16l14 0"></path>
+		</svg>
+		<ul id='nav-dropdown' class='flex-row'>
+			<div class='flex-col'>
+				<p class='nav-greyed-out'>Home</p>
+			</div>
+			<div class='flex-col'>
+				<li><a href='speaking-dictionary'>Speaking Dictionary</a></li>
+				<li><a href='pdf-dictionary'>PDF Dictionary</a></li>
+				<li><a href='stories'>Story Reader</a></li>
+				<li><a href='wordsearch'>Wordsearch</a></li>
+			</div>
+		</ul>
+	</nav>
+</div>
+
+<!-- CONTENT -->
+<div id='content' class='flex-row no-scrollbar'>
+	<div id='search-wrapper' class='flex-col'>
+		<div id='search-bar-wrapper' class='flex-col'>
+			<div class='hanging-tab-area-search'></div>
+			<input type='text' id='search-bar-input' placeholder='Search...'>
+			<div id='search-bar-buttons-wrapper' class='flex-row'>
+				<button class='search-bar-clear' onclick='clearSearch()'>
+					<div class='icon-x-left'></div>
+					<div class='icon-x-right'></div>
+				</button>
+			</div>
+			<div class='flex-row'>
+				<div class='flex-sep'></div>
+				<div id='search-filters-button' class='flex-row' onclick='toggleShowFilters()'>
+					<p>Filters:</p>
+					<div class='flex-row flex-centered icon-wrapper'>
+						<div id='search-filters-icon' class='arrow-down'></div>
+					</div>
+				</div>
+			</div>
+			<div id='search-filters-wrapper' class='flex-col search-filters-hidden'>
+				<div class='flex-row flex-centered filters-label'>
+					<p>Part of speech:</p>
+					<div class='flex-sep'></div>
+					<button id='filter-toggle-catg-all' class='filter-bubble filter-bubble-active' onclick='filterShowAll().then(filterSearchResults).then(renderFilters)'>SHOW ALL</button>
+				</div>
+				<div class='flex-row filter-bubble-wrapper'>
+					<button id='filter-toggle-catg-noun' class='filter-bubble filter-bubble-semiactive' onclick='filterShowOnly("noun").then(filterSearchResults).then(renderFilters)'>Noun</button>
+					<button id='filter-toggle-catg-verb' class='filter-bubble filter-bubble-semiactive' onclick='filterShowOnly("verb").then(filterSearchResults).then(renderFilters)'>Verb</button>
+					<button id='filter-toggle-catg-adjective' class='filter-bubble filter-bubble-semiactive' onclick='filterShowOnly("adjective").then(filterSearchResults).then(renderFilters)'>Adjective</button>
+					<button id='filter-toggle-catg-adverb' class='filter-bubble filter-bubble-semiactive' onclick='filterShowOnly("adverb").then(filterSearchResults).then(renderFilters)'>Adverb</button>
+					<button id='filter-toggle-catg-misc' class='filter-bubble filter-bubble-semiactive' onclick='filterShowOnly("misc").then(filterSearchResults).then(renderFilters)'>Misc</button>
+				</div>
+				<div id='search-filters-minimize' class='flex-row flex-centered' onclick='hideFilters()'>
+					<div class='arrow-up'></div>
+				</div>
+			</div>
+		</div>
+		<div id='search-results-header' class='flex-row'>
+			<p style='width: 2.5em;'>Catg</p>
+			<p style='flex-grow: 1;'>Entry</p>
+			<p>Media</p>
+		</div>
+		<div id='search-results-wrapper' class='flex-col no-scrollbar'>
+			<p id='search-no-results'>Loading...</p>
+		</div>
+		<div id='search-results-footer' class='flex-row'>
+			<p id='search-statistic-entries'>1695 entries</p>
+			<div class='flex-sep'></div>
+			<p id='search-statistic-speed'>0.651 sec</p>
+		</div>
+		<div id='search-goto-dictionary' class='flex-col'>
+			<p>Go to entry:</p>
+			<div id='search-goto-dictionary-label' onclick='focusEntry()'>blackberry</div>
+		</div>
+	</div>
+
+	<div id='dictionary-wrapper' class='flex-col dictionary-unfocus'>
+		<div id='dictionary-entry-wrapper' class='flex-col no-scrollbar'>
+			<div class='flex-adapt dictionary-header'>
+				<h2 id='dictionary-word'>blackberry</h2>
+				<p id='dictionary-catg'>noun</p>
+				<p id='dictionary-translation'>maamil', maamila</p>
+			</div>
+			<div class='flex-col dictionary-section'>
+				<div class='flex-row'>
+					<div class='flex-row dictionary-word-form-header'>
+						<p class='dictionary-word-form-label'>Subject</p>
+						<div class='dictionary-info-bubble'></div>
+					</div>
+					<p class='dictionary-word-form'>maamil'</p>
+					<div class='dictionary-audio'></div>
+				</div>
+				<div class='flex-row'>
+					<div class='flex-row dictionary-word-form-header'>
+						<p class='dictionary-word-form-label'>Object</p>
+						<div class='dictionary-info-bubble'></div>
+					</div>
+					<p class='dictionary-word-form'>maamila</p>
+					<div class='dictionary-audio'></div>
+				</div>
+				<div class='flex-row'>
+					<div class='flex-row dictionary-word-form-header'>
+						<p class='dictionary-word-form-label'>Owner</p>
+						<div class='dictionary-info-bubble'></div>
+					</div>
+					<p class='dictionary-word-form'>maamilin</p>
+				</div>
+				<div class='flex-row'>
+					<div class='flex-row dictionary-word-form-header'>
+						<p class='dictionary-word-form-label'>Owned</p>
+						<div class='dictionary-info-bubble'></div>
+					</div>
+					<p class='dictionary-word-form'>maamilam'</p>
+				</div>
+				<div class='flex-row'>
+					<div class='flex-row dictionary-word-form-header'>
+						<p class='dictionary-word-form-label'>Tool</p>
+						<div class='dictionary-info-bubble'></div>
+					</div>
+					<p class='dictionary-word-form'>maamilan</p>
+				</div>
+				<div class='flex-row'>
+					<div class='flex-row dictionary-word-form-header'>
+						<p class='dictionary-word-form-label'>Precedent Gerundial</p>
+						<div class='dictionary-info-bubble'></div>
+					</div>
+					<p class='dictionary-word-form'>maamilaw</p>
+					<div class='dictionary-audio'></div>
+				</div>
+			</div>
+			<div class='flex-col dictionary-inset-section'>
+				<div class='flex-adapt dictionary-sentence-wrapper'>
+					<p class='dictionary-sentence-form'>Subject</p>
+					<p class='dictionary-sentence'>The blackberries were very sweet.</p>
+					<p class='dictionary-sentence-translation'>Meejintaʔ k'uyuuk'ataʔ maamil'.</p>
+				</div>
+				<div class='flex-adapt dictionary-sentence-wrapper'>
+					<p class='dictionary-sentence-form'>Object</p>
+					<p class='dictionary-sentence'>I'm going to pick blackberries soon.</p>
+					<p class='dictionary-sentence-translation'>Goobeʔ naʔ miʔin maamila.</p>
+				</div>
+			</div>
+			<div class='flex-adapt dictionary-synonyms-section'>
+				<p>Synonymous with:</p>
+				<p class='dictionary-synonym'>family</p>
+				<p class='dictionary-synonym'>cousin</p>
+			</div>
+			
+		</div>
+
+		<div id='dictionary-goto-search' class='flex-col'>
+			<div onclick='unfocusEntry()'>Back to Search</div>
+		</div>
+	</div>
+</div>
+<div id='hanging-tab-collection-right'>
+	<div id='hanging-tab-language-toggle' class='flex-row flex-centered hanging-tab' onclick='toggleLang()'>
+		<p id='lang-toggle-text'>en-ch</p>
+		<div id='lang-toggle-slider' class='flex-row toggle-button'>
+			<div class='toggle-button-slider'></div>
+		</div>
+	</div>
+</div>
 
 	<!-- create loading screen -->
 
 	<!-- load dependencies -->
 	<script type='text/javascript' src='script/dictionary.js'></script>
 	<script type='text/javascript' src='data/en-ch-v12.js'></script>
+	<script type='text/javascript' src='data/en-ch-v13.js'></script>
 	<script type='text/javascript' src='source/resources.js'></script>
 	<!-- temp resource list for jasmine's demo -->
 	<script type='text/javascript' src='source/resources-jasmine.js'></script>
@@ -56,108 +1074,107 @@
 		// 0.5 hrs: display all word forms in both eng-chk and chk-eng (do not assume any chk fluency at this time)
 		// 1.5 hrs: update SEO across all pages; cleanup git branches
 		// 1.5 hrs: clobber nav menu into old framework
+		// 11.5 hrs: research and design work for mobile-friendly overhaul
+		// 6.5 hrs: apply responsive design to search panel
+		// 7.0 hrs: add interactivity to UI; redesign search filter system and search results
+		// 6.0 hrs: set up dictionary entry display; finalize UI/UX
+		// 3.5 hrs: connect search results and language toggle to database
+		// 5.5 hrs: improve filter selection system
+		// 5.0 hrs: integrate dynamic entry builder
 
 		//// TODO ////
 		//
 
+
+
 		/////////////////////////////////////////////////////////////////////
 
-		//// ENV SETUP ////
+		//// DOM ANCHORS ////
 
-		// debug
-		let t1 = Date.now();
-		// settings
-		let langToggle = false;
-		let searchSettings = {
-			shiftDown: false,
-			elem: undefined,
-			HISTORY_MAX_LENGTH: 5,
-			showHistory: false,
-			showFilters: false,
-			// history
-			historyEng: [],
-			historyChk: [],
-			// catgs
-			// VALID_CATGS: ['all','none','misc',    'noun','adjective','demonstrative','verb','auxiliary verb','pronoun','adverb'],
-			// catgStrs: {
-			// 	'all':'ALL', 'none':'NONE', 'misc':'Misc',
-			// 	'noun':'Noun', 'adjective':'Adjective', 'demonstrative':'Demonstrative',
-			// 	'verb':'Verb','auxiliary verb':'Aux Verb','pronoun':'Pronoun','adverb':'Adverb'
-			// },
-			VALID_CATGS: ['all','noun','adjective','demonstrative','verb','auxiliary verb','pronoun','adverb','misc'],
-			catgStrs: {
-				'all':'SHOW ALL', 'none':'NONE', 'misc':'Misc',
-				'noun':'Noun', 'adjective':'Adj', 'demonstrative':'Dem',
-				'verb':'Verb','auxiliary verb':'Aux Verb','pronoun':'Pronoun','adverb':'Adv'
-			},
-			catgs: ['noun','adjective','demonstrative','verb','auxiliary verb','pronoun','adverb'],
-			catgMisc: true,
-			hasAllCatgs: () => {
-				for (let catg of ['noun','adjective','demonstrative','verb','auxiliary verb','pronoun','adverb'])
-					if (searchSettings.catgs.indexOf(catg) == -1)
-						return false;
-				return searchSettings.catgMisc;
-			},
-			hasNoCatgs: () => {
-				for (let catg of ['noun','adjective','demonstrative','verb','auxiliary verb','pronoun','adverb'])
-					if (searchSettings.catgs.indexOf(catg) != -1)
-						return false;
-				return !searchSettings.catgMisc;
-			}
+		const langToggleText = document.getElementById('lang-toggle-text');
+		const langToggleSlider = document.getElementById('lang-toggle-slider');
+		const searchBar = document.getElementById('search-bar-input');
+		const searchFiltersIcon = document.getElementById('search-filters-icon');
+		const searchFilters = document.getElementById('search-filters-wrapper');
+		const searchResults = document.getElementById('search-results-wrapper');
+		const searchStatisticEntries = document.getElementById('search-statistic-entries');
+		const searchStatisticSpeed = document.getElementById('search-statistic-speed');
+		const dictionaryEntryDisplay = document.getElementById('dictionary-entry-wrapper');
+
+
+
+		//// GENERAL HELPERS ////
+
+		// CSS var manipulation
+		const CSSVars = {
+			get : (k) => getComputedStyle(document.documentElement).getPropertyValue(k),
+			set : (k,v) => document.documentElement.style.setProperty(k,v)
 		};
+		// random
+		const randI = (min,max) => Math.floor(Math.random() * (max - min + 1)) + min; // unsafe rand int
+		// formatting
+		const capitalize = (text='') => text.replaceAll(/\b[a-z]/ig, match=>match.toUpperCase());
+		const trySubscript = (text='') => text.replaceAll(/_([0-9*])/ig, '<sub>$1</sub>');
+
+		//// DICTIONARY HELPERS ////
+
+		const shortCatgs = { // 100% coverage for data v12
+			'adjective' : 'Adj',
+			'adverb' : 'Adv',
+			'auxiliary verb' : 'AuxV',
+			'conjunction' : 'Conj',
+			'demonstrative' : 'Dem',
+			'exclamation' : 'Excl',
+			'greeting' : 'Grt',
+			'noun' : 'N',
+			'particle' : 'Ptcl',
+			'preposition' : 'Prep',
+			'pronoun' : 'Pro',
+			'verb' : 'V'
+		};
+		function shortCatg (catg) {
+			catg = catg.toLowerCase();
+			if (!shortCatgs[catg]) console.warn (`Part of speech "${catg}" not recognized.`);
+			return shortCatgs[catg] ?? '-';
+		}
+		const defaultFormName = (catg,formNum) => capitalize(catg);
+		// const defaultFormName = (catg,formNum) => `Form ${formNum}`;
+		const forms = {
+			'noun'           : ['Subject', 'Object', 'Owner', 'Owned',   'Tool',    'Place'],
+			'adjective'      : ['Subject', 'Object', 'Owner', 'Owned',   'Tool',    'Place'],
+			'demonstrative'  : ['Subject', 'Object', 'Owner', 'Owned',   'Tool',    'Place'],
+			'verb'           : ['Recent Past', 'Remote Past', 'Yesterday Past', 'Ongoing', 'Command', 'Suggestive', 'Hypothetical', 'Future', 'Precedent Gerundial', 'Consequent Gerundial'],
+			'auxiliary verb' : ['Recent Past', 'Remote Past', 'Yesterday Past', 'Ongoing', 'Command', 'Suggestive', 'Hypothetical', 'Future', 'Precedent Gerundial', 'Consequent Gerundial'],
+			'pronoun'        : ['Subject', 'Object'],
+		};
+		function formStr (catg,formNum) {
+			if (!catg || !forms[catg.toLowerCase()]) {
+				console.warn(`No word forms explicitly defined for part of speech "${catg}".`);
+				return defaultFormName(catg,formNum);
+			}
+			catg = catg.toLowerCase();
+			if (formNum < 0 || formNum >= forms[catg].length) {
+				console.warn(`No label defined for form "${formNum}" of "${catg}".`);
+				return defaultFormName(catg,formNum);
+			}
+			return forms[catg][formNum];
+		}
+
+
+
+		//// DATA ////
+
+		// build dictionary
+		let dictionary = new Dictionary(primary_eng, secondary_chk);
+		// dictionary.loadData( parse_en_ch_v12(tsv_en_ch_v12) );
+		dictionary.loadData( parse_en_ch_v13(tsv_en_ch_v13) );
+
+		// resource access
 		let soundSettings = {
 			player: document.createElement('audio'),
 			speakerAbbreviations: ['H',           'J'         ],
 			speakerNames:         ['Holly Wyatt', 'Jane Wyatt']
 		};
-
-		// build dictionary
-		let dictionary = new Dictionary(primary_eng, secondary_chk);
-		dictionary.loadData( parse_en_ch_v12(tsv_en_ch_v12) );
-
-
-
-		// debug
-		let badSentenceWordList = [];
-		function checkSentencesContainForm () {
-			let numBadSentences = 0;
-			dictionary.forEachEntry(entry => {
-				entry.forEachSentence((sentence,sentenceForms) => {
-					// console.log(entry.getPrimary(), sentence, sentenceForms.length);
-					if (sentenceForms.length == 0) {
-						// console.log(entry.getPrimary(), sentence);
-						if (badSentenceWordList.indexOf(entry.getPrimary().join('; ')) == -1) badSentenceWordList.push(entry.getPrimary().join('; '));
-						numBadSentences++;
-					}
-				});
-			});
-			console.log(numBadSentences + ' chukchansi sentences did not contain any listed form.');
-			console.log('Hit dev key [`] to download the list as a text file.');
-		}
-		function download(filename, text) {
-			let a = document.createElement('a');
-			a.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-			a.setAttribute('download', filename);
-
-			a.style.display = 'none';
-			document.body.appendChild(a);
-
-			a.click();
-
-			document.body.removeChild(a);
-		}
-
-		checkSentencesContainForm();
-		
-
-
-
-		/////////////////////////////////////////////////////////////////////
-
-		//// CORE ////
-
-		function capitalize (s) { s=s.toString().toLowerCase(); return (s[0]||'').toUpperCase()+s.substr(1); }
-
 		function playSound (filename) {
 			soundSettings.player.pause();
 			soundSettings.player.src = 'source/' + filename;
@@ -187,573 +1204,1125 @@
 			}
 			return resources;
 		}
-		function findJasmineResources (entry) {
-			const resourceList = image_jasmine; // english only, images only
-			let forms = [];
-			entry.forEachPrimaryForm((synonyms,formNum) => {
-				for (let synonym of synonyms)
-					forms.push(synonym);
-			});
-			let resources = [];
-			for (let filepath of resourceList) {
-				const filename = filepath.split('/').pop().split('.')[0];
-				const word = filename.split('_')[0];
-				const author = filename.split('_')[1] || 'Unknown';
-				for (let form of forms) {
-					if (form == word) {
-						resources.push([form,filepath,author]);
-					}
+
+
+		
+		//// INTERACTION ////
+
+		let settings = {
+			numSearchResults : 0,
+			toggleLang : false,
+			showFilters : false,
+			filters : {
+				'adjective' : {
+					catgs : ['adjective'],
+					show : true
+				},
+				'adverb' : {
+					catgs : ['adverb'],
+					show : true
+				},
+				'noun' : {
+					catgs : ['noun','pronoun','demonstrative'],
+					show : true
+				},
+				'verb' : {
+					catgs : ['verb','auxiliary verb'],
+					show : true
+				},
+				showMisc : true
+			}
+		};
+		function updateTitle () {
+			if (window.innerWidth < window.innerHeight) {
+				// mobile mode
+				document.getElementById('nav-title').innerHTML = (settings.toggleLang) ? `Waayaw Hudaʔhiy'` : `Chukchansi Dictionary`;
+			} else {
+				// desktop mode
+				document.getElementById('nav-title').innerHTML = (settings.toggleLang) ? `Chukchansi Waayaw Hudaʔhiy'` : `Chukchansi Dictionary`;
+			}
+		}
+		function toggleLang () {
+			// save history
+				//
+			// update dictionary
+			settings.toggleLang = dictionary.togglePrimary();
+			// update ui
+			updateTitle();
+			// document.getElementById('nav-title').innerHTML = (settings.toggleLang) ? `Chukchansi Waayaw Hudaʔhiy'` : `Chukchansi Dictionary`;
+			langToggleText.innerHTML = (settings.toggleLang) ? `ch-en` : `en-ch`;
+			(settings.toggleLang) ? langToggleSlider.classList.add('toggle-button-active') : langToggleSlider.classList.remove('toggle-button-active');
+			// rebuild search results
+			searchBar.value = '';
+			searchBar.placeholder = (settings.toggleLang) ? 'Yuhgo...' : 'Search...';
+			populateSearchResults();
+				// reset filters
+			// rebuild active entry
+				//
+		}
+		function numActiveFilters () {
+			let n = 0;
+			if (settings.filters.showMisc) n++;
+			for (let type of ['adjective','adverb','noun','verb']) {
+				if (settings.filters[type].show) n++;
+			}
+			return n;
+		}
+		function setFilterStatus (type,status) {
+			if (status == 'active') {
+				document.getElementById(`filter-toggle-catg-${type}`).classList.remove('filter-bubble-semiactive');
+				document.getElementById(`filter-toggle-catg-${type}`).classList.add('filter-bubble-active');
+			} else if (status == 'semiactive') {
+				document.getElementById(`filter-toggle-catg-${type}`).classList.add('filter-bubble-semiactive');
+				document.getElementById(`filter-toggle-catg-${type}`).classList.remove('filter-bubble-active');
+			} else {
+				document.getElementById(`filter-toggle-catg-${type}`).classList.remove('filter-bubble-semiactive');
+				document.getElementById(`filter-toggle-catg-${type}`).classList.remove('filter-bubble-active');
+			}
+		}
+		function renderFilters () {
+			const numActive = numActiveFilters();
+			// render "Show All" button
+			if (numActive < 1) { // inactive if no filters enabled
+				setFilterStatus('all','inactive');
+			} else if (numActive == 5) { // fully active if all filters enabled
+				setFilterStatus('all','active');
+			} else { // semiactive if some but not all filters active
+				setFilterStatus('all','semiactive');
+			}
+			// render part-of-speech catg buttons
+			if (numActive == 1) { // render fully active if exactly one filter enabled
+				(settings.filters.showMisc) ? setFilterStatus('misc','active') : setFilterStatus('misc','inactive');
+				// setFilterStatus('misc', (settings.filters.showMisc) ? 'active' : 'inactive');
+				for (let type of ['adjective','adverb','noun','verb']) {
+					(settings.filters[type].show) ? setFilterStatus(type,'active') : setFilterStatus(type,'inactive');
+				}
+			} else { // render semiactive if multiple filters enabled
+				(settings.filters.showMisc) ? setFilterStatus('misc','semiactive') : setFilterStatus('misc','inactive');
+				for (let type of ['adjective','adverb','noun','verb']) {
+					(settings.filters[type].show) ? setFilterStatus(type,'semiactive') : setFilterStatus(type,'inactive');
 				}
 			}
-			return resources;
+			return { then : callback => callback() };
 		}
-		let jasmineWords = [];
-		let jasmineBadNames = 0;
-		for (const image of image_jasmine) {
-			const word = [...image.matchAll(/(?<=\/)[^\/]+(?=\.)/g)][0][0]; // use lookahead/lookbehind to isolate word in filename
-			if (!word) continue;
-			if (dictionary.searchWord(word)) {
-				jasmineWords.push(word);
-			} else {
-				jasmineBadNames++;
-				// console.log('"' + word + '" not found in dictionary');
+		function toggleFilter (type) {
+			type = type.toLowerCase();
+			if (type == 'misc') {
+				settings.filters.showMisc = !settings.filters.showMisc;
+			} else if (['adjective','adverb','noun','verb'].indexOf(type) != -1) {
+				settings.filters[type].show = !settings.filters[type].show;
 			}
+			return { then : callback => callback() };
 		}
+		function filterShowAll () {
+			settings.filters.showMisc = true;
+			for (let type of ['adjective','adverb','noun','verb']) {
+				settings.filters[type].show = true;
+			}
+			return { then : callback => callback() };
+		}
+		function filterShowNone () {
+			settings.filters.showMisc = false;
+			for (let type of ['adjective','adverb','noun','verb']) {
+				settings.filters[type].show = false;
+			}
+			return { then : callback => callback() };
+		}
+		function filterShowOnly (type) {
+			return filterShowNone().then( _ => toggleFilter(type) ); // returns chain
+		}
+
+		// filterShowOnly('verb').then(filterSearchResults).then(renderFilters);
+
 		
-		function filterCatgs () {
-			let elemStr = '';
+		
 
-			for (let c of searchSettings.VALID_CATGS) {
-				const selected =
-					(c == 'all')  ? searchSettings.hasAllCatgs() :
-					(c == 'none') ? searchSettings.hasNoCatgs() :
-					(c == 'misc') ? searchSettings.catgMisc : 
-								searchSettings.catgs.indexOf(c) != -1;
-				const classStr = (selected?'catgLabelSelected':'catgLabel') + ((c=='all') ? (selected?' catgSpecialSelected':' catgSpecial') : '');
-				const onclick = 'toggleCatg(`'+c+'`)';
-				const label = searchSettings.catgStrs[c];
-				elemStr += '<div class="'+classStr+'" onclick="'+onclick+'">' + label + '</div>';
+
+
+
+		// function togglePrimary() {
+		// 	// save current word before toggling lang
+		// 	const history = !langToggle ? 'historyEng' : 'historyChk';
+		// 	const currentWord = searchSettings[history][searchSettings[history].length-1];
+		// 	const currentEntry = dictionary.searchWord(currentWord);
+		// 	const wordTranslation = (!langToggle) ? currentEntry.getSecondary(0)[0] : currentEntry.getPrimary(0)[0];
+		// 	langToggle = dictionary.togglePrimary();
+		// 	// ui
+		// 	document.getElementById('nav-title').innerHTML = (!langToggle) ? `English-Chukchansi Dictionary` : `Chukchansi-English Waayaw Hudaʔhiy'`;
+		// 	document.getElementById('nav-title').style.fontSize = (!langToggle) ? '25px' : '20px';
+		// 	document.getElementById('langToggleTitle').innerHTML = (!langToggle) ? 'en-ch' : 'ch-en';
+		// 	document.getElementById('langToggleSwitch').style.left = (!langToggle) ? '1px' : '11px';
+		// 	// current entry
+		// 	displayEntry(contentPanel, wordTranslation);
+		// 	// history
+		// 	searchSettings.history = [wordTranslation];
+		// 	refreshHistory();
+		// 	// search
+		// 	searchSettings.elem.value = '';
+		// 	searchSettings.elem.placeholder = (!langToggle) ? 'Search...' : 'Yuhgo...';
+		// 	populateContainer(resultPanel);
+		// 	filterContainer(resultPanel, '');
+		// 	resultPanel.scroll(0,0);
+		// 	filterCatgs('all');
+		// 	document.getElementById('searchBar').focus();
+		// }
+
+
+
+
+
+		function showFilters () {
+			settings.showFilters = true;
+			searchFiltersIcon.classList.remove('arrow-down');
+			searchFiltersIcon.classList.add('arrow-up');
+			searchFilters.classList.remove('search-filters-hidden');
+		}
+		function hideFilters () {
+			settings.showFilters = false;
+			searchFiltersIcon.classList.remove('arrow-up');
+			searchFiltersIcon.classList.add('arrow-down');
+			searchFilters.classList.add('search-filters-hidden');
+		}
+		function toggleShowFilters () {
+			if (settings.showFilters) {
+				hideFilters();
+			} else {
+				showFilters();
+			}
+		}
+
+		function focusEntry () {
+			document.getElementById('dictionary-wrapper').classList.remove('dictionary-unfocus');
+		}
+		function unfocusEntry () {
+			document.getElementById('dictionary-wrapper').classList.add('dictionary-unfocus');
+		}
+
+
+		/////////////////////////
+
+		
+
+
+
+		//// DYNAMIC CONTENT ////
+
+		// search
+		function populateSearchResultsStub () {
+			const t0_populateSearch = performance.now();
+
+			let contentStr = '';
+			let n = 0;
+
+			n = 214;
+			for (let i = 0; i < n; i++) {
+				// const catg = ['n','v','adj','adv','prep'][randI(0,4)];
+				const catg = ['N','V','Adj','Adv','Prep'][randI(0,4)];
+				const word = ['Word','Longword','Reallylongusthemost','Multiple Words','Multi Short'][randI(0,4)];
+				const hasImage = Math.random() < 0.5;
+				const hasAudio = Math.random() < 0.5;
+				contentStr += `<div id='entry-${i}' class='flex-row flex-centered search-result'>`;
+					contentStr += `<p class='search-result-catg'>${catg}</p>`;
+					contentStr += `<p class='search-result-word'>${word}</p>`;
+					contentStr += `<div class='flex-row flex-centered search-result-media'>`;
+						contentStr += `<div class='${hasImage ? 'icon-image' : 'icon-no-media'}'></div>`;
+						contentStr += `<div class='${hasAudio ? 'icon-audio' : 'icon-no-media'}'></div>`;
+					contentStr += `</div>`;
+				contentStr += `</div>`;
 			}
 
-			document.getElementById('catgsPanel').innerHTML = elemStr;
+			searchResults.innerHTML = contentStr;
+
+			const dt = performance.now()-t0_populateSearch;
+			searchStatisticEntries.innerHTML = `${n} entries`;
+			searchStatisticSpeed.innerHTML = `${(dt/1000).toFixed(3)} sec`;
+			console.log(`Populated search results in ${dt} ms.`);
 		}
-		function toggleCatg (catg, multiselect=false) {
-			catg = catg.toLowerCase();
-			if (searchSettings.VALID_CATGS.indexOf(catg) == -1) {
-				console.warn('"'+catg+'" is invalid catg.');
+		function populateSearchResults () {
+			const t0_populateSearch = performance.now();
+
+			//// THIS NEEDS TO BE A WEB WORKER EVENTUALLY
+
+			// let searchIndex = [];
+			let searchMatches = [];
+			let contentStr = '';
+			let searchIndex = 0;
+
+			dictionary.forEachSynonym((entry, synonym, entryIndex, synonymIndex) => {
+				let audioResources = findResources(entry, audio_en_ch);
+				let imageResources = findResources(entry, image_en_ch);
+				// let imageResourcesJasmine = findJasmineResources(entry);
+
+				// if (['cousin','family','relative'].indexOf(synonym) != -1) {
+				// 	console.log(entryIndex, entry.getPrimarySynonymID(synonym), synonymIndex);
+				// }
+				// let matchSet = []; // set of strings that will match with this entry
+
+				const word = trySubscript(synonym);
+				const catg = shortCatg(entry.catg);
+				const hasImage = imageResources.length > 0;
+				const hasAudio = audioResources.length > 0;
+				contentStr += `<div id='entry-${searchIndex}' class='flex-row flex-centered search-result' onclick="loadEntryFor(\`${synonym}\`); focusEntry();"">`;
+					contentStr += `<p class='search-result-catg'>${catg}</p>`;
+					contentStr += `<p class='search-result-word'>${word}</p>`;
+					contentStr += `<div class='flex-row flex-centered search-result-media'>`;
+						contentStr += `<div class='${hasImage ? 'icon-image' : 'icon-no-media'}'></div>`;
+						contentStr += `<div class='${hasAudio ? 'icon-audio' : 'icon-no-media'}'></div>`;
+					contentStr += `</div>`;
+				contentStr += `</div>`;
+
+				searchIndex++;
+			});
+			contentStr += `<p id='search-no-results' style='display:none'>No results...</p>`;
+
+			searchResults.innerHTML = contentStr;
+			settings.numSearchResults = searchIndex;
+
+			const dt = performance.now()-t0_populateSearch;
+			searchStatisticEntries.innerHTML = `${searchIndex} entries`;
+			searchStatisticSpeed.innerHTML = `data indexed in ${(dt/1000).toFixed(3)} sec`;
+			console.log(`Populated search results in ${dt} ms.`);
+			return { then : callback => callback() };
+		}
+
+		function filterSearchResults () {
+			const t0_filterSearch = performance.now();
+
+			// compile filters
+			let allCatgs = {}; // all non-misc catgs
+			let activeCatgs = {}; // non-misc catgs that are being shown
+			for (let type of ['noun','verb','adjective','adverb']) {
+				for (let catg of settings.filters[type].catgs) {
+					allCatgs[catg] = true;
+					if (settings.filters[type].show) activeCatgs[catg] = true;
+				}
+			}
+			// console.log(Object.keys(activeCatgs));
+
+			// compile search frag
+			const searchFragFromStart = new RegExp(`^${searchBar.value ?? '.'}`, 'i'); // only match from beginning of word, case insensitive
+
+			// filter search results
+			let searchIndex = 0; // aka numEntries
+			let numMatches = 0;
+			dictionary.forEachSynonym((entry, synonym, entryIndex, synonymIndex) => {
+				const matchCatg = activeCatgs[entry.catg] || (settings.filters.showMisc && !allCatgs[entry.catg]);
+				const matchFrag = searchFragFromStart.test(synonym);
+				if (matchCatg && matchFrag) {
+					document.getElementById(`entry-${searchIndex}`).style.display = ''; // if match, reset property to default display
+					numMatches++;
+				} else {
+					document.getElementById(`entry-${searchIndex}`).style.display = 'none'; // if not match, hide
+				}
+				searchIndex++;
+			});
+			document.getElementById('search-no-results').style.display = (numMatches !== 0) ? 'none' : '';
+
+			const dt = performance.now()-t0_filterSearch;
+			// searchStatisticEntries.innerHTML = `${numMatches} entries`;
+			searchStatisticEntries.innerHTML = `${numMatches}/${searchIndex} entries`;
+			searchStatisticSpeed.innerHTML = `${(dt/1000).toFixed(3)} sec`;
+			console.log(`Found ${numMatches} matches in ${dt} ms.`);
+			return { then : callback => callback() };
+		}
+		function clearSearch () {
+			searchBar.value = '';
+			filterSearchResults();
+		}
+
+
+
+		// dictionary
+		function loadEntryFor (rawWord='cousin') {
+			const synonymId = 0; // eventually need to determine this dynamically, somehow
+
+			const entry = dictionary.searchWord(rawWord);
+			if (!entry) {
+				console.error(`No entry found for word "${rawWord}".`);
 				return;
 			}
+			let audioResources = findResources(entry, audio_en_ch);
+			let imageResources = findResources(entry, image_en_ch);
 
-			let active;
-			
-			// // multiselect (click to toggle inclusion)
-			// if (catg == 'all') {
-			// 	searchSettings.catgs = ['noun','adjective','demonstrative','verb','auxiliary verb','pronoun','adverb'];
-			// 	searchSettings.catgMisc = true;
-			// 	active = true;
-			// } else if (catg == 'none') {
-			// 	searchSettings.catgs = [];
-			// 	searchSettings.catgMisc = false;
-			// 	active = false;
-			// } else if (catg == 'misc') {
-			// 	searchSettings.catgMisc = !searchSettings.catgMisc;
-			// 	active = searchSettings.catgMisc;
-			// } else if (searchSettings.catgs.indexOf(catg) == -1) {
-			// 	searchSettings.catgs.push(catg);
-			// 	active = true;
-			// } else {
-			// 	searchSettings.catgs = searchSettings.catgs.filter(x => x!=catg);
-			// 	active = false;
-			// }
+			const chkForm0 = entry.getSecondary(0);
+			const chkForm1 = entry.getSecondary(1);
+			const chkForms = chkForm1 ? `${chkForm0[0]}, ${chkForm1[0]}` : chkForm0[0];
+			const engForm0 = entry.getPrimary().join(', ');
 
-			// single select (click to exclude everything else)
-			if (catg == 'all') {
-				searchSettings.catgs = ['noun','adjective','demonstrative','verb','auxiliary verb','pronoun','adverb'];
-				searchSettings.catgMisc = true;
-				active = true;
-			} else if (catg == 'none') {
-				searchSettings.catgs = [];
-				searchSettings.catgMisc = false;
-				active = false;
-			} else if (catg == 'misc') {
-				searchSettings.catgs = [];
-				searchSettings.catgMisc = true;
-				active = true;
-			} else {
-				searchSettings.catgs = [catg];
-				searchSettings.catgMisc = false;
-				active = true;
-			}
+			const catg = entry.catg ?? '-';
+			const word = (!settings.toggleLang) ? rawWord : chkForms; // defaults to synonym 0 of secondary lang
+			const trans = (settings.toggleLang) ? engForm0 : chkForms;
+			const synonyms = entry.getPrimarySynonyms(word);
+			const hasImage = imageResources.length > 0;
+			const hasAudio = audioResources.length > 0;
 
-			console.log(searchSettings.catgs,'misc',searchSettings.catgMisc);
-			filterCatgs();
-			filterContainer(resultPanel, searchSettings.elem.value);
-			return active;
-		}
-		function togglePrimary() {
-			// save current word before toggling lang
-			const history = !langToggle ? 'historyEng' : 'historyChk';
-			const currentWord = searchSettings[history][searchSettings[history].length-1];
-			const currentEntry = dictionary.searchWord(currentWord);
-			const wordTranslation = (!langToggle) ? currentEntry.getSecondary(0)[0] : currentEntry.getPrimary(0)[0];
-			langToggle = dictionary.togglePrimary();
-			// ui
-			document.getElementById('nav-title').innerHTML = (!langToggle) ? `English-Chukchansi Dictionary` : `Chukchansi-English Waayaw Hudaʔhiy'`;
-			document.getElementById('nav-title').style.fontSize = (!langToggle) ? '25px' : '20px';
-			document.getElementById('langToggleTitle').innerHTML = (!langToggle) ? 'en-ch' : 'ch-en';
-			document.getElementById('langToggleSwitch').style.left = (!langToggle) ? '1px' : '11px';
-			// current entry
-			displayEntry(contentPanel, wordTranslation);
-			// history
-			searchSettings.history = [wordTranslation];
-			refreshHistory();
-			// search
-			searchSettings.elem.value = '';
-			searchSettings.elem.placeholder = (!langToggle) ? 'Search...' : 'Yuhgo...';
-			populateContainer(resultPanel);
-			filterContainer(resultPanel, '');
-			resultPanel.scroll(0,0);
-			filterCatgs('all');
-			document.getElementById('searchBar').focus();
-		}
-		function clearSearch() {
-			searchSettings.showHistory = false;
-			refreshHistory();
-			searchSettings.elem.value = '';
-			filterContainer(resultPanel, '');
-			resultPanel.scroll(0, 0);
-			document.getElementById('searchBar').focus();
-		}
+			let contentStr = '';
 
-		function keydown_search (e) {
-			switch (e.keyCode) {
-				case 27: // [Esc] to defocus search box
-					e.preventDefault();
-					searchSettings.elem.blur();
-					searchSettings.suggestionsElem.style.display = 'none';
-					console.log('defocused search');
-					break;
-				case 9: // prevent [Tab] from leaving search box
-					e.preventDefault();
-					console.log('blocked tab-out');
-					break;
-				case 13: // prevent [Enter] from trying to submit page
-					e.preventDefault();
-					break;
-				case 16: // manually track [Shift] for [?] detection
-					searchSettings.shiftDown = true;
-					break;
-				case 191: // change [?] to [ʔ]
-					if (searchSettings.shiftDown) {
-						e.preventDefault();
-						searchSettings.elem.value += 'ʔ';
+			// header
+			contentStr += `<div class='flex-adapt dictionary-header'>`;
+				contentStr += `<h2 id='dictionary-word'>${trySubscript(word)}</h2>`;
+				contentStr += `<p id='dictionary-catg'>${catg.toLowerCase()}</p>`;
+				contentStr += `<p id='dictionary-translation'>${trySubscript(trans)}</p>`;
+			contentStr += `</div>`;
+			// word forms
+			contentStr += `<div class='flex-col dictionary-section'>`;
+			entry.forEachSecondaryForm((synonyms,formNum) => {
+				contentStr += `<div class='flex-row'>`;
+					contentStr += `<div class='flex-row dictionary-word-form-header'>`;
+						contentStr += `<p class='dictionary-word-form-label'>${formStr(catg,formNum)}</p>`;
+						contentStr += `<div class='dictionary-info-bubble'></div>`;
+					contentStr += `</div>`;
+					contentStr += `<p class='dictionary-word-form'>${trySubscript(synonyms[synonymId])}</p>`;
+
+					let speakers = {};
+					for (let [label,file,speaker] of audioResources) {
+						if (label !== synonyms[synonymId]) continue;
+						if (speakers[speaker]) {
+							console.warn(`Duplicate audio for "${label}" with speaker "${speaker}".`);
+						} else {
+							console.log(`Loading audio file "${file}"...`);
+							// can't use ' char in onclick, since filenames contain it
+							contentStr += `<div class='dictionary-audio' onclick="playSound(\`${file}\`)"></div>`;
+							speakers[speaker] = true;
+						}
 					}
-					break;
+				contentStr += `</div>`;
+			});
+			contentStr += `</div>`;
+			// sentences
+			contentStr += `<div class='flex-col dictionary-inset-section'>`;
+			entry.forEachSentence( (sentence,formNums) => {
+				contentStr += `<div class='flex-adapt dictionary-sentence-wrapper'>`;
+					contentStr += `<p class='dictionary-sentence-form'>${formStr(catg,formNums[0])}</p>`;
+					contentStr += `<p class='dictionary-sentence'>${(settings.toggleLang)?sentence.secondary:sentence.primary}</p>`;
+					contentStr += `<p class='dictionary-sentence-translation'>${(settings.toggleLang)?sentence.primary:sentence.secondary}</p>`;
+				contentStr += `</div>`;
+			} );
+			contentStr += `</div>`;
+			// synonyms
+			if (synonyms.length > 0) {
+				contentStr += `<div class='flex-adapt dictionary-synonyms-section'>`;
+					contentStr += `<p>Synonymous with:</p>`;
+					for (let synonym of synonyms) {
+						contentStr += `<p class='dictionary-synonym' onclick="loadEntryFor(\`${synonym}\`)">${synonym}</p>`; // can't use ' in onclick in case synonym contains ' chars
+					}
+				contentStr += `</div>`;
 			}
+
+			// final render
+			document.getElementById('search-goto-dictionary-label').innerHTML = trySubscript(word);
+			dictionaryEntryDisplay.innerHTML = contentStr;
 		}
-		function keyup_search (e) {
-			switch (e.keyCode) {
-				case 16: // manually track [Shift] for [?] detection
-					searchSettings.shiftDown = false;
-					break;
+		// loadEntryFor('blackberry');
+
+
+
+		//// EVENT LISTENERS ////
+
+		// content scaling
+		function onResize () {
+			// use short version of title if necessary
+			updateTitle();
+			// mobile browser url bars take up space without shrinking 100vh, so we need to set a "true height" variable
+			if (window.visualViewport) {
+				CSSVars.set('--screen-height', `${window.visualViewport.height}px`);
+			} else {
+				CSSVars.set('--screen-height', `${window.innerHeight}px`);
 			}
-			// run fragment search on searchbar update
-			filterContainer(resultPanel, searchSettings.elem.value);
+			// can also use document.documentElement.clientHeight if we ever need another fallback
+			// CSSVars.set('--screen-height', `${document.documentElement.clientHeight}px`);
 		}
+		window.addEventListener('resize', onResize); // normal update
+		// document.addEventListener('focusin', onResize); // mobile onscreen keyboards don't always trigger resize, so force update when entering/exiting input
+		// document.addEventListener('focusout', onResize);
+		onResize();
+		// triage: just get screen height every frame, since the "intended way" to do this isn't working
+		function doGetScreenHeight () {
+			window.requestAnimationFrame(doGetScreenHeight);
+
+			onResize();
+		}
+		// doGetScreenHeight();
+		
+		// search bar
+		searchBar.addEventListener('input', e => {
+			searchBar.value = searchBar.value.replaceAll(/\?/ig, 'ʔ');
+			filterSearchResults();
+		});
+
+
+
+		//// INIT ////
+		
+		// reset text inputs
+		searchBar.value = '';
+		// build dynamic content
+		loadEntryFor('blackberry');
+		populateSearchResults();
+
+
+
+		// //// ENV SETUP ////
+
+		// // debug
+		// let t1 = Date.now();
+		// // settings
+		// let langToggle = false;
+		// let searchSettings = {
+		// 	shiftDown: false,
+		// 	elem: undefined,
+		// 	HISTORY_MAX_LENGTH: 5,
+		// 	showHistory: false,
+		// 	showFilters: false,
+		// 	// history
+		// 	historyEng: [],
+		// 	historyChk: [],
+		// 	// catgs
+		// 	// VALID_CATGS: ['all','none','misc',    'noun','adjective','demonstrative','verb','auxiliary verb','pronoun','adverb'],
+		// 	// catgStrs: {
+		// 	// 	'all':'ALL', 'none':'NONE', 'misc':'Misc',
+		// 	// 	'noun':'Noun', 'adjective':'Adjective', 'demonstrative':'Demonstrative',
+		// 	// 	'verb':'Verb','auxiliary verb':'Aux Verb','pronoun':'Pronoun','adverb':'Adverb'
+		// 	// },
+		// 	VALID_CATGS: ['all','noun','adjective','demonstrative','verb','auxiliary verb','pronoun','adverb','misc'],
+		// 	catgStrs: {
+		// 		'all':'SHOW ALL', 'none':'NONE', 'misc':'Misc',
+		// 		'noun':'Noun', 'adjective':'Adj', 'demonstrative':'Dem',
+		// 		'verb':'Verb','auxiliary verb':'Aux Verb','pronoun':'Pronoun','adverb':'Adv'
+		// 	},
+		// 	catgs: ['noun','adjective','demonstrative','verb','auxiliary verb','pronoun','adverb'],
+		// 	catgMisc: true,
+		// 	hasAllCatgs: () => {
+		// 		for (let catg of ['noun','adjective','demonstrative','verb','auxiliary verb','pronoun','adverb'])
+		// 			if (searchSettings.catgs.indexOf(catg) == -1)
+		// 				return false;
+		// 		return searchSettings.catgMisc;
+		// 	},
+		// 	hasNoCatgs: () => {
+		// 		for (let catg of ['noun','adjective','demonstrative','verb','auxiliary verb','pronoun','adverb'])
+		// 			if (searchSettings.catgs.indexOf(catg) != -1)
+		// 				return false;
+		// 		return !searchSettings.catgMisc;
+		// 	}
+		// };
+		// let soundSettings = {
+		// 	player: document.createElement('audio'),
+		// 	speakerAbbreviations: ['H',           'J'         ],
+		// 	speakerNames:         ['Holly Wyatt', 'Jane Wyatt']
+		// };
+
+		
+
+
+
+		// // debug
+		// let badSentenceWordList = [];
+		// function checkSentencesContainForm () {
+		// 	let numBadSentences = 0;
+		// 	dictionary.forEachEntry(entry => {
+		// 		entry.forEachSentence((sentence,sentenceForms) => {
+		// 			// console.log(entry.getPrimary(), sentence, sentenceForms.length);
+		// 			if (sentenceForms.length == 0) {
+		// 				// console.log(entry.getPrimary(), sentence);
+		// 				if (badSentenceWordList.indexOf(entry.getPrimary().join('; ')) == -1) badSentenceWordList.push(entry.getPrimary().join('; '));
+		// 				numBadSentences++;
+		// 			}
+		// 		});
+		// 	});
+		// 	console.log(numBadSentences + ' chukchansi sentences did not contain any listed form.');
+		// 	console.log('Hit dev key [`] to download the list as a text file.');
+		// }
+		// function download(filename, text) {
+		// 	let a = document.createElement('a');
+		// 	a.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+		// 	a.setAttribute('download', filename);
+
+		// 	a.style.display = 'none';
+		// 	document.body.appendChild(a);
+
+		// 	a.click();
+
+		// 	document.body.removeChild(a);
+		// }
+
+		// checkSentencesContainForm();
+		
+
+
+
+		/////////////////////////////////////////////////////////////////////
+
+		//// CORE ////
+
+		
+
+		
+		// function findJasmineResources (entry) {
+		// 	const resourceList = image_jasmine; // english only, images only
+		// 	let forms = [];
+		// 	entry.forEachPrimaryForm((synonyms,formNum) => {
+		// 		for (let synonym of synonyms)
+		// 			forms.push(synonym);
+		// 	});
+		// 	let resources = [];
+		// 	for (let filepath of resourceList) {
+		// 		const filename = filepath.split('/').pop().split('.')[0];
+		// 		const word = filename.split('_')[0];
+		// 		const author = filename.split('_')[1] || 'Unknown';
+		// 		for (let form of forms) {
+		// 			if (form == word) {
+		// 				resources.push([form,filepath,author]);
+		// 			}
+		// 		}
+		// 	}
+		// 	return resources;
+		// }
+		// let jasmineWords = [];
+		// let jasmineBadNames = 0;
+		// for (const image of image_jasmine) {
+		// 	const word = [...image.matchAll(/(?<=\/)[^\/]+(?=\.)/g)][0][0]; // use lookahead/lookbehind to isolate word in filename
+		// 	if (!word) continue;
+		// 	if (dictionary.searchWord(word)) {
+		// 		jasmineWords.push(word);
+		// 	} else {
+		// 		jasmineBadNames++;
+		// 		// console.log('"' + word + '" not found in dictionary');
+		// 	}
+		// }
+		
+		// function filterCatgs () {
+		// 	let elemStr = '';
+
+		// 	for (let c of searchSettings.VALID_CATGS) {
+		// 		const selected =
+		// 			(c == 'all')  ? searchSettings.hasAllCatgs() :
+		// 			(c == 'none') ? searchSettings.hasNoCatgs() :
+		// 			(c == 'misc') ? searchSettings.catgMisc : 
+		// 						searchSettings.catgs.indexOf(c) != -1;
+		// 		const classStr = (selected?'catgLabelSelected':'catgLabel') + ((c=='all') ? (selected?' catgSpecialSelected':' catgSpecial') : '');
+		// 		const onclick = 'toggleCatg(`'+c+'`)';
+		// 		const label = searchSettings.catgStrs[c];
+		// 		elemStr += '<div class="'+classStr+'" onclick="'+onclick+'">' + label + '</div>';
+		// 	}
+
+		// 	document.getElementById('catgsPanel').innerHTML = elemStr;
+		// }
+		// function toggleCatg (catg, multiselect=false) {
+		// 	catg = catg.toLowerCase();
+		// 	if (searchSettings.VALID_CATGS.indexOf(catg) == -1) {
+		// 		console.warn('"'+catg+'" is invalid catg.');
+		// 		return;
+		// 	}
+
+		// 	let active;
+			
+		// 	// // multiselect (click to toggle inclusion)
+		// 	// if (catg == 'all') {
+		// 	// 	searchSettings.catgs = ['noun','adjective','demonstrative','verb','auxiliary verb','pronoun','adverb'];
+		// 	// 	searchSettings.catgMisc = true;
+		// 	// 	active = true;
+		// 	// } else if (catg == 'none') {
+		// 	// 	searchSettings.catgs = [];
+		// 	// 	searchSettings.catgMisc = false;
+		// 	// 	active = false;
+		// 	// } else if (catg == 'misc') {
+		// 	// 	searchSettings.catgMisc = !searchSettings.catgMisc;
+		// 	// 	active = searchSettings.catgMisc;
+		// 	// } else if (searchSettings.catgs.indexOf(catg) == -1) {
+		// 	// 	searchSettings.catgs.push(catg);
+		// 	// 	active = true;
+		// 	// } else {
+		// 	// 	searchSettings.catgs = searchSettings.catgs.filter(x => x!=catg);
+		// 	// 	active = false;
+		// 	// }
+
+		// 	// single select (click to exclude everything else)
+		// 	if (catg == 'all') {
+		// 		searchSettings.catgs = ['noun','adjective','demonstrative','verb','auxiliary verb','pronoun','adverb'];
+		// 		searchSettings.catgMisc = true;
+		// 		active = true;
+		// 	} else if (catg == 'none') {
+		// 		searchSettings.catgs = [];
+		// 		searchSettings.catgMisc = false;
+		// 		active = false;
+		// 	} else if (catg == 'misc') {
+		// 		searchSettings.catgs = [];
+		// 		searchSettings.catgMisc = true;
+		// 		active = true;
+		// 	} else {
+		// 		searchSettings.catgs = [catg];
+		// 		searchSettings.catgMisc = false;
+		// 		active = true;
+		// 	}
+
+		// 	console.log(searchSettings.catgs,'misc',searchSettings.catgMisc);
+		// 	filterCatgs();
+		// 	filterContainer(resultPanel, searchSettings.elem.value);
+		// 	return active;
+		// }
+		// function togglePrimary() {
+		// 	// save current word before toggling lang
+		// 	const history = !langToggle ? 'historyEng' : 'historyChk';
+		// 	const currentWord = searchSettings[history][searchSettings[history].length-1];
+		// 	const currentEntry = dictionary.searchWord(currentWord);
+		// 	const wordTranslation = (!langToggle) ? currentEntry.getSecondary(0)[0] : currentEntry.getPrimary(0)[0];
+		// 	langToggle = dictionary.togglePrimary();
+		// 	// ui
+		// 	document.getElementById('nav-title').innerHTML = (!langToggle) ? `English-Chukchansi Dictionary` : `Chukchansi-English Waayaw Hudaʔhiy'`;
+		// 	document.getElementById('nav-title').style.fontSize = (!langToggle) ? '25px' : '20px';
+		// 	document.getElementById('langToggleTitle').innerHTML = (!langToggle) ? 'en-ch' : 'ch-en';
+		// 	document.getElementById('langToggleSwitch').style.left = (!langToggle) ? '1px' : '11px';
+		// 	// current entry
+		// 	displayEntry(contentPanel, wordTranslation);
+		// 	// history
+		// 	searchSettings.history = [wordTranslation];
+		// 	refreshHistory();
+		// 	// search
+		// 	searchSettings.elem.value = '';
+		// 	searchSettings.elem.placeholder = (!langToggle) ? 'Search...' : 'Yuhgo...';
+		// 	populateContainer(resultPanel);
+		// 	filterContainer(resultPanel, '');
+		// 	resultPanel.scroll(0,0);
+		// 	filterCatgs('all');
+		// 	document.getElementById('searchBar').focus();
+		// }
+		// function clearSearch() {
+		// 	searchSettings.showHistory = false;
+		// 	refreshHistory();
+		// 	searchSettings.elem.value = '';
+		// 	filterContainer(resultPanel, '');
+		// 	resultPanel.scroll(0, 0);
+		// 	document.getElementById('searchBar').focus();
+		// }
+
+		// function keydown_search (e) {
+		// 	switch (e.keyCode) {
+		// 		case 27: // [Esc] to defocus search box
+		// 			e.preventDefault();
+		// 			searchSettings.elem.blur();
+		// 			searchSettings.suggestionsElem.style.display = 'none';
+		// 			console.log('defocused search');
+		// 			break;
+		// 		case 9: // prevent [Tab] from leaving search box
+		// 			e.preventDefault();
+		// 			console.log('blocked tab-out');
+		// 			break;
+		// 		case 13: // prevent [Enter] from trying to submit page
+		// 			e.preventDefault();
+		// 			break;
+		// 		case 16: // manually track [Shift] for [?] detection
+		// 			searchSettings.shiftDown = true;
+		// 			break;
+		// 		case 191: // change [?] to [ʔ]
+		// 			if (searchSettings.shiftDown) {
+		// 				e.preventDefault();
+		// 				searchSettings.elem.value += 'ʔ';
+		// 			}
+		// 			break;
+		// 	}
+		// }
+		// function keyup_search (e) {
+		// 	switch (e.keyCode) {
+		// 		case 16: // manually track [Shift] for [?] detection
+		// 			searchSettings.shiftDown = false;
+		// 			break;
+		// 	}
+		// 	// run fragment search on searchbar update
+		// 	filterContainer(resultPanel, searchSettings.elem.value);
+		// }
 
 		/////////////////////////////////////////////////////////////////////
 
 		//// DISPLAY ////
 
-		const subscriptFind = new RegExp('_([0-9]*)', 'ig'); // global, case-insensitive
-		const subscriptReplace = '<sub>$1</sub>';
-		const trySubscript = (text='') => text.replaceAll(subscriptFind, subscriptReplace);
+		
 
-		function refreshFilters () {
-			if (searchSettings.showFilters) {
-				document.getElementById('filterCatgArrow').classList.remove('arrowDown');
-				document.getElementById('filterCatgArrow').classList.add('arrowUp');
-				document.getElementById('catgsPanel').style.visibility = 'visible';
-				// catgsPanel can't have sliding animation since it has dynamic height and css doesn't allow transitions to/from "auto"
-			} else {
-				document.getElementById('filterCatgArrow').classList.remove('arrowUp');
-				document.getElementById('filterCatgArrow').classList.add('arrowDown');
-				document.getElementById('catgsPanel').style.visibility = 'hidden';
-			}
+		// function refreshFilters () {
+		// 	if (searchSettings.showFilters) {
+		// 		document.getElementById('filterCatgArrow').classList.remove('arrowDown');
+		// 		document.getElementById('filterCatgArrow').classList.add('arrowUp');
+		// 		document.getElementById('catgsPanel').style.visibility = 'visible';
+		// 		// catgsPanel can't have sliding animation since it has dynamic height and css doesn't allow transitions to/from "auto"
+		// 	} else {
+		// 		document.getElementById('filterCatgArrow').classList.remove('arrowUp');
+		// 		document.getElementById('filterCatgArrow').classList.add('arrowDown');
+		// 		document.getElementById('catgsPanel').style.visibility = 'hidden';
+		// 	}
 
-			console.log('toggle');
-		}
-		function refreshHistory () {
-			if (searchSettings.showHistory) {
-				document.getElementById('searchHistoryArrow').classList.remove('arrowDown');
-				document.getElementById('searchHistoryArrow').classList.add('arrowUp');
-			} else {
-				document.getElementById('searchHistoryArrow').classList.remove('arrowUp');
-				document.getElementById('searchHistoryArrow').classList.add('arrowDown');
-			}
+		// 	console.log('toggle');
+		// }
+		// function refreshHistory () {
+		// 	if (searchSettings.showHistory) {
+		// 		document.getElementById('searchHistoryArrow').classList.remove('arrowDown');
+		// 		document.getElementById('searchHistoryArrow').classList.add('arrowUp');
+		// 	} else {
+		// 		document.getElementById('searchHistoryArrow').classList.remove('arrowUp');
+		// 		document.getElementById('searchHistoryArrow').classList.add('arrowDown');
+		// 	}
 
-			const history = !langToggle ? searchSettings.historyEng : searchSettings.historyChk;
+		// 	const history = !langToggle ? searchSettings.historyEng : searchSettings.historyChk;
 
-			let elemStr = '';
+		// 	let elemStr = '';
 
-			for (let i = history.length-1; i >= 0; i--) {
-				const word = history[i];
-				elemStr += '<div class="historyEntry" onclick="displayEntry(contentPanel,`'+word+'`);">' + trySubscript(word) + '</div>';
-			}
+		// 	for (let i = history.length-1; i >= 0; i--) {
+		// 		const word = history[i];
+		// 		elemStr += '<div class="historyEntry" onclick="displayEntry(contentPanel,`'+word+'`);">' + trySubscript(word) + '</div>';
+		// 	}
 
-			document.getElementById('historyPanel').innerHTML = elemStr;
-			document.getElementById('historyPanel').style.display = searchSettings.showHistory ? 'initial' : 'none';
-		}
+		// 	document.getElementById('historyPanel').innerHTML = elemStr;
+		// 	document.getElementById('historyPanel').style.display = searchSettings.showHistory ? 'initial' : 'none';
+		// }
 
-		function entryHTML (entry, word) {
-			const chkForm0 = entry.getSecondary(0);
-			const chkForm1 = entry.getSecondary(1);
-			const chkForms = chkForm1 ? (chkForm0[0]+', '+chkForm1[0]) : chkForm0[0];
-			const engForm0 = entry.getPrimary().join(', ');
+		// function entryHTML (entry, word) {
+		// 	const chkForm0 = entry.getSecondary(0);
+		// 	const chkForm1 = entry.getSecondary(1);
+		// 	const chkForms = chkForm1 ? (chkForm0[0]+', '+chkForm1[0]) : chkForm0[0];
+		// 	const engForm0 = entry.getPrimary().join(', ');
 
-			const catg = entry.catg;
+		// 	const catg = entry.catg;
 
-			let audioResources = findResources(entry, audio_en_ch);
-			let imageResources = findResources(entry, image_en_ch);
-			let imageResourcesJasmine = findJasmineResources(entry);
+		// 	let audioResources = findResources(entry, audio_en_ch);
+		// 	let imageResources = findResources(entry, image_en_ch);
+		// 	let imageResourcesJasmine = findJasmineResources(entry);
 
-			let elemStr = '';
+		// 	let elemStr = '';
 
-			elemStr += '<div id="'+word+'" class="searchResult" onclick="displayEntry(document.getElementById(`contentPanel`), `'+word+'`);">';
-				elemStr += '<p style="float:left;"><span class="searchResultText">';
-					elemStr += trySubscript(word);
-				elemStr += '</span></p>';
-				if (audioResources.length > 0) elemStr += '<div class="searchResultAudioIcon"></div>';
-				if (imageResources.length > 0) elemStr += '<div class="searchResultImageIcon"></div>';
-				if (imageResourcesJasmine.length > 0) elemStr += '<div class="jasmineImageIcon"></div>';
-			elemStr += '</div>';
+		// 	elemStr += '<div id="'+word+'" class="searchResult" onclick="displayEntry(document.getElementById(`contentPanel`), `'+word+'`);">';
+		// 		elemStr += '<p style="float:left;"><span class="searchResultText">';
+		// 			elemStr += trySubscript(word);
+		// 		elemStr += '</span></p>';
+		// 		if (audioResources.length > 0) elemStr += '<div class="searchResultAudioIcon"></div>';
+		// 		if (imageResources.length > 0) elemStr += '<div class="searchResultImageIcon"></div>';
+		// 		if (imageResourcesJasmine.length > 0) elemStr += '<div class="jasmineImageIcon"></div>';
+		// 	elemStr += '</div>';
 
-			return elemStr;
-		}
+		// 	return elemStr;
+		// }
 
-		function populateContainer (container) {
-			const tPop = Date.now();
+// 		function populateContainer (container) {
+// 			const tPop = Date.now();
 
-			let elemStr = '';
-			dictionary.forEachSynonym((entry, word) => { elemStr += entryHTML(entry, word); });
-			elemStr += '<p id="noResultsText" style="display:none">No results...</p>';
-			container.innerHTML = elemStr;
+// 			let elemStr = '';
+// 			dictionary.forEachSynonym((entry, word) => { elemStr += entryHTML(entry, word); });
+// 			elemStr += '<p id="noResultsText" style="display:none">No results...</p>';
+// 			container.innerHTML = elemStr;
 
-			console.log('DOM elements generated in ' + (Date.now()-tPop) + 'ms.');
-		}
+// 			console.log('DOM elements generated in ' + (Date.now()-tPop) + 'ms.');
+// 		}
 
-		function filterContainer (container, fragment) {
-			const searchFragFromStart = new RegExp('^'+fragment, 'i'); // case insensitive
+// 		function filterContainer (container, fragment) {
+// 			const searchFragFromStart = new RegExp('^'+fragment, 'i'); // case insensitive
 
-			let numResults = 0;
-			let results = [];
+// 			let numResults = 0;
+// 			let results = [];
 
-			dictionary.forEachSynonym((entry, word) => {
-				const match = searchFragFromStart.test(word);
-				const catgMatch = (searchSettings.VALID_CATGS.indexOf(entry.catg) == -1 && searchSettings.catgMisc) || searchSettings.catgs.indexOf(entry.catg) != -1;
-				const entryElem = document.getElementById(word);
+// 			dictionary.forEachSynonym((entry, word) => {
+// 				const match = searchFragFromStart.test(word);
+// 				const catgMatch = (searchSettings.VALID_CATGS.indexOf(entry.catg) == -1 && searchSettings.catgMisc) || searchSettings.catgs.indexOf(entry.catg) != -1;
+// 				const entryElem = document.getElementById(word);
 
-				if (match && catgMatch) {numResults++; results.push(word);}
+// 				if (match && catgMatch) {numResults++; results.push(word);}
 
-				// entryElem.style.backgroundColor = (match && catgMatch) ? '#ffffff' : '#ff0000';
-				entryElem.style.display = (match && catgMatch) ? 'block' : 'none';
-			});
+// 				// entryElem.style.backgroundColor = (match && catgMatch) ? '#ffffff' : '#ff0000';
+// 				entryElem.style.display = (match && catgMatch) ? 'block' : 'none';
+// 			});
 
-			document.getElementById('noResultsText').style.display = numResults>0 ? 'none' : 'block';
+// 			document.getElementById('noResultsText').style.display = numResults>0 ? 'none' : 'block';
 
-			console.log('Searching "'+fragment+'": '+numResults + ' matches');
-			console.log(results);
-		}
+// 			console.log('Searching "'+fragment+'": '+numResults + ' matches');
+// 			console.log(results);
+// 		}
 
-		function displayEntry (container, word) {
-			// record word to history
-			const history = !langToggle ? 'historyEng' : 'historyChk';
-			searchSettings[history] = searchSettings[history].filter(x => x != word);
-			searchSettings[history].push(word);
-			if (searchSettings[history].length > searchSettings.HISTORY_MAX_LENGTH) searchSettings[history].shift();
-			searchSettings.showHistory = false;
-			refreshHistory();
+// 		function displayEntry (container, word) {
+// 			// record word to history
+// 			const history = !langToggle ? 'historyEng' : 'historyChk';
+// 			searchSettings[history] = searchSettings[history].filter(x => x != word);
+// 			searchSettings[history].push(word);
+// 			if (searchSettings[history].length > searchSettings.HISTORY_MAX_LENGTH) searchSettings[history].shift();
+// 			searchSettings.showHistory = false;
+// 			refreshHistory();
 
-			// prep data
-			const entry = dictionary.searchWord(word);
-			// console.log(entry);
+// 			// prep data
+// 			const entry = dictionary.searchWord(word);
+// 			// console.log(entry);
 
-			const chkForm0 = entry.getSecondary(0);
-			const chkForm1 = entry.getSecondary(1);
-			const chkForms = chkForm1 ? (chkForm0[0]+', '+chkForm1[0]) : chkForm0[0];
-			const engForm0 = entry.getPrimary().join(', ');
+// 			const chkForm0 = entry.getSecondary(0);
+// 			const chkForm1 = entry.getSecondary(1);
+// 			const chkForms = chkForm1 ? (chkForm0[0]+', '+chkForm1[0]) : chkForm0[0];
+// 			const engForm0 = entry.getPrimary().join(', ');
 
-			const title 		= !langToggle	? word			: chkForms;
-			const titleTrans	=  langToggle	? engForm0		: chkForms;
-			const catg			= entry.catg;
-			const wordForms	    = [];
-			const sentences		= [];
-			const sentenceFormStrs = [];
-			const synonyms		= entry.getPrimarySynonyms(word);
+// 			const title 		= !langToggle	? word			: chkForms;
+// 			const titleTrans	=  langToggle	? engForm0		: chkForms;
+// 			const catg			= entry.catg;
+// 			const wordForms	    = [];
+// 			const sentences		= [];
+// 			const sentenceFormStrs = [];
+// 			const synonyms		= entry.getPrimarySynonyms(word);
 
-			// if (!langToggle) entry.forEachSecondaryForm( (synonyms,formNum) => {if (formNum > 1) wordForms.push([synonyms[0],formNum])} );
-			entry.forEachSecondaryForm( (synonyms,formNum) => {if (formNum > 1) wordForms.push([synonyms[0],formNum])} );
+// 			// if (!langToggle) entry.forEachSecondaryForm( (synonyms,formNum) => {if (formNum > 1) wordForms.push([synonyms[0],formNum])} );
+// 			entry.forEachSecondaryForm( (synonyms,formNum) => {if (formNum > 1) wordForms.push([synonyms[0],formNum])} );
 
-			entry.forEachSentence( (sentence,formNum) => {
-				// console.log(sentence,formNum);
-				sentences.push(
-					(!langToggle)
-						? {base:sentence.primary, trans:sentence.secondary}
-						: {base:sentence.secondary, trans:sentence.primary}
-				);
-				sentenceFormStrs.push(
-					(dictionary._sLang.hasForm(catg,formNum[0]))
-						? '(' + capitalize(dictionary._sLang.formStr(catg,formNum[0])) + ') '
-						: ''
-				);
-			} );
-			console.log('Found ' + sentences.length + ' sentences for entry "' + word + '".');
-			console.log(sentences);
-			console.log(sentenceFormStrs);
+// 			entry.forEachSentence( (sentence,formNum) => {
+// 				// console.log(sentence,formNum);
+// 				sentences.push(
+// 					(!langToggle)
+// 						? {base:sentence.primary, trans:sentence.secondary}
+// 						: {base:sentence.secondary, trans:sentence.primary}
+// 				);
+// 				sentenceFormStrs.push(
+// 					(dictionary._sLang.hasForm(catg,formNum[0]))
+// 						? '(' + capitalize(dictionary._sLang.formStr(catg,formNum[0])) + ') '
+// 						: ''
+// 				);
+// 			} );
+// 			console.log('Found ' + sentences.length + ' sentences for entry "' + word + '".');
+// 			console.log(sentences);
+// 			console.log(sentenceFormStrs);
 
-			// scan for additional media resources
-			const audioResources = findResources(entry, audio_en_ch);
-			const imageResources = findResources(entry, image_en_ch);
-			for (let [form,file,author] of audioResources) console.log(word+' has audio resource for '+form+': '+file);
-			for (let [form,file,author] of imageResources) console.log(word+' has image resource for '+form+': '+file);
+// 			// scan for additional media resources
+// 			const audioResources = findResources(entry, audio_en_ch);
+// 			const imageResources = findResources(entry, image_en_ch);
+// 			for (let [form,file,author] of audioResources) console.log(word+' has audio resource for '+form+': '+file);
+// 			for (let [form,file,author] of imageResources) console.log(word+' has image resource for '+form+': '+file);
 
-			let elemStr = '';
+// 			let elemStr = '';
 
-			// title
-			elemStr += '<div id="entryTitle">';
-				elemStr += '<p>';
-					elemStr += '<span class="entryTitleText">' + trySubscript(title) + '</span>';
-					elemStr += '<span class="entryCatgText">' + catg + '</span>';
-					elemStr += '<span class="entryTranslationText">' + trySubscript(titleTrans) + '</span>';
-				elemStr += '</p>';
-			elemStr += '</div>';
-			elemStr += '<div id="entryData">';
-				// extra forms
-				if (wordForms.length > 0) {
-					elemStr += '<span class="dataRow">';
-						elemStr += '<span class="dataHeader">FORMS</span>';
-					elemStr += '</span>';
-				}
-				for (let [synonym,formNum] of wordForms) {
-					elemStr += '<span class="dataRow">';
-						// elemStr += '<span class="formName">' + capitalize(dictionary[langToggle?'_pLang':'_sLang'].formStr(catg,formNum)) + ':</span>';
-						elemStr += '<span class="formName">' + capitalize(dictionary['_sLang'].formStr(catg,formNum)) + ':</span>';
-						elemStr += '<span class="formWord">' + trySubscript(synonym) + '</span>';
-					elemStr += '</span>';
-				}
-				// audio
-				if (wordForms.length > 0 && audioResources.length > 0) {
-					elemStr += '<br>';
-				}
-				if (audioResources.length > 0) {
-					elemStr += '<span class="dataRow">';
-						elemStr += '<span class="dataHeader">EXAMPLES</span>';
-					elemStr += '</span>';
-				}
-				for (let [form,file,author] of audioResources) {
-					const speakerName = soundSettings.speakerNames[ soundSettings.speakerAbbreviations.indexOf(author) ] || 'Unknown Speaker';
-					elemStr += '<span class="dataRow">';
-						elemStr += '<div class="soundFileIcon" onclick="playSound(`' + file + '`)"></div>';
-						elemStr += '<span class="soundFileName">' + trySubscript(form) + '</span>';
-						elemStr += '<span class="soundFileSpeaker">(Spoken by ' + speakerName + ')</span>';
-					elemStr += '</span>';
-				}
-			elemStr += '</div>';
-			// sentences
-			elemStr += '<br>';
-			elemStr += '<div id="entrySentences">';
-				elemStr += '<p>';
-					for (let i = 0; i < sentences.length; i++) {
-						elemStr += '<span class="entrySentence">';
-							elemStr += sentenceFormStrs[i];
-							elemStr += '<span class="entrySentenceText">' + trySubscript(sentences[i].base) + '</span>';
-							elemStr += '<span class="entrySentenceTranslation">' + trySubscript(sentences[i].trans) + '</span>';
-						elemStr += '</span>';
-					}
-					if (sentences.length == 0) {
-						elemStr += '<span class="entrySentenceText">[[ no example sentences ]]</span>';
-					}
-				elemStr += '</p>';
-			elemStr += '</div>';
-			// synonyms
-			if (synonyms.length > 0) {
-				elemStr += '<div id="synonyms">';
-					elemStr += 'Synonymous with:';
-					for (let synonym of synonyms) {
-						elemStr += '<span class="synonym" onclick="displayEntry(contentPanel, `' + synonym + '`)">' + trySubscript(synonym) + '</span>';
-					}
-				elemStr += '</div>';
-			}
-			// images
-			if (imageResources.length > 0) {
-				const [form,file,author] = imageResources[0];
-				elemStr += '<div id="imageBox">';
-					elemStr += '<img src="source/' + file + '" style="display:block;max-width:200px;max-height:130px;">'; // display:block to remove inline whitespacing
-					elemStr += '<p class="imageEnlargeText">Click to enlarge</p>';
-					elemStr += '<div class="imageHoverBackground" onclick="displayModalImage(`'+file+'`)"><div class="imageHoverPlus"></div></div>'
-				elemStr += '</div>';
-			}
+// 			// title
+// 			elemStr += '<div id="entryTitle">';
+// 				elemStr += '<p>';
+// 					elemStr += '<span class="entryTitleText">' + trySubscript(title) + '</span>';
+// 					elemStr += '<span class="entryCatgText">' + catg + '</span>';
+// 					elemStr += '<span class="entryTranslationText">' + trySubscript(titleTrans) + '</span>';
+// 				elemStr += '</p>';
+// 			elemStr += '</div>';
+// 			elemStr += '<div id="entryData">';
+// 				// extra forms
+// 				if (wordForms.length > 0) {
+// 					elemStr += '<span class="dataRow">';
+// 						elemStr += '<span class="dataHeader">FORMS</span>';
+// 					elemStr += '</span>';
+// 				}
+// 				for (let [synonym,formNum] of wordForms) {
+// 					elemStr += '<span class="dataRow">';
+// 						// elemStr += '<span class="formName">' + capitalize(dictionary[langToggle?'_pLang':'_sLang'].formStr(catg,formNum)) + ':</span>';
+// 						elemStr += '<span class="formName">' + capitalize(dictionary['_sLang'].formStr(catg,formNum)) + ':</span>';
+// 						elemStr += '<span class="formWord">' + trySubscript(synonym) + '</span>';
+// 					elemStr += '</span>';
+// 				}
+// 				// audio
+// 				if (wordForms.length > 0 && audioResources.length > 0) {
+// 					elemStr += '<br>';
+// 				}
+// 				if (audioResources.length > 0) {
+// 					elemStr += '<span class="dataRow">';
+// 						elemStr += '<span class="dataHeader">EXAMPLES</span>';
+// 					elemStr += '</span>';
+// 				}
+// 				for (let [form,file,author] of audioResources) {
+// 					const speakerName = soundSettings.speakerNames[ soundSettings.speakerAbbreviations.indexOf(author) ] || 'Unknown Speaker';
+// 					elemStr += '<span class="dataRow">';
+// 						elemStr += '<div class="soundFileIcon" onclick="playSound(`' + file + '`)"></div>';
+// 						elemStr += '<span class="soundFileName">' + trySubscript(form) + '</span>';
+// 						elemStr += '<span class="soundFileSpeaker">(Spoken by ' + speakerName + ')</span>';
+// 					elemStr += '</span>';
+// 				}
+// 			elemStr += '</div>';
+// 			// sentences
+// 			elemStr += '<br>';
+// 			elemStr += '<div id="entrySentences">';
+// 				elemStr += '<p>';
+// 					for (let i = 0; i < sentences.length; i++) {
+// 						elemStr += '<span class="entrySentence">';
+// 							elemStr += sentenceFormStrs[i];
+// 							elemStr += '<span class="entrySentenceText">' + trySubscript(sentences[i].base) + '</span>';
+// 							elemStr += '<span class="entrySentenceTranslation">' + trySubscript(sentences[i].trans) + '</span>';
+// 						elemStr += '</span>';
+// 					}
+// 					if (sentences.length == 0) {
+// 						elemStr += '<span class="entrySentenceText">[[ no example sentences ]]</span>';
+// 					}
+// 				elemStr += '</p>';
+// 			elemStr += '</div>';
+// 			// synonyms
+// 			if (synonyms.length > 0) {
+// 				elemStr += '<div id="synonyms">';
+// 					elemStr += 'Synonymous with:';
+// 					for (let synonym of synonyms) {
+// 						elemStr += '<span class="synonym" onclick="displayEntry(contentPanel, `' + synonym + '`)">' + trySubscript(synonym) + '</span>';
+// 					}
+// 				elemStr += '</div>';
+// 			}
+// 			// images
+// 			if (imageResources.length > 0) {
+// 				const [form,file,author] = imageResources[0];
+// 				elemStr += '<div id="imageBox">';
+// 					elemStr += '<img src="source/' + file + '" style="display:block;max-width:200px;max-height:130px;">'; // display:block to remove inline whitespacing
+// 					elemStr += '<p class="imageEnlargeText">Click to enlarge</p>';
+// 					elemStr += '<div class="imageHoverBackground" onclick="displayModalImage(`'+file+'`)"><div class="imageHoverPlus"></div></div>'
+// 				elemStr += '</div>';
+// 			}
 			
-			container.innerHTML = elemStr;
+// 			container.innerHTML = elemStr;
 			
-			// scroll to top, since we just clicked a new word
-			container.scroll(0,0);
-		}
+// 			// scroll to top, since we just clicked a new word
+// 			container.scroll(0,0);
+// 		}
 
-		function displayModalImage (file) {
-			// modal overlay (transparent background)
-			let modalOverlay = document.createElement('div');
-			modalOverlay.classList.add('modalOverlay');
-			modalOverlay.onclick = () => {
-				console.log('close');
-				document.body.removeChild(modalOverlay);
-			};
-			document.body.appendChild(modalOverlay);
-			// modal
-			let modalWrapper = document.createElement('div');
-			modalWrapper.classList.add('modalWrapper');
-			modalOverlay.appendChild(modalWrapper);
-			modalWrapper.innerHTML = '<img src="source/' + file + '" style="display:block;border-radius:12px;max-width:500px;max-height:500px;">';
-			let modalCloseButton = document.createElement('div');
-			modalCloseButton.classList.add('modalCloseButton');
-			modalWrapper.appendChild(modalCloseButton);
-		}
+// 		function displayModalImage (file) {
+// 			// modal overlay (transparent background)
+// 			let modalOverlay = document.createElement('div');
+// 			modalOverlay.classList.add('modalOverlay');
+// 			modalOverlay.onclick = () => {
+// 				console.log('close');
+// 				document.body.removeChild(modalOverlay);
+// 			};
+// 			document.body.appendChild(modalOverlay);
+// 			// modal
+// 			let modalWrapper = document.createElement('div');
+// 			modalWrapper.classList.add('modalWrapper');
+// 			modalOverlay.appendChild(modalWrapper);
+// 			modalWrapper.innerHTML = '<img src="source/' + file + '" style="display:block;border-radius:12px;max-width:500px;max-height:500px;">';
+// 			let modalCloseButton = document.createElement('div');
+// 			modalCloseButton.classList.add('modalCloseButton');
+// 			modalWrapper.appendChild(modalCloseButton);
+// 		}
 
-		function init(dictionary) {
-			// add stopgap navbar before mobile-friendliness overhaul
-			let navBar = document.createElement('div');
-				navBar.id = 'nav-bar';
-				navBar.innerHTML = `<h1 id='nav-title'>English-Chukchansi Dictionary</h1>
-<nav id='nav-menu' role='navigation'>
-	<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="24" height="24" stroke-width="1.25" style='width:100%;height:100%;pointer-events:none;'>
-		<path d="M5 8l14 0"></path>
-		<path d="M5 12l14 0"></path>
-		<path d="M5 16l14 0"></path>
-	</svg>
-	<ul id='nav-dropdown' class='flex-row'>
-		<div class='flex-col'>
-			<!-- <li><a>Home</a></li> -->
-			<p class='nav-greyed-out'>Home</p>
-		</div>
-		<div class='flex-col'>
-			<li><a href='speaking-dictionary'>Speaking Dictionary</a></li>
-			<li><a href='pdf-dictionary'>PDF Dictionary</a></li>
-			<li><a href='stories'>Story Reader</a></li>
-			<li><a href='wordsearch'>Wordsearch</a></li>
-		</div>
-	</ul>
-</nav>`;
-			document.body.appendChild(navBar);
+// 		function init(dictionary) {
+// 			// add stopgap navbar before mobile-friendliness overhaul
+// 			let navBar = document.createElement('div');
+// 				navBar.id = 'nav-bar';
+// 				navBar.innerHTML = `<h1 id='nav-title'>English-Chukchansi Dictionary</h1>
+// <nav id='nav-menu' role='navigation'>
+// 	<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="24" height="24" stroke-width="1.25" style='width:100%;height:100%;pointer-events:none;'>
+// 		<path d="M5 8l14 0"></path>
+// 		<path d="M5 12l14 0"></path>
+// 		<path d="M5 16l14 0"></path>
+// 	</svg>
+// 	<ul id='nav-dropdown' class='flex-row'>
+// 		<div class='flex-col'>
+// 			<!-- <li><a>Home</a></li> -->
+// 			<p class='nav-greyed-out'>Home</p>
+// 		</div>
+// 		<div class='flex-col'>
+// 			<li><a href='speaking-dictionary'>Speaking Dictionary</a></li>
+// 			<li><a href='pdf-dictionary'>PDF Dictionary</a></li>
+// 			<li><a href='stories'>Story Reader</a></li>
+// 			<li><a href='wordsearch'>Wordsearch</a></li>
+// 		</div>
+// 	</ul>
+// </nav>`;
+// 			document.body.appendChild(navBar);
 
-			// add content containers
-			let searchPanel = document.createElement('div');
-				searchPanel.id = 'searchPanel';
-			document.body.appendChild(searchPanel);
-			let resultPanel = document.createElement('div');
-				resultPanel.id = 'resultPanel';
-				resultPanel.classList.add('noScrollbar');
-			document.body.appendChild(resultPanel);
-			let contentPanel = document.createElement('div');
-				contentPanel.id = 'contentPanel';
-				contentPanel.classList.add('noScrollbar');
-			document.body.appendChild(contentPanel);
+// 			// add content containers
+// 			let searchPanel = document.createElement('div');
+// 				searchPanel.id = 'searchPanel';
+// 			document.body.appendChild(searchPanel);
+// 			let resultPanel = document.createElement('div');
+// 				resultPanel.id = 'resultPanel';
+// 				resultPanel.classList.add('noScrollbar');
+// 			document.body.appendChild(resultPanel);
+// 			let contentPanel = document.createElement('div');
+// 				contentPanel.id = 'contentPanel';
+// 				contentPanel.classList.add('noScrollbar');
+// 			document.body.appendChild(contentPanel);
 			
-			let filterPanel = document.createElement('div');
-				filterPanel.id = 'filterPanel';
-				filterPanel.innerHTML = '<p id="filterCatgText">Filter by part of speech</p><div id="filterCatgButton"><div id="filterCatgArrow" class="arrowDown"></div></div>';
-			document.body.appendChild(filterPanel);
-			let filterText = document.getElementById('filterCatgText');
-			let filterButton = document.getElementById('filterCatgButton');
-			let catgsPanel = document.createElement('div');
-				catgsPanel.id = 'catgsPanel';
-			document.body.appendChild(catgsPanel);
+// 			let filterPanel = document.createElement('div');
+// 				filterPanel.id = 'filterPanel';
+// 				filterPanel.innerHTML = '<p id="filterCatgText">Filter by part of speech</p><div id="filterCatgButton"><div id="filterCatgArrow" class="arrowDown"></div></div>';
+// 			document.body.appendChild(filterPanel);
+// 			let filterText = document.getElementById('filterCatgText');
+// 			let filterButton = document.getElementById('filterCatgButton');
+// 			let catgsPanel = document.createElement('div');
+// 				catgsPanel.id = 'catgsPanel';
+// 			document.body.appendChild(catgsPanel);
 
-			// initialize blank search
-			let search = document.createElement('input');
-				search.setAttribute('type', 'text');
-				search.id = 'searchBar';
-				search.placeholder = 'Search...';
-				search.value = '';
-			searchPanel.appendChild(search);
-			searchSettings.elem = search;
-			populateContainer(resultPanel);
-			// add buttons to search box
-			let searchClearButton = document.createElement('div');
-				searchClearButton.id = 'searchClearButton';
-				searchClearButton.innerHTML = '<div class="searchClearCross" style="transform: translate(-50%, -50%) rotate(45deg)"></div>'
-											+ '<div class="searchClearCross" style="transform: translate(-50%, -50%) rotate(-45deg)"></div>';
-				searchClearButton.onclick = clearSearch;
-			searchPanel.appendChild(searchClearButton);
-			let searchHistoryButton = document.createElement('div');
-				searchHistoryButton.id = 'searchHistoryButton';
-				searchHistoryButton.innerHTML = '<div id="searchHistoryArrow" class="arrowDown"></div>';
-			searchPanel.appendChild(searchHistoryButton);
-			// initialize empty history
-			let history = document.createElement('div');
-				history.id = 'historyPanel';
-				history.style.display = 'none';
-			searchPanel.appendChild(history);
-			refreshHistory();
-			// add language toggle
-			let langToggleTab = document.createElement('div');
-				langToggleTab.id = 'hangingTab';
-			navBar.appendChild(langToggleTab);
-			let langToggleTitle = document.createElement('span');
-				langToggleTitle.id = 'langToggleTitle';
-				langToggleTitle.innerHTML = 'en-ch';
-			langToggleTab.appendChild(langToggleTitle);
-			let langToggle = document.createElement('div');
-				langToggle.id = 'langToggle';
-				langToggle.onclick = togglePrimary;
-			langToggleTab.appendChild(langToggle);
-			let langToggleSwitch = document.createElement('div');
-				langToggleSwitch.id = 'langToggleSwitch';
-			langToggle.appendChild(langToggleSwitch);
+// 			// initialize blank search
+// 			let search = document.createElement('input');
+// 				search.setAttribute('type', 'text');
+// 				search.id = 'searchBar';
+// 				search.placeholder = 'Search...';
+// 				search.value = '';
+// 			searchPanel.appendChild(search);
+// 			searchSettings.elem = search;
+// 			populateContainer(resultPanel);
+// 			// add buttons to search box
+// 			let searchClearButton = document.createElement('div');
+// 				searchClearButton.id = 'searchClearButton';
+// 				searchClearButton.innerHTML = '<div class="searchClearCross" style="transform: translate(-50%, -50%) rotate(45deg)"></div>'
+// 											+ '<div class="searchClearCross" style="transform: translate(-50%, -50%) rotate(-45deg)"></div>';
+// 				searchClearButton.onclick = clearSearch;
+// 			searchPanel.appendChild(searchClearButton);
+// 			let searchHistoryButton = document.createElement('div');
+// 				searchHistoryButton.id = 'searchHistoryButton';
+// 				searchHistoryButton.innerHTML = '<div id="searchHistoryArrow" class="arrowDown"></div>';
+// 			searchPanel.appendChild(searchHistoryButton);
+// 			// initialize empty history
+// 			let history = document.createElement('div');
+// 				history.id = 'historyPanel';
+// 				history.style.display = 'none';
+// 			searchPanel.appendChild(history);
+// 			refreshHistory();
+// 			// add language toggle
+// 			let langToggleTab = document.createElement('div');
+// 				langToggleTab.id = 'hangingTab';
+// 			navBar.appendChild(langToggleTab);
+// 			let langToggleTitle = document.createElement('span');
+// 				langToggleTitle.id = 'langToggleTitle';
+// 				langToggleTitle.innerHTML = 'en-ch';
+// 			langToggleTab.appendChild(langToggleTitle);
+// 			let langToggle = document.createElement('div');
+// 				langToggle.id = 'langToggle';
+// 				langToggle.onclick = togglePrimary;
+// 			langToggleTab.appendChild(langToggle);
+// 			let langToggleSwitch = document.createElement('div');
+// 				langToggleSwitch.id = 'langToggleSwitch';
+// 			langToggle.appendChild(langToggleSwitch);
 
-			// activate controls and search/history logic
-			search.addEventListener('keydown', keydown_search);
-			search.addEventListener('keyup', keyup_search);
-			window.addEventListener('click', (e) => {
-				if (searchHistoryButton.contains(e.target)) {
-					searchSettings.showHistory = !searchSettings.showHistory;
-					refreshHistory();
-				} else if (!searchPanel.contains(e.target)) {
-					searchSettings.showHistory = false;
-					refreshHistory();
-				}
-				// console.log(e.target, catgsPanel.contains(e.target));
-				if (filterButton.contains(e.target) || filterText.contains(e.target)) {
-					// console.log('filter dropdown arrow/text');
-					searchSettings.showFilters = !searchSettings.showFilters;
-					refreshFilters();
-				} else if (!catgsPanel.contains(e.target)) {
-					// console.log('outside filter dropdown and catg filter panel');
-					// // this is broken because filterCatgs() rebuilds catgsPanel from scratch, so old button element is no longer part of catgsPanel
-					// searchSettings.showFilters = false;
-					// refreshFilters();
-				} else {
-					// console.log('inside catg filter panel');
-				}
-			});
-			window.addEventListener('keydown', (e) => {
-				switch (e.key) {
-				case '`': // [`] for dev action
-					console.log('dev action');
-					download('sentence-corrections.txt', badSentenceWordList.length + ' entries need corrections:\n\n' + badSentenceWordList.join('\n'));
-					break;
-				}
-			});
-			filterCatgs();
-			// display initial entry
-			displayEntry(contentPanel, 'blackberry');
-		}
+// 			// activate controls and search/history logic
+// 			search.addEventListener('keydown', keydown_search);
+// 			search.addEventListener('keyup', keyup_search);
+// 			window.addEventListener('click', (e) => {
+// 				if (searchHistoryButton.contains(e.target)) {
+// 					searchSettings.showHistory = !searchSettings.showHistory;
+// 					refreshHistory();
+// 				} else if (!searchPanel.contains(e.target)) {
+// 					searchSettings.showHistory = false;
+// 					refreshHistory();
+// 				}
+// 				// console.log(e.target, catgsPanel.contains(e.target));
+// 				if (filterButton.contains(e.target) || filterText.contains(e.target)) {
+// 					// console.log('filter dropdown arrow/text');
+// 					searchSettings.showFilters = !searchSettings.showFilters;
+// 					refreshFilters();
+// 				} else if (!catgsPanel.contains(e.target)) {
+// 					// console.log('outside filter dropdown and catg filter panel');
+// 					// // this is broken because filterCatgs() rebuilds catgsPanel from scratch, so old button element is no longer part of catgsPanel
+// 					// searchSettings.showFilters = false;
+// 					// refreshFilters();
+// 				} else {
+// 					// console.log('inside catg filter panel');
+// 				}
+// 			});
+// 			window.addEventListener('keydown', (e) => {
+// 				switch (e.key) {
+// 				case '`': // [`] for dev action
+// 					console.log('dev action');
+// 					// download('sentence-corrections.txt', badSentenceWordList.length + ' entries need corrections:\n\n' + badSentenceWordList.join('\n'));
+// 					populateSearchResults();
+// 					break;
+// 				}
+// 			});
+// 			filterCatgs();
+// 			// display initial entry
+// 			displayEntry(contentPanel, 'blackberry');
+// 		}
 
 		/////////////////////////////////////////////////////////////////////
 
 		//// INIT ////
 
-		init(dictionary);
-		console.log('Load time: ' + (Date.now() - t1) + ' ms');
+		// init(dictionary);
+		// console.log('Load time: ' + (Date.now() - t1) + ' ms');
 
 		/////////////////////////////////////////////////////////////////////
 	</script>

@@ -29,6 +29,7 @@
 // 1.0 hrs: spreadsheet fixes and voice synth dev
 // 0.5 hrs: add v12 parser (support root/morpheme data); spreadsheet fixes
 // 2.0 hrs: add support for multi-word forms when auto-labeling sentences; minor related bugfixes
+// 0.5 hrs: add v13 parser (more root/morpheme data; new form)
 
 const SEP_LINES = '\n';
 const SEP_CELLS = '\t';
@@ -408,9 +409,10 @@ function parse_en_ch_v13 (tsv) {
 	let parse = [];
 
 	const NUM_OF_FORMS = 10;
+	const NUM_EXTRA_SENTS = 2;
 	const FORM_START = 6;
 	const SENT_START = FORM_START + NUM_OF_FORMS;
-	const NOTES_START = SENT_START + 2*NUM_OF_FORMS + 2*2;
+	const NOTES_START = SENT_START + 2*NUM_OF_FORMS + 2*NUM_EXTRA_SENTS;
 
 	const entries = tsv.split(SEP_LINES);
 	for (let i = 1; i < entries.length; i++) {
@@ -446,10 +448,10 @@ function parse_en_ch_v13 (tsv) {
 		// log data
 		parse.push(e);
 
-		// if (line[0].split(';')[0] == 'blackberry') {
-		// 	console.log('Test entry: "blackberry"');
-		// 	console.log(e);
-		// }
+		if (line[0].split(';')[0] == 'blackberry') {
+			console.log('Test entry: "blackberry"');
+			console.log(e);
+		}
 	}
 
 	return parse;
@@ -531,22 +533,22 @@ function parse_en_ch_v13 (tsv) {
 	function getSynonyms (forms, word) {
 		word = word.toLowerCase();
 		for (const form of forms)
-			if (form && form.some(x => x.toLowerCase() == word))
-				return form.filter(x => x.toLowerCase() != word);
+			if (form && form.some(x => x.toLowerCase() === word))
+				return form.filter(x => x.toLowerCase() !== word);
 		return [];
 	}
 	function getFormNum (forms, word) {
 		word = word.toLowerCase();
 		for (let formNum = 0; formNum < forms.length; formNum++)
-			if (forms[formNum] && forms[formNum].some(x => x.toLowerCase() == word))
+			if (forms[formNum] && forms[formNum].some(x => x.toLowerCase() === word))
 				return formNum;
 		return -1;
 	}
-	function getSynonymID (forms, word) {
-		word = word.toLowerCase();
+	function getSynonymID (forms, synonym) {
+		synonym = synonym.toLowerCase();
 		for (let formNum = 0; formNum < forms.length; formNum++)
-			if (forms[i] && forms.some(x => x.toLowerCase() == word))
-				return forms[i].indexOf(word);
+			if (forms[formNum] && forms[formNum].some(x => x.toLowerCase() === synonym))
+				return forms[formNum].indexOf(synonym);
 		return -1;
 	}
 
@@ -582,6 +584,9 @@ function parse_en_ch_v13 (tsv) {
 
 			getPrimarySynonyms : (word) => getSynonyms(pForms,word),
 			getSecondarySynonyms : (word) => getSynonyms(sForms,word),
+
+			getPrimarySynonymID : (synonym) => getSynonymID(pForms,synonym),
+			getSecondarySynonymID : (synonym) => getSynonymID(sForms,synonym),
 
 			forEachPrimaryForm : (callback = (synonyms,formNum)=>{}) => {
 				for (let formNum = 0; formNum < pForms.length; formNum++)
@@ -815,11 +820,12 @@ class Dictionary {
 			callback(this._data[index], word);
 		}
 	}
-	forEachSynonym (callback = (entry,index)=>{}, reverse) {
+	forEachSynonym (callback = (entry,synonym,entryIndex,synonymIndex)=>{}, reverse) {
 		const orderedWords = (!this._togglePrimary) ? this._pOrderedEntryWords : this._sOrderedEntryWords;
 		for (let i = 0; i < orderedWords.length; i++) {
-			const [idWord,index] = !reverse ? orderedWords[i] : orderedWords[orderedWords.length-1 - i];
-			callback(this._data[index], idWord);
+			const [synonym,entryIndex] = !reverse ? orderedWords[i] : orderedWords[orderedWords.length-1 - i];
+			const synonymIndex = (!this._togglePrimary) ? this._data[entryIndex].getPrimarySynonymID(synonym) : this._data[entryIndex].getSecondarySynonymID(synonym);
+			callback(this._data[entryIndex], synonym, entryIndex, synonymIndex);
 		}
 	}
 	forEachEntry(callback = (entry,index)=>{}, reverse) {
