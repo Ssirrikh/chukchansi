@@ -369,7 +369,7 @@
 			/* border: 1px solid red; */
 
 			position: absolute;
-			top: 0.5em;
+			top: 2.0em;
 			right: 1em;
 			width: 1.5em;
 			height: 1.5em;
@@ -808,6 +808,9 @@
 				/* prevent search results being completely hidden on extremely short but wide windows */
 				min-height: 5em;
 			}
+			#search-bar-buttons-wrapper {
+				top: 0.5em;
+			}
 
 			#dictionary-wrapper {
 				position: static;
@@ -1031,6 +1034,7 @@
 	<!-- load dependencies -->
 	<script type='text/javascript' src='script/dictionary.js'></script>
 	<script type='text/javascript' src='data/en-ch-v12.js'></script>
+	<script type='text/javascript' src='data/en-ch-v13.js'></script>
 	<script type='text/javascript' src='source/resources.js'></script>
 	<!-- temp resource list for jasmine's demo -->
 	<script type='text/javascript' src='source/resources-jasmine.js'></script>
@@ -1162,7 +1166,8 @@
 
 		// build dictionary
 		let dictionary = new Dictionary(primary_eng, secondary_chk);
-		dictionary.loadData( parse_en_ch_v12(tsv_en_ch_v12) );
+		// dictionary.loadData( parse_en_ch_v12(tsv_en_ch_v12) );
+		dictionary.loadData( parse_en_ch_v13(tsv_en_ch_v13) );
 
 		// resource access
 		let soundSettings = {
@@ -1457,7 +1462,7 @@
 				const catg = shortCatg(entry.catg);
 				const hasImage = imageResources.length > 0;
 				const hasAudio = audioResources.length > 0;
-				contentStr += `<div id='entry-${searchIndex}' class='flex-row flex-centered search-result' onclick='loadEntryFor(\`${synonym}\`); focusEntry();'>`;
+				contentStr += `<div id='entry-${searchIndex}' class='flex-row flex-centered search-result' onclick="loadEntryFor(\`${synonym}\`); focusEntry();"">`;
 					contentStr += `<p class='search-result-catg'>${catg}</p>`;
 					contentStr += `<p class='search-result-word'>${word}</p>`;
 					contentStr += `<div class='flex-row flex-centered search-result-media'>`;

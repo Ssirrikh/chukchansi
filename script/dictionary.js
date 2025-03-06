@@ -409,9 +409,10 @@ function parse_en_ch_v13 (tsv) {
 	let parse = [];
 
 	const NUM_OF_FORMS = 10;
+	const NUM_EXTRA_SENTS = 2;
 	const FORM_START = 6;
 	const SENT_START = FORM_START + NUM_OF_FORMS;
-	const NOTES_START = SENT_START + 2*NUM_OF_FORMS + 2*2;
+	const NOTES_START = SENT_START + 2*NUM_OF_FORMS + 2*NUM_EXTRA_SENTS;
 
 	const entries = tsv.split(SEP_LINES);
 	for (let i = 1; i < entries.length; i++) {
@@ -447,10 +448,10 @@ function parse_en_ch_v13 (tsv) {
 		// log data
 		parse.push(e);
 
-		// if (line[0].split(';')[0] == 'blackberry') {
-		// 	console.log('Test entry: "blackberry"');
-		// 	console.log(e);
-		// }
+		if (line[0].split(';')[0] == 'blackberry') {
+			console.log('Test entry: "blackberry"');
+			console.log(e);
+		}
 	}
 
 	return parse;
