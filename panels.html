@@ -5,18 +5,94 @@
 	<meta charset = 'utf-8'>
 	<title>Chukchansi Speaking Dictionary</title>
 	<style>
-        * {
-			margin: 0;
-			padding: 0;
-            box-sizing: border-box;
-        }
+		:root {
+			--background-nav: #461220; /* navbar */
+            --text-nav: #ffd994; /* previously #ffdab3 */
+            --border-nav: #64182c; /* #64182c, #771932 */
+
+            --background-nav-selected: #6b4226;
+            --background-nav-unselected: #eac8a2;
+
+			--background-light: #f2e3d3; /* main content bg */
+			--background-inset: #dbb78f; /* inset panels; vibrant bg */
+			--background-medium: #bfa07e; /* side panels; muted bg */
+			--background-dark: #ad8e6c; /* fractionally darker interactibles bg */
+			--background-highlight-dark: #670408;
+			--text-dark: #4f3a09; /* main content text */
+			--text-medium: #806d46; /* interactible text */
+			--text-light: #fdf7ea;
+
+			--border-dark: #4f3a09; /* content separation */
+			--border-medium: #75544b; /* inset panel border */
+			--border-light: #bfa07e; /* interactible textbox border */
+
+            --popout-shadow: 0 0 10px #00000038;
+
+			--layer-front: 2; /* elems that hover over content (hanging tabs, search history) */
+			--layer-nav: 3; /* nav elements are always topmost */
+			--layer-overlay: 5; /* modal overlays */
+
+            /* dynamic units calculated for mobile-first; see media queries for desktop */
+            /* --fluid-font-size: max(2.5vh, calc(1rem + 1.0vw)); */
+			--fluid-font-size: max(2.5vh, calc(1rem + 0.9vw));
+            --nav-pad: 0.25em;
+            --content-pad: 0.6rem;
+            --title-font-size: calc(1.17 * var(--fluid-font-size)); /* unsure why 1.17, but it seems to be pixel-perfect at all sizes */
+            --nav-height: calc(1.75 * var(--fluid-font-size)); /* ref height for content anchors */
+			--panel-border: 2px solid var(--border-dark);
+
+			--search-padding-compact: 0.15em 0.5em;
+			--search-padding-comfortable: 0.3em 0.5em;
+
+			/* mobile browser url bars take up space without shrinking 100vh; we need to dynamically set a var to the "true height" with JS later on */
+			--screen-height: 100vh;
+
+			--thumbnail-position: center center / cover no-repeat;
+			--icon-image: url('./source/image.png');
+			--icon-audio: url('./source/audio.png');
+			--icon-info: url('./source/info.png');
+		}
+
+		* {
+			margin: 0px;
+			padding: 0px;
+			box-sizing: border-box;
+			font-family: 'Times New Roman';
+		}
+		body {
+			color: var(--text-nav);
+			background-color: var(--background-nav);
+			overflow: hidden;
+			
+			width: 100vw;
+			/* height: var(--screen-height); */
+			height: 100vh;
+            font-size: var(--fluid-font-size);
+
+			/* disable viewport scrolling on mobile browsers, so 2-panel layout works correctly */
+			/*position: fixed; /* disables horizontal scrolling, but allows user to scroll off the page vertically */
+			touch-action: none; /* completely disables scrolling, but also disables pinch-zooming */
+		}
+
+
+
+		#main {
+			border: 2px solid white;
+			overflow: hidden;
+
+			/* overflow:hidden + position:relative disables horizontal scrolling */
+			position: relative;
+			width: 100%;
+			/* height: var(--screen-height); */
+			height: 100%;
+		}
 
 		/* Prevent page scrolling */
-		html, body {
+		/* html, body {
 			height: 100%;
-			overflow: hidden; /* Prevent entire page scrolling */
+			overflow: hidden;
             font-size: calc(1rem + 1vh + 1vw);
-		}
+		} */
         button {
             font-size: 1em;
         }
