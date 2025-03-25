@@ -661,14 +661,15 @@
                             <!-- <div id='settings-gridsize-8' class='settings-option' onclick='newGameSetGridsize(8)'>8x8</div> -->
                             <div id='settings-gridsize-11' class='settings-option settings-option-selected' onclick='newGameSetGridsize(11)'>11x11</div>
                             <div id='settings-gridsize-13' class='settings-option' onclick='newGameSetGridsize(13)'>13x13</div>
+                            <div id='settings-gridsize-15' class='settings-option' onclick='newGameSetGridsize(15)'>15x15</div>
                         </div>
                     </div>
                     <div class='flex-row'>
                         <p class='settings-title'>Difficulty</p>
                         <div class='flex-row settings-options-wrapper'>
-                            <div id='settings-difficulty-0' class='settings-option' onclick='newGameSetDifficulty(0)'>Easy</div>
-                            <div id='settings-difficulty-1' class='settings-option' onclick='newGameSetDifficulty(1)'>Medium</div>
-                            <div id='settings-difficulty-2' class='settings-option settings-option-selected' onclick='newGameSetDifficulty(2)'>Hard</div>
+                            <div id='settings-difficulty-0' class='settings-option' title='Left-to-right or top-to-bottom.' onclick='newGameSetDifficulty(0)'>Easy</div>
+                            <div id='settings-difficulty-1' class='settings-option' title='Allows diagonals.' onclick='newGameSetDifficulty(1)'>Medium</div>
+                            <div id='settings-difficulty-2' class='settings-option settings-option-selected' title='Words can go any direction.' onclick='newGameSetDifficulty(2)'>Hard</div>
                         </div>
                     </div>
                 </div>
@@ -725,7 +726,7 @@
     // 2.0 hrs: create story vocab lists, dynamic wordbanks/wordlists
     // 4.0 hrs: UI update, difficulty selection prep
     // 5.0 hrs: settings and new game ui design
-    // 4.5 hrs: finish new game UI and add interactivity
+    // 5.5 hrs: finish new game UI and add interactivity
     // 3.0 hrs: compile vocab lists
 
     //// dropdown menu: https://stackoverflow.com/questions/647282/is-there-an-onselect-event-or-equivalent-for-html-select
@@ -768,6 +769,11 @@
     const DIRECTIONS_HARD = [
         [0,1],[1,0],[0,-1],[-1,0], // any vertical or horizontal
         [1,1],[-1,1],[-1,-1],[1,-1] // any diagonal
+    ];
+    const DIRECTION_DESCRIPTIONS = [
+        'left-to-right or top-to-bottom',
+        'allows diagonals',
+        'words can go any direction'
     ];
 
     const WORDLEN_EASY = 7;
@@ -818,10 +824,11 @@
             } else {
                 console.log(`vocab list ${controller.newGameSettings.vocab}`);
             }
-            controller.maxWordlen = controller.newGameSettings.gridsize;
+            controller.maxWordlen = controller.newGameSettings.gridsize - 1;
             document.getElementById('settings-info-grid').innerHTML = `${controller.newGameSettings.gridsize} x ${controller.newGameSettings.gridsize}`;
+            CSSVars.set('--wordsearch-grid-size', controller.newGameSettings.gridsize);
             controller.directions = [DIRECTIONS_EASY, DIRECTIONS_MED, DIRECTIONS_HARD][controller.newGameSettings.difficulty];
-            document.getElementById('settings-info-difficulty').innerHTML = ['Easy','Medium','Hard'][controller.newGameSettings.difficulty];
+            document.getElementById('settings-info-difficulty').innerHTML = `${['Easy','Medium','Hard'][controller.newGameSettings.difficulty]} (${DIRECTION_DESCRIPTIONS[controller.newGameSettings.difficulty]})`;
         },
         newGame : () => {
             // clear any in-progress user inputs
@@ -909,6 +916,9 @@
         else document.getElementById('settings-gridsize-11').classList.remove('settings-option-selected');
         if (size === 13) document.getElementById('settings-gridsize-13').classList.add('settings-option-selected');
         else document.getElementById('settings-gridsize-13').classList.remove('settings-option-selected');
+        
+        if (size === 15) document.getElementById('settings-gridsize-15').classList.add('settings-option-selected');
+        else document.getElementById('settings-gridsize-15').classList.remove('settings-option-selected');
     }
     function newGameSetDifficulty (difficulty) {
         if (difficulty !== 0 && difficulty !== 1 && difficulty !== 2) {
@@ -1259,16 +1269,10 @@
         // misc animals x10: rabbit,salmon,dog,cat,black ant,squirrel,cougar,deer,hawk,pig
         // misc animals x10: yellowhammer,butterfly,snake(kingsnake,rattlesnake),lizard,woodpecker(?),inchworm, __, __, __
     
-    // anchor for global access
-    // let targetWordlist = storyVocabWordlists[Object.keys(storyVocabWordlists)[3]];
 
-
-    // let targetWordlist = storyRandomWordlists[Object.keys(storyRandomWordlists)[3]];
-
-
+    // reset DOM forms
+    settingsVocabSelect.value = '0,vocab';
     // init new game
-    // controller.newGame(targetWordlist);
-
     newGameSetVocab('0,vocab');
     newGameSetGridsize(11);
     newGameSetDifficulty(2);
