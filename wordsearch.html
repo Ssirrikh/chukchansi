@@ -44,7 +44,8 @@
 
 			--wordsearch-grid-size: 11;
             --wordsearch-pad: 0.25em;
-            --wordsearch-width: min(60vh, calc(100vw - 2 * var(--content-pad)));
+            --wordsearch-width: max(min(60vh, calc(100vw - 2 * var(--content-pad))));
+            /* --wordsearch-width: calc(100vw - 2 * var(--content-pad)); */
             --wordsearch-tile-width: calc(calc(var(--wordsearch-width) - 2 * var(--wordsearch-pad)) / var(--wordsearch-grid-size));
             --wordsearch-tile-font-size: calc(0.7 * var(--wordsearch-tile-width));
 		}
@@ -84,6 +85,11 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+        }
+        .flex-adapt-reverse {
+            flex-direction: row;
+            align-items: normal;
+            justify-content: center;
         }
 
         /**** NAV BAR ****/
@@ -181,15 +187,17 @@
             flex-direction: column-reverse;
             justify-content: start;
         }
-        #wordlist {
-            border-radius: 0.5em;
-            box-shadow: var(--popout-shadow);
+        #wordlist-wrapper {
+            /* border-radius: 0.5em; */
+            /* box-shadow: var(--popout-shadow); */
 
-            display: inline-block;
             width: var(--wordsearch-width);
-            /* width: calc(1.5em * var(--wordsearch-grid-size)); */
+            font-size: 0.8em;
+
+            align-items: center;
+            gap: var(--content-pad);
         }
-        #wordsearch-container {
+        #wordsearch-wrapper {
             user-select: none;
             color: var(--text-dark);
             background-color: var(--background-light);
@@ -205,23 +213,83 @@
             line-height: var(--wordsearch-tile-font-size);
         }
 
+        .word-group {
+            white-space: nowrap;
+        }
+
+        /**** NEW GAME HEADER ****/
+
+        #new-game-button {
+            cursor: pointer;
+            color: var(--text-nav);
+            background-color: var(--background-nav);
+            border-radius: 0.5em;
+            filter: drop-shadow(var(--popout-shadow));
+
+            width: 100%;
+            padding: 0.5em;
+            text-align: center;
+            text-decoration: none;
+        }
+        #new-game-button:hover {
+            text-decoration: underline;
+        }
+
+        #new-game-wrapper {
+            background-color: var(--background-light);
+            display: none; /* invisible until toggled on */
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
         /**** WORD LIST ****/
 
+        #wordlist {
+            background-color: var(--background-inset);
+            border-radius: 0.5em;
+            filter: drop-shadow(var(--popout-shadow));
+            overflow: scroll;
+            flex-grow: 1;
+        }
         .wordlist-header {
             color: var(--text-nav);
             background-color: var(--background-nav);
             border-radius: 0.5em 0.5em 0 0;
+
             padding: 0.25em;
             align-items: center;
         }
-        #button-new-game {
-            cursor: pointer;
+        .wordlist-header > div {
+            width: 100%;
+            padding: 0 0.5em;
+            
+            align-items: center;
+            justify-content: space-between;
+        }
+        .wordlist-footer {
             color: var(--text-nav);
+            background-color: var(--background-nav);
+            border-radius: 0em 0em 0.5em 0.5em;
+
+            padding: 0.25em;
+
+            align-items: center;
+            justify-content: center;
+        }
+        .wordlist-footer > p {
+            font-size: 0.8em;
+        }
+        #wordlist-difficulty {
+            color: var(--background-nav);
+            background-color: var(--text-nav);
+            border-radius: 1.0em;
+
+            padding: 0em 0.5em;
             font-size: 0.8em;
         }
         #wordlist-content {
             color: var(--text-dark);
-            /* border: 1px solid red; */
 
             display: flex;
             padding: 0.5em;
@@ -237,11 +305,107 @@
             display: inline-block;
             /* margin: 0.25em; */
             padding: 0.25em 0.5em;
-            font-size: 0.8em;
+            /* font-size: 0.8em; */
         }
         .highlighted {
             opacity: 0.3;
             text-decoration: line-through;
+        }
+
+        .wordlist-title {
+            color: var(--text-nav);
+            background-color: var(--background-nav);
+            /* border-radius: 0.5em; */
+
+            width: 100%;
+            padding: 0.25em;
+
+            align-items: center;
+            justify-content: center;
+        }
+        .wordlist-title > p {
+            /* font-size: 0.8em; */
+        }
+
+        /**** SETTINGS ****/
+
+        #settings {
+            background-color: var(--background-inset);
+            border-radius: 0.5em;
+            filter: drop-shadow(var(--popout-shadow));
+            /* overflow: scroll; */
+
+            width: 100%;
+        }
+        .settings-wrapper {
+            padding: 0.5em;
+            gap: 0.5em;
+        }
+        .settings-info {
+            gap: 0.2em;
+        }
+        .settings-info > .flex-row {
+            align-items: baseline;
+        }
+        .settings-title {
+            color: var(--text-medium);
+            padding: 0 0.5em;
+            width: 5em;
+            font-size: 0.6em;
+            text-align: right;
+        }
+        .settings-actions {
+            justify-content: space-around;
+        }
+        .settings-button {
+            cursor: pointer;
+            color: var(--text-nav);
+            background-color: var(--background-nav);
+            border-radius: 1em;
+
+            width: 7em;
+            padding: 0.25em 0.15em;
+            text-align: center;
+        }
+        .settings-button:hover {
+            text-decoration: underline;
+        }
+
+        #settings-vocab-select {
+            cursor: pointer;
+            color: var(--text-dark);
+            background-color: var(--background-nav-unselected);
+            border: 2px solid var(--background-nav-selected);
+            border-radius: 0.2em;
+            
+            padding: 0.2em;
+            font-size: 0.8em;
+
+            flex-grow: 1;
+            min-width: 0; /* required for having smaller width than longest <option> */
+            text-overflow: ellipsis;
+        }
+        .settings-options-wrapper {
+            flex-grow: 1;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-around;
+        }
+        .settings-option {
+            cursor: pointer;
+            color: var(--text-medium);
+            background-color: var(--background-nav-unselected);
+            /* border: 2px solid var(--text-medium); */
+            border-radius: 1em;
+            width: 5em;
+            padding: 0.2em;
+            font-size: 0.8em;
+            text-align: center;
+        }
+        .settings-option-selected {
+            color: var(--text-nav);
+            background-color: var(--background-nav-selected);
+            border: none;
         }
 
         /**** WORDSEARCH ****/
@@ -353,25 +517,36 @@
                 --title-font-size: 1.0em;
                 --nav-height: calc(1.5 * var(--fluid-font-size)); /* ref height for content anchors; 1.0em text + 2*0.25em padding */
 
-                --wordsearch-width: min(50vw, calc(100vh - var(--nav-height) - 2 * var(--content-pad)));
+                /* 50% width < x < 100% height, min 11em */
+                --wordsearch-width: max( min(50vw, calc(100vh - var(--nav-height) - 2 * var(--content-pad))), calc(11 * var(--fluid-font-size)) );
             }
 			.flex-adapt {
 				flex-direction: row;
                 align-items: normal;
 				justify-content: center;
 			}
+            .flex-adapt-reverse {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
 
             #content {
                 flex-direction: row;
                 align-items: center;
                 justify-content: center;
             }
-            #wordlist {
-                width: 10em;
+            #wordlist-wrapper {
+                width: 15em;
                 height: var(--wordsearch-width);
+                /* flex-direction: column-reverse; */
+                justify-content: start;
             }
             .wordlist-item {
                 display: block;
+            }
+            .settings-wrapper {
+                font-size: 0.8em;
             }
 		}
 
@@ -416,25 +591,96 @@
     </nav>
 </div>
 <div id='content' class='flex-adapt'>
-    <div id='wordlist' class='flex-col'>
-        <div class='flex-row wordlist-header'>
-            <p id='wordlist-progress'>0/0</p>
-            <div class='flex-sep'></div>
-            <button id='button-new-game' onclick='controller.newGame(targetWordlist)'>+ New Game</button>
+    <div id='wordlist-wrapper' class='flex-col'>
+        <div id='wordlist' class='flex-col'>
+            <div class='flex-col wordlist-header'>
+                <!-- <p>Hawitmi Siksikaʔ Limeek’ataʔ</p> -->
+                <div class='flex-row'>
+                    <p id='wordlist-progress'>0/0</p>
+                    <div class='flex-sep'></div>
+                    <p id='wordlist-difficulty'>Hard</p>
+                </div>
+            </div>
+            <div id='wordlist-content'>
+                <p class='wordlist-item'>Word 1</p>
+                <p class='wordlist-item highlighted'>Word 2</p>
+            </div>
         </div>
-        <div id='wordlist-content'>
-            <p class='wordlist-item'>Word 1</p>
-            <p class='wordlist-item highlighted'>Long Word 2</p>
-            <p class='wordlist-item'>Reallylongusthemost Word</p>
-            <p class='wordlist-item'>Word N</p><p class='wordlist-item'>Word N</p>
-            <p class='wordlist-item'>Word N</p><p class='wordlist-item'>Word N</p>
-            <p class='wordlist-item'>Word N</p><p class='wordlist-item'>Word N</p>
-            <p class='wordlist-item'>Reallylongusthemost Word</p>
-            <p class='wordlist-item'>Word N</p><p class='wordlist-item'>Word N</p>
+        <div id='settings' class='flex-col'>
+            <div id='settings-header-title' class='flex-col wordlist-header'>
+                <p>Wordsearch Settings</p>
+            </div>
+            <div id='settings-current' class='flex-col settings-wrapper'>
+                <div class='flex-col settings-info'>
+                    <div class='flex-row'>
+                        <p class='settings-title'>Vocab</p>
+                        <p id='settings-info-vocab' class='settings-info-content'>Hawitmi Siksikaʔ Limeek’ataʔ</p>
+                    </div>
+                    <div class='flex-row'>
+                        <p class='settings-title'>Grid</p>
+                        <p id='settings-info-grid' class='settings-info-content'>11 x 11</p>
+                    </div>
+                    <div class='flex-row'>
+                        <p class='settings-title'>Difficulty</p>
+                        <p id='settings-info-difficulty' class='settings-info-content'>Hard</p>
+                    </div>
+                </div>
+                <div class='flex-row settings-actions'>
+                    <div class='settings-button' onclick='controller.newGame()'>Regenerate</div>
+                    <div class='settings-button' onclick='document.getElementById("settings-header-title").innerHTML="New Wordsearch";document.getElementById("settings-current").style.display="none";document.getElementById("settings-new").style.display=""'>New Game</div>
+                </div>
+            </div>
+            <div id='settings-new' class='flex-col settings-wrapper' style='display: none;'>
+                <div class='flex-col settings-info'>
+                    <div class='flex-row'>
+                        <p class='settings-title'>Vocab</p>
+                        <!-- <p id='settings-info-vocab' class='settings-info-content'>[dropdown menu]</p> -->
+                        <select id='settings-vocab-select' onchange='newGameSetVocab(document.getElementById("settings-vocab-select").value)'>
+                            <!-- <option value='0,vocab'>Vocab: Siksikaʔ Limeek’ataʔ</option>
+                            <option value='1,vocab'>Vocab: Kaʔyuʔun Shashaʔ</option>
+                            <option value='2,vocab'>Vocab: ʔuplalliʔ ʔamaʔ yoʔ Deemay’suʔ</option>
+                            <option value='3,vocab'>Vocab: Shelel’ Shilithanaʔ</option>
+                            <option value='0,rand'>Random: Siksikaʔ Limeek’ataʔ</option>
+                            <option value='1,rand'>Random: Kaʔyuʔun Shashaʔ</option>
+                            <option value='2,rand'>Random: ʔuplalliʔ ʔamaʔ yoʔ Deemay’suʔ</option>
+                            <option value='3,rand'>Random: Shelel’ Shilithanaʔ</option> -->
+                            <option value='0,vocab'>Vocab: How Stinkbug Became Black</option>
+                            <option value='1,vocab'>Vocab: Why Coyote's Eyes are the Best</option>
+                            <option value='2,vocab'>Vocab: Dove and Hummingbird Race</option>
+                            <option value='3,vocab'>Vocab: A Rock to be Jumped</option>
+                            <option value='0,rand'>Random: How Stinkbug Became Black</option>
+                            <option value='1,rand'>Random: Why Coyote's Eyes are the Best</option>
+                            <option value='2,rand'>Random: Dove and Hummingbird Race</option>
+                            <option value='3,rand'>Random: A Rock to be Jumped</option>
+                            <option value='0,grammar'>Grammar: -mi Words</option>
+                        </select>
+                    </div>
+                    <div class='flex-row'>
+                        <p class='settings-title'>Grid</p>
+                        <div class='flex-row settings-options-wrapper'>
+                            <!-- <div id='settings-gridsize-8' class='settings-option' onclick='newGameSetGridsize(8)'>8x8</div> -->
+                            <div id='settings-gridsize-11' class='settings-option settings-option-selected' onclick='newGameSetGridsize(11)'>11x11</div>
+                            <div id='settings-gridsize-13' class='settings-option' onclick='newGameSetGridsize(13)'>13x13</div>
+                        </div>
+                    </div>
+                    <div class='flex-row'>
+                        <p class='settings-title'>Difficulty</p>
+                        <div class='flex-row settings-options-wrapper'>
+                            <div id='settings-difficulty-0' class='settings-option' onclick='newGameSetDifficulty(0)'>Easy</div>
+                            <div id='settings-difficulty-1' class='settings-option' onclick='newGameSetDifficulty(1)'>Medium</div>
+                            <div id='settings-difficulty-2' class='settings-option settings-option-selected' onclick='newGameSetDifficulty(2)'>Hard</div>
+                        </div>
+                    </div>
+                </div>
+                <div class='flex-row settings-actions'>
+                    <div class='settings-button' onclick='hideNewGamePanel();controller.applyNewGameSettings();controller.newGame()'>Create</div>
+                    <div class='settings-button' onclick='hideNewGamePanel()'>Cancel</div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div id='wordsearch-container'>
+    <div id='wordsearch-wrapper'>
         <div id='wordsearch-click-area' class='flex-col'></div>
         <div id='cursor-caterpillar' class='caterpillar'></div>
     </div>
@@ -476,6 +722,13 @@
     // 0.5 hrs: fix wordsearch breaking after file name standardization; add failsafe for future
     // 1.5 hrs: admin stuff, nav standardization
     // 4.0 hrs: make ui fully dynamic, misc bug fixes
+    // 2.0 hrs: create story vocab lists, dynamic wordbanks/wordlists
+    // 4.0 hrs: UI update, difficulty selection prep
+    // 5.0 hrs: settings and new game ui design
+    // 4.5 hrs: finish new game UI and add interactivity
+    // 3.0 hrs: compile vocab lists
+
+    //// dropdown menu: https://stackoverflow.com/questions/647282/is-there-an-onselect-event-or-equivalent-for-html-select
 
 
 
@@ -489,8 +742,11 @@
     const navTitle = document.getElementById('nav-title');
     const wordlist = document.getElementById('wordlist-content');
     const progress = document.getElementById('wordlist-progress');
+    const settingsCurrent = document.getElementById('settings-current'); // used by button onclicks
+    const settingsNew = document.getElementById('settings-new');
+    const settingsVocabSelect = document.getElementById('settings-vocab-select');
     const wordsearch = document.getElementById('wordsearch-click-area');
-    const wordsearchContainer = document.getElementById('wordsearch-container');
+    const wordsearchContainer = document.getElementById('wordsearch-wrapper');
     const cursorCaterpillar = document.getElementById('cursor-caterpillar');
 
     const randInt = (min,max) => Math.floor(Math.random() * (max-min+1)) + min;
@@ -543,7 +799,31 @@
         allFound : () => controller.numFound() == controller.wordData.length,
 
         // gamestate interaction
-        newGame : (wordlist) => {
+        newGameSettings : {
+            vocab : 0, // id of vocab list
+            random : false, // whether to use curated vocab list or randomly select from story
+            gridsize : 11, // sidelength of grid
+            difficulty : 1 // 0=easy, 1=medium, 2=hard
+        },
+        applyNewGameSettings : () => {
+            if (controller.newGameSettings.type === 'vocab') {
+                controller.wordlist = storyVocabWordlists[Object.keys(storyVocabWordlists)[controller.newGameSettings.vocab]];
+                document.getElementById('settings-info-vocab').innerHTML = Object.keys(storyVocabWordlists)[controller.newGameSettings.vocab];
+            } else if (controller.newGameSettings.type === 'rand') {
+                controller.wordlist = storyRandomWordlists[Object.keys(storyRandomWordlists)[controller.newGameSettings.vocab]];
+                document.getElementById('settings-info-vocab').innerHTML = Object.keys(storyRandomWordlists)[controller.newGameSettings.vocab];
+            } else if (controller.newGameSettings.type === 'grammar') {
+                controller.wordlist = vocabWordlists[Object.keys(vocabWordlists)[controller.newGameSettings.vocab]];
+                document.getElementById('settings-info-vocab').innerHTML = Object.keys(vocabWordlists)[controller.newGameSettings.vocab];
+            } else {
+                console.log(`vocab list ${controller.newGameSettings.vocab}`);
+            }
+            controller.maxWordlen = controller.newGameSettings.gridsize;
+            document.getElementById('settings-info-grid').innerHTML = `${controller.newGameSettings.gridsize} x ${controller.newGameSettings.gridsize}`;
+            controller.directions = [DIRECTIONS_EASY, DIRECTIONS_MED, DIRECTIONS_HARD][controller.newGameSettings.difficulty];
+            document.getElementById('settings-info-difficulty').innerHTML = ['Easy','Medium','Hard'][controller.newGameSettings.difficulty];
+        },
+        newGame : () => {
             // clear any in-progress user inputs
             moveEnd();
             // clear previous game's caterpillars
@@ -554,7 +834,7 @@
             }
             // reset word data
             controller.wordData = [];
-            for (let i = 0; i < wordlist.length; i++) {
+            for (let i = 0; i < controller.wordlist.length; i++) {
                 controller.wordData.push({
                     found : false,
                     caterpillar : document.createElement('div')
@@ -562,7 +842,7 @@
                 controller.wordData[i].caterpillar.classList.add('caterpillar');
             }
             // gen new wordsearch
-            getWordsearch(controller.MIN_SIDELEN, wordlist);
+            getWordsearch(controller.newGameSettings.gridsize, controller.wordlist);
             // initial render
             renderWordsearch(controller.grid);
         },
@@ -603,36 +883,58 @@
                 console.log(`FAIL Coords do not give valid string.`);
                 // return undefined;
             }
+            // console.log(s);
             return s;
         }
     };
 
-
-
-    // compile word bank
-    function getWordlist (wordbank, numWords, minLen=3, maxLen=8) {
-        let words = [];
-        for (let word of wordbank.keys()) words.push(word);
-
-        let wordset = new Set();
-        let breakout = 1000;
-        while (--breakout > 0 && wordset.size < numWords) {
-            let word = words[randInt(0,words.length-1)];
-            if (word.length >= minLen && word.length <= maxLen) {
-                wordset.add(word);
-            }
-        }
-        console.log(wordset);
-
-        if (wordset > 0) {
-            console.error(`Wordbank did not contain sufficient words matching input settings.`);
-            return [];
-        } else {
-            let wordlist = [];
-            for (let word of wordset.keys()) wordlist.push(word);
-            return wordlist;
-        }
+    // new game interaction
+    function newGameSetVocab (raw) {
+        const [id,type] = raw.split(',');
+        controller.newGameSettings.vocab = id ?? 0;
+        // controller.newGameSettings.random = (list === 'rand');
+        controller.newGameSettings.type = type;
+        console.log(controller.newGameSettings.vocab,controller.newGameSettings.type);
     }
+    function newGameSetGridsize (size) {
+        if (size < 3) {
+            console.warn('ERR Wordsearch grid cannot be smaller than 4x4 (max word len 3).');
+            size = 3;
+        }
+        controller.newGameSettings.gridsize = size;
+        // render UI update
+        // if (size === 8) document.getElementById('settings-gridsize-8').classList.add('settings-option-selected');
+        // else document.getElementById('settings-gridsize-8').classList.remove('settings-option-selected');
+        if (size === 11) document.getElementById('settings-gridsize-11').classList.add('settings-option-selected');
+        else document.getElementById('settings-gridsize-11').classList.remove('settings-option-selected');
+        if (size === 13) document.getElementById('settings-gridsize-13').classList.add('settings-option-selected');
+        else document.getElementById('settings-gridsize-13').classList.remove('settings-option-selected');
+    }
+    function newGameSetDifficulty (difficulty) {
+        if (difficulty !== 0 && difficulty !== 1 && difficulty !== 2) {
+            console.error('ERR Wordseach difficulty must be 0=easy, 1=medium, or 2=hard.');
+            return;
+        }
+        controller.newGameSettings.difficulty = difficulty;
+        // render UI update
+        if (difficulty === 0) document.getElementById('settings-difficulty-0').classList.add('settings-option-selected');
+        else document.getElementById('settings-difficulty-0').classList.remove('settings-option-selected');
+        if (difficulty === 1) document.getElementById('settings-difficulty-1').classList.add('settings-option-selected');
+        else document.getElementById('settings-difficulty-1').classList.remove('settings-option-selected');
+        if (difficulty === 2) document.getElementById('settings-difficulty-2').classList.add('settings-option-selected');
+        else document.getElementById('settings-difficulty-2').classList.remove('settings-option-selected');
+    }
+    function hideNewGamePanel () {
+        document.getElementById("settings-header-title").innerHTML="Wordsearch Settings";
+        document.getElementById("settings-current").style.display="";
+        document.getElementById("settings-new").style.display="none"
+    }
+
+    
+
+
+
+    
 
 
     
@@ -731,8 +1033,8 @@
         const cols = grid.length;
 
         let wordlistStr = '';
-        for (let i = 0; i < targetWordlist.length; i++) {
-            wordlistStr += `<p id='word-${i}' class='wordlist-item'>${targetWordlist[i]}</p>`;
+        for (let i = 0; i < controller.wordlist.length; i++) {
+            wordlistStr += `<p id='word-${i}' class='wordlist-item'>${controller.wordlist[i]}</p>`;
         }
 
         let wordsearchStr = '';
@@ -804,10 +1106,10 @@
             if (dr == 0 || dc == 0 || dr == dc) {
                 // if on a straight or diagonal, check if current string is in wordlist
                 const wordsearchStr = controller.stringFrom(rDragStart,cDragStart,rDragEnd,cDragEnd);
-                for (let i = 0; i < targetWordlist.length; i++) {
-                    if (targetWordlist[i].toUpperCase() == wordsearchStr) {
+                for (let i = 0; i < controller.wordlist.length; i++) {
+                    if (controller.wordlist[i].toUpperCase() == wordsearchStr) {
                         // mark word as found
-                        console.log(`Found word "${targetWordlist[i]}"!`);
+                        console.log(`Found word "${controller.wordlist[i]}"!`);
                         document.getElementById(`word-${i}`).classList.add('highlighted');
                         controller.wordData[i].found = true;
                         // position caterpillar over word
@@ -853,40 +1155,125 @@
     
     // init //
 
-    // build word bank of unique words
+    // build word bank of unique words from stories
     let stories = [
         story_sox_siksikaʔ,
         story_kaʔyuʔun_shashaʔ,
         story_ʔuplalliʔ_deemaysuʔ,
         story_shelel_shilithanaʔ
     ];
-    let wordbank_sox_siksika = new Set();
-    let wordlist_sox_siksika_gen;
-    if (typeof story_sox_siksikaʔ !== 'undefined') {    
-        for (let i = 0; i < story_sox_siksikaʔ.timestampsBySentence.length; i+=3) {
-            const timestamp = story_sox_siksikaʔ.timestampsBySentence[i];
-            const textCHK = story_sox_siksikaʔ.timestampsBySentence[i+1];
-            const textENG = story_sox_siksikaʔ.timestampsBySentence[i+2];
+    const storyWordbanks = stories.map(storyData => {
+        if (typeof storyData == 'undefined') {
+            console.error('Invalid story data.');
+            return undefined;
+        }
+
+        let wordbank = new Set();
+        for (let i = 0; i < storyData.timestampsBySentence.length; i+=3) {
+            const timestamp = storyData.timestampsBySentence[i];
+            const textCHK = storyData.timestampsBySentence[i+1];
+            const textENG = storyData.timestampsBySentence[i+2];
             // stories may have ’ instead of ' for formatting; make the replacement, then scrub non-alphabetic chars
-            let words = textCHK.replaceAll("’","'").replaceAll(/[^a-zA-Z'ʔ ]/g,'').split(' ');
+            const words = textCHK.replaceAll("’","'").replaceAll(/[^a-zA-Z'ʔ ]/g,'').split(' ');
             for (let word of words) {
-                wordbank_sox_siksika.add(word.toLowerCase());
+                wordbank.add(word.toLowerCase());
             }
         }
-        wordlist_sox_siksika_gen = getWordlist(wordbank_sox_siksika, 10, controller.minWordlen, controller.maxWordlen);
-    } else {
-        console.error('File not found. Defaulting to static wordlist.');
+        // console.log(wordbank);
+
+        return wordbank;
+    });
+
+    // compile word banks
+    function getWordlist (wordbank, numWords, minLen=3, maxLen=8) {
+        let words = [];
+        for (let word of wordbank.keys()) words.push(word);
+
+        let wordset = new Set();
+        let breakout = 1000;
+        while (--breakout > 0 && wordset.size < numWords) {
+            let word = words[randInt(0,words.length-1)];
+            if (word.length >= minLen && word.length <= maxLen) {
+                wordset.add(word);
+            }
+        }
+        // console.log(wordset);
+
+        if (wordset > 0) {
+            console.error(`Wordbank did not contain sufficient words matching settings.`);
+            return [];
+        } else {
+            let wordlist = [];
+            for (let word of wordset.keys()) wordlist.push(word);
+            return wordlist;
+        }
     }
-    console.log(wordbank_sox_siksika);
+
+    
+
+    // let wordbank_sox_siksika = new Set();
+    // let wordlist_sox_siksika_gen;
+    // if (typeof story_sox_siksikaʔ !== 'undefined') {    
+    //     for (let i = 0; i < story_sox_siksikaʔ.timestampsBySentence.length; i+=3) {
+    //         const timestamp = story_sox_siksikaʔ.timestampsBySentence[i];
+    //         const textCHK = story_sox_siksikaʔ.timestampsBySentence[i+1];
+    //         const textENG = story_sox_siksikaʔ.timestampsBySentence[i+2];
+    //         // stories may have ’ instead of ' for formatting; make the replacement, then scrub non-alphabetic chars
+    //         let words = textCHK.replaceAll("’","'").replaceAll(/[^a-zA-Z'ʔ ]/g,'').split(' ');
+    //         for (let word of words) {
+    //             wordbank_sox_siksika.add(word.toLowerCase());
+    //         }
+    //     }
+    //     wordlist_sox_siksika_gen = getWordlist(wordbank_sox_siksika, 10, controller.minWordlen, controller.maxWordlen);
+    // } else {
+    //     console.error('File not found. Defaulting to static wordlist.');
+    // }
+    // console.log(wordbank_sox_siksika);
     
     // default curated word list in case things go wrong
-    const wordlist_sox_siksika = ["Sox","Siksikaʔ","ʔoshto","woodiyga","namix","ʔutuytaʔ","henew","t'uluntaʔ","shaapintaʔ","limeek'am"];
+    const storyVocabWordlists = Object.freeze({
+        "How Stinkbug Became Black"             : ["Sox","Siksikaʔ","ʔoshto","woodiyga","namix","ʔutuytaʔ","henew","t'uluntaʔ","shaapintaʔ","limeek'am"],
+            // Skunk, Stinkbug, fire, dance, friend, pushed, some, burned, extinguished, became black
+        "Why Coyote's Eyes are the Best"        : ["Lopis","Kaʔyuʔ","shashaaʔan","wakaayaw","wech'eeta","ch'edmat","gayis","bajxaʔli","hoych'it","taʔishtaʔ"],
+            // Fish, Coyote, eyes, river, stick, think, good, bad, want, see
+        "Dove and Hummingbird Race Each Other"  : ["ʔuplalliʔ","deemay'suʔ","baanewshit","hoy'nit","ʔayax","wentaw","hayk'itaw","hoyonhiy'","ch'awit","hidyaʔ"],
+            // Dove, Hummingbird, race each other, fly, fast, start, finish (line), wing, win, everybody
+        "A Rock to be Jumped"                   : ["shelel'","shil't'eʔ","hiky'eʔ","lihmit","bohloʔ","xishweʔ","texeetan'","noneeʔi","mokeela","peeli"]
+            // rock, jump, play, run, grow, scratch, hurt, men, women, road
+    });
+    const storyRandomWordlists = Object.freeze({
+        "How Stinkbug Became Black"             : getWordlist(storyWordbanks[0], 10, controller.minWordlen, controller.maxWordlen),
+        "Why Coyote's Eyes are the Best"        : getWordlist(storyWordbanks[1], 10, controller.minWordlen, controller.maxWordlen),
+        "Dove and Hummingbird Race Each Other"  : getWordlist(storyWordbanks[2], 10, controller.minWordlen, controller.maxWordlen),
+        "A Rock to be Jumped"                   : getWordlist(storyWordbanks[3], 10, controller.minWordlen, controller.maxWordlen)
+    });
+
+    // misc curated vocab lists
+    const vocabWordlists = Object.freeze({
+        "-mi Words" : ["xatmi","hewetmi","taʔishmi","diʔishmi","lihimmi","yawalmi","chishmi","lopsilmi","haymi","k'elmi"]
+            // while... eating, walking, seeing/watching, making/doing, running, chasing, cutting, fishing, laughing/smiling, painting
+    });
+
+    // vocab to add: colors, days of week, months, numbers, family members/relations, animals
+        // animals from stories x10: skunk, stinkbug, coyote, fish, dove, hummingbird, bear, eagle , __, __
+        // misc animals x10: rabbit,salmon,dog,cat,black ant,squirrel,cougar,deer,hawk,pig
+        // misc animals x10: yellowhammer,butterfly,snake(kingsnake,rattlesnake),lizard,woodpecker(?),inchworm, __, __, __
     
     // anchor for global access
-    let targetWordlist = wordlist_sox_siksika_gen ?? wordlist_sox_siksika;
+    // let targetWordlist = storyVocabWordlists[Object.keys(storyVocabWordlists)[3]];
+
+
+    // let targetWordlist = storyRandomWordlists[Object.keys(storyRandomWordlists)[3]];
+
 
     // init new game
-    controller.newGame(targetWordlist);
+    // controller.newGame(targetWordlist);
+
+    newGameSetVocab('0,vocab');
+    newGameSetGridsize(11);
+    newGameSetDifficulty(2);
+    controller.applyNewGameSettings();
+    controller.newGame();
 
 
 
