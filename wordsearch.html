@@ -602,8 +602,8 @@
                 </div>
             </div>
             <div id='wordlist-content'>
-                <p class='wordlist-item'>Word 1</p>
-                <p class='wordlist-item highlighted'>Word 2</p>
+                <p class='wordlist-item'>Loading words...</p>
+                <!-- <p class='wordlist-item highlighted'>Word 2</p> -->
             </div>
         </div>
         <div id='settings' class='flex-col'>
@@ -626,7 +626,7 @@
                     </div>
                 </div>
                 <div class='flex-row settings-actions'>
-                    <div class='settings-button' onclick='controller.newGame()'>Regenerate</div>
+                    <div class='settings-button' onclick='controller.newGame()'>Shuffle</div>
                     <div class='settings-button' onclick='document.getElementById("settings-header-title").innerHTML="New Wordsearch";document.getElementById("settings-current").style.display="none";document.getElementById("settings-new").style.display=""'>New Game</div>
                 </div>
             </div>
@@ -644,13 +644,13 @@
                             <option value='1,rand'>Random: Kaʔyuʔun Shashaʔ</option>
                             <option value='2,rand'>Random: ʔuplalliʔ ʔamaʔ yoʔ Deemay’suʔ</option>
                             <option value='3,rand'>Random: Shelel’ Shilithanaʔ</option> -->
-                            <option value='0,vocab'>Vocab: How Stinkbug Became Black</option>
-                            <option value='1,vocab'>Vocab: Why Coyote's Eyes are the Best</option>
-                            <option value='2,vocab'>Vocab: Dove and Hummingbird Race</option>
-                            <option value='3,vocab'>Vocab: A Rock to be Jumped</option>
+                            <option value='0,story'>Story: How Stinkbug Became Black</option>
+                            <option value='1,story'>Story: Why Coyote's Eyes are the Best</option>
+                            <option value='2,story'>Story: Dove and Hummingbird Race Each Other</option>
+                            <option value='3,story'>Story: A Rock to be Jumped</option>
                             <option value='0,rand'>Random: How Stinkbug Became Black</option>
                             <option value='1,rand'>Random: Why Coyote's Eyes are the Best</option>
-                            <option value='2,rand'>Random: Dove and Hummingbird Race</option>
+                            <option value='2,rand'>Random: Dove and Hummingbird Race Each Other</option>
                             <option value='3,rand'>Random: A Rock to be Jumped</option>
                             <option value='0,grammar'>Grammar: -mi Words</option>
                         </select>
@@ -728,6 +728,7 @@
     // 5.0 hrs: settings and new game ui design
     // 5.5 hrs: finish new game UI and add interactivity
     // 3.0 hrs: compile vocab lists
+    // 4.0 hrs: optimize data structures and convert wordsearch to use unified shared vocab
 
     //// dropdown menu: https://stackoverflow.com/questions/647282/is-there-an-onselect-event-or-equivalent-for-html-select
 
@@ -806,24 +807,37 @@
 
         // gamestate interaction
         newGameSettings : {
-            vocab : 0, // id of vocab list
-            random : false, // whether to use curated vocab list or randomly select from story
+            vocab : 0, // id of vocab list within bank
+            type : '', // which bank of vocab lists to select from (ie "story","grammar",etc)
             gridsize : 11, // sidelength of grid
             difficulty : 1 // 0=easy, 1=medium, 2=hard
         },
         applyNewGameSettings : () => {
-            if (controller.newGameSettings.type === 'vocab') {
-                controller.wordlist = storyVocabWordlists[Object.keys(storyVocabWordlists)[controller.newGameSettings.vocab]];
-                document.getElementById('settings-info-vocab').innerHTML = Object.keys(storyVocabWordlists)[controller.newGameSettings.vocab];
-            } else if (controller.newGameSettings.type === 'rand') {
-                controller.wordlist = storyRandomWordlists[Object.keys(storyRandomWordlists)[controller.newGameSettings.vocab]];
-                document.getElementById('settings-info-vocab').innerHTML = Object.keys(storyRandomWordlists)[controller.newGameSettings.vocab];
-            } else if (controller.newGameSettings.type === 'grammar') {
-                controller.wordlist = vocabWordlists[Object.keys(vocabWordlists)[controller.newGameSettings.vocab]];
-                document.getElementById('settings-info-vocab').innerHTML = Object.keys(vocabWordlists)[controller.newGameSettings.vocab];
+            console.log(`getVocabById( ${controller.newGameSettings.vocab}, ${controller.newGameSettings.type}, ${controller.minWordlen}, ${controller.maxWordlen} )`);
+            let wordlist = getVocabById(
+                controller.newGameSettings.vocab, controller.newGameSettings.type,
+                controller.minWordlen, controller.maxWordlen
+            );
+            if (wordlist && wordlist.length > 0) {
+                controller.wordlist = wordlist;
+                document.getElementById('settings-info-vocab').innerHTML = (controller.newGameSettings.type == 'rand')
+                    ? Object.keys(vocabCurated['story'])[controller.newGameSettings.vocab]
+                    : Object.keys(vocabCurated[controller.newGameSettings.type])[controller.newGameSettings.vocab];
             } else {
-                console.log(`vocab list ${controller.newGameSettings.vocab}`);
+                console.error(`ERR No vocab list of id ${controller.newGameSettings.vocab} exists in vocab bank "${controller.newGameSettings.type}".`);
             }
+            // if (controller.newGameSettings.type === 'vocab') {
+            //     // controller.wordlist = storyVocabWordlists[Object.keys(storyVocabWordlists)[controller.newGameSettings.vocab]];
+            //     document.getElementById('settings-info-vocab').innerHTML = Object.keys(storyVocabWordlists)[controller.newGameSettings.vocab];
+            // } else if (controller.newGameSettings.type === 'rand') {
+            //     controller.wordlist = storyRandomWordlists[Object.keys(storyRandomWordlists)[controller.newGameSettings.vocab]];
+            //     document.getElementById('settings-info-vocab').innerHTML = Object.keys(storyRandomWordlists)[controller.newGameSettings.vocab];
+            // } else if (controller.newGameSettings.type === 'grammar') {
+            //     controller.wordlist = vocabWordlists[Object.keys(vocabWordlists)[controller.newGameSettings.vocab]];
+            //     document.getElementById('settings-info-vocab').innerHTML = Object.keys(vocabWordlists)[controller.newGameSettings.vocab];
+            // } else {
+            //     console.log(`vocab list ${controller.newGameSettings.vocab}`);
+            // }
             controller.maxWordlen = controller.newGameSettings.gridsize - 1;
             document.getElementById('settings-info-grid').innerHTML = `${controller.newGameSettings.gridsize} x ${controller.newGameSettings.gridsize}`;
             CSSVars.set('--wordsearch-grid-size', controller.newGameSettings.gridsize);
@@ -1161,11 +1175,13 @@
     // });
     // navTitle.innerHTML = (window.innerWidth < window.innerHeight) ? 'Chk Wordsearch' : 'Chukchansi Wordsearch';
 
+
+
     //////////////////////
     
-    // init //
+    //// vocab.js wordbank construction ////
 
-    // build word bank of unique words from stories
+    // build word banks of unique words from each story
     let stories = [
         story_sox_siksikaʔ,
         story_kaʔyuʔun_shashaʔ,
@@ -1194,7 +1210,7 @@
         return wordbank;
     });
 
-    // compile word banks
+    // dynamically build wordlists from wordbanks
     function getWordlist (wordbank, numWords, minLen=3, maxLen=8) {
         let words = [];
         for (let word of wordbank.keys()) words.push(word);
@@ -1213,82 +1229,98 @@
             console.error(`Wordbank did not contain sufficient words matching settings.`);
             return [];
         } else {
+            console.log(wordset.keys());
             let wordlist = [];
-            for (let word of wordset.keys()) wordlist.push(word);
+            for (let word of wordset.keys()) wordlist.push(word); // convert Set to Array
             return wordlist;
+            // return wordset.keys(); // can't do this since wordset.keys() is pure iterator
         }
     }
-
     
 
-    // let wordbank_sox_siksika = new Set();
-    // let wordlist_sox_siksika_gen;
-    // if (typeof story_sox_siksikaʔ !== 'undefined') {    
-    //     for (let i = 0; i < story_sox_siksikaʔ.timestampsBySentence.length; i+=3) {
-    //         const timestamp = story_sox_siksikaʔ.timestampsBySentence[i];
-    //         const textCHK = story_sox_siksikaʔ.timestampsBySentence[i+1];
-    //         const textENG = story_sox_siksikaʔ.timestampsBySentence[i+2];
-    //         // stories may have ’ instead of ' for formatting; make the replacement, then scrub non-alphabetic chars
-    //         let words = textCHK.replaceAll("’","'").replaceAll(/[^a-zA-Z'ʔ ]/g,'').split(' ');
-    //         for (let word of words) {
-    //             wordbank_sox_siksika.add(word.toLowerCase());
-    //         }
-    //     }
-    //     wordlist_sox_siksika_gen = getWordlist(wordbank_sox_siksika, 10, controller.minWordlen, controller.maxWordlen);
-    // } else {
-    //     console.error('File not found. Defaulting to static wordlist.');
-    // }
-    // console.log(wordbank_sox_siksika);
+
+    ///////////////////////////////////////////////
+
+    //// vocab.js data/access ////
     
-    // default curated word list in case things go wrong
-    const storyVocabWordlists = Object.freeze({
-        "How Stinkbug Became Black"             : ["Sox","Siksikaʔ","ʔoshto","woodiyga","namix","ʔutuytaʔ","henew","t'uluntaʔ","shaapintaʔ","limeek'am"],
-            // Skunk, Stinkbug, fire, dance, friend, pushed, some, burned, extinguished, became black
-        "Why Coyote's Eyes are the Best"        : ["Lopis","Kaʔyuʔ","shashaaʔan","wakaayaw","wech'eeta","ch'edmat","gayis","bajxaʔli","hoych'it","taʔishtaʔ"],
-            // Fish, Coyote, eyes, river, stick, think, good, bad, want, see
-        "Dove and Hummingbird Race Each Other"  : ["ʔuplalliʔ","deemay'suʔ","baanewshit","hoy'nit","ʔayax","wentaw","hayk'itaw","hoyonhiy'","ch'awit","hidyaʔ"],
-            // Dove, Hummingbird, race each other, fly, fast, start, finish (line), wing, win, everybody
-        "A Rock to be Jumped"                   : ["shelel'","shil't'eʔ","hiky'eʔ","lihmit","bohloʔ","xishweʔ","texeetan'","noneeʔi","mokeela","peeli"]
-            // rock, jump, play, run, grow, scratch, hurt, men, women, road
+    let vocabSettings = {
+        newListSize : 10,
+        defaultMinWordlen : 3,
+        defaultMaxWordlen : 10
+    };
+    let vocabRandomized = Object.freeze({
+        'story' : Object.freeze({
+            "How Stinkbug Became Black"             : (min=vocabSettings.defaultMinWordlen,max=vocabSettings.defaultMaxWordlen,num=vocabSettings.newListSize) => getWordlist(storyWordbanks[0], num, min, max),
+            "Why Coyote's Eyes are the Best"        : (min=vocabSettings.defaultMinWordlen,max=vocabSettings.defaultMaxWordlen,num=vocabSettings.newListSize) => getWordlist(storyWordbanks[1], num, min, max),
+            "Dove and Hummingbird Race Each Other"  : (min=vocabSettings.defaultMinWordlen,max=vocabSettings.defaultMaxWordlen,num=vocabSettings.newListSize) => getWordlist(storyWordbanks[2], num, min, max),
+            "A Rock to be Jumped"                   : (min=vocabSettings.defaultMinWordlen,max=vocabSettings.defaultMaxWordlen,num=vocabSettings.newListSize) => getWordlist(storyWordbanks[3], num, min, max)
+        }),
+        // dictionary : {}
     });
-    const storyRandomWordlists = Object.freeze({
-        "How Stinkbug Became Black"             : getWordlist(storyWordbanks[0], 10, controller.minWordlen, controller.maxWordlen),
-        "Why Coyote's Eyes are the Best"        : getWordlist(storyWordbanks[1], 10, controller.minWordlen, controller.maxWordlen),
-        "Dove and Hummingbird Race Each Other"  : getWordlist(storyWordbanks[2], 10, controller.minWordlen, controller.maxWordlen),
-        "A Rock to be Jumped"                   : getWordlist(storyWordbanks[3], 10, controller.minWordlen, controller.maxWordlen)
+    let vocabCurated = Object.freeze({
+        'story' : Object.freeze({
+            "How Stinkbug Became Black"             : Object.freeze(["Sox","Siksikaʔ","ʔoshto","woodiyga","namix","ʔutuytaʔ","henew","t'uluntaʔ","shaapintaʔ","limeek'am"]),
+                // Skunk, Stinkbug, fire, dance, friend, pushed, some, burned, extinguished, became black
+            "Why Coyote's Eyes are the Best"        : Object.freeze(["Lopis","Kaʔyuʔ","shashaaʔan","wakaayaw","wech'eeta","ch'edmat","gayis","bajxaʔli","hoych'it","taʔishtaʔ"]),
+                // Fish, Coyote, eyes, river, stick, think, good, bad, want, see
+            "Dove and Hummingbird Race Each Other"  : Object.freeze(["ʔuplalliʔ","deemay'suʔ","baanewshit","hoy'nit","ʔayax","wentaw","hayk'itaw","hoyonhiy'","ch'awit","hidyaʔ"]),
+                // Dove, Hummingbird, race each other, fly, fast, start, finish (line), wing, win, everybody
+            "A Rock to be Jumped"                   : Object.freeze(["shelel'","shil't'eʔ","hiky'eʔ","lihmit","bohloʔ","xishweʔ","texeetan'","noneeʔi","mokeela","peeli"])
+                // rock, jump, play, run, grow, scratch, hurt, men, women, road
+        }),
+        'grammar' : Object.freeze({
+            "-mi Words" : Object.freeze(["xatmi","hewetmi","taʔishmi","diʔishmi","lihimmi","yawalmi","chishmi","lopsilmi","haymi","k'elmi"])
+                // while... eating, walking, seeing/watching, making/doing, running, chasing, cutting, fishing, laughing/smiling, painting
+        })
     });
-
-    // misc curated vocab lists
-    const vocabWordlists = Object.freeze({
-        "-mi Words" : ["xatmi","hewetmi","taʔishmi","diʔishmi","lihimmi","yawalmi","chishmi","lopsilmi","haymi","k'elmi"]
-            // while... eating, walking, seeing/watching, making/doing, running, chasing, cutting, fishing, laughing/smiling, painting
-    });
-
     // vocab to add: colors, days of week, months, numbers, family members/relations, animals
         // animals from stories x10: skunk, stinkbug, coyote, fish, dove, hummingbird, bear, eagle , __, __
         // misc animals x10: rabbit,salmon,dog,cat,black ant,squirrel,cougar,deer,hawk,pig
         // misc animals x10: yellowhammer,butterfly,snake(kingsnake,rattlesnake),lizard,woodpecker(?),inchworm, __, __, __
-    
+
+    function getVocabById (id,type,minWordlen,maxWordlen) {
+        if (type === 'rand') {
+            return vocabRandomized['story'][Object.keys(vocabRandomized['story'])[id]](minWordlen,maxWordlen);
+        } else {
+            return vocabCurated[type][Object.keys(vocabRandomized['story'])[id]].map(x => x); // get non-frozen deep copy;
+        }
+    }
+    function getVocabByName (name,type,minWordlen,maxWordlen) {
+        if (type === 'rand') {
+            return vocabRandomized['story'][name](minWordlen,maxWordlen);
+        } else {
+            return vocabCurated[type][name].map(x => x); // get non-frozen deep copy
+        }
+    }
+
+
+
+    ////////////////////////////////
+
+    // // debug
+    // getVocabById(0,'rand',3,6)
+    // getVocabByName('A Rock to be Jumped','rand',3,6)
+    // for (let i = 0; i < 3; i++) {
+    //     console.log( getVocabById(0,'rand',controller.minWordlen,controller.maxWordlen) );
+    // }
+    // function inject (r=0,c=0) {
+    //     const markerActual = document.createElement('div');
+    //     markerActual.classList.add('marker');
+    //     markerActual.style.top = `calc(var(--wordsearch-pad) + ${0.5+r} * var(--wordsearch-tile-width))`;
+    //     markerActual.style.left = `calc(var(--wordsearch-pad) + ${0.5+c} * var(--wordsearch-tile-width))`;
+    //     wordsearch.appendChild(markerActual);
+    // }
 
     // reset DOM forms
-    settingsVocabSelect.value = '0,vocab';
+    settingsVocabSelect.value = '0,story';
     // init new game
-    newGameSetVocab('0,vocab');
+    newGameSetVocab('0,story');
     newGameSetGridsize(11);
     newGameSetDifficulty(2);
     controller.applyNewGameSettings();
     controller.newGame();
 
-
-
-    // debug
-    function inject (r=0,c=0) {
-        const markerActual = document.createElement('div');
-        markerActual.classList.add('marker');
-        markerActual.style.top = `calc(var(--wordsearch-pad) + ${0.5+r} * var(--wordsearch-tile-width))`;
-        markerActual.style.left = `calc(var(--wordsearch-pad) + ${0.5+c} * var(--wordsearch-tile-width))`;
-        wordsearch.appendChild(markerActual);
-    }
+    
     
 </script>
 
