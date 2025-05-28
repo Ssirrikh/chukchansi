@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang='en' xml:lang='en'>
+<head>
+	<meta charset = 'utf-8'>
+	<title>Chukchansi Flashcards</title>
+    <meta name='robots' content='index, follow'>
+    <meta name='description' content='Interactive flashcards to help Chukchansi language learners study and practice.'>
+	<meta name='viewport' content='width=device-width, initial-scale=1'>
+    <style>
+		:root {
+			--background-nav: #461220; /* navbar */
+            --text-nav: #ffd994; /* previously #ffdab3 */
+            --border-nav: #64182c; /* #64182c, #771932 */
+
+            --background-nav-selected: #6b4226;
+            --background-nav-unselected: #eac8a2;
+
+			--background-light: #f2e3d3; /* main content bg */
+			--background-inset: #dbb78f; /* inset panels; vibrant bg */
+			--background-medium: #bfa07e; /* side panels; muted bg */
+			--background-dark: #ad8e6c; /* fractionally darker interactibles bg */
+			--text-dark: #4f3a09; /* main content text */
+			--text-medium: #806d46; /* interactible text */
+			--text-light: #fdf7ea;
+
+			--border-dark: #4f3a09; /* content separation */
+			--border-medium: #75544b; /* inset panel border */
+			--border-light: #bfa07e; /* interactible textbox border */
+
+            --popout-shadow: 0 0 10px #00000038;
+
+			--layer-front: 2; /* elems that hover over content (hanging tabs, search history) */
+			--layer-nav: 3; /* nav elements are always topmost */
+			--layer-overlay: 5; /* modal overlays */
+
+            /* dynamic units calculated for mobile-first; see media queries for desktop */
+            --fluid-font-size: max(2.5vh, calc(1rem + 1.0vw));
+            /* --fluid-font-size: calc(1rem + 1.0vw); */
+            /* --fluid-font-size: 2.5vh; */
+            --nav-pad: 0.25em;
+            --content-pad: 0.6rem;
+            --title-font-size: calc(1.17 * var(--fluid-font-size)); /* unsure why 1.17, but it seems to be pixel-perfect at all sizes */
+            --nav-height: calc(1.75 * var(--fluid-font-size)); /* ref height for content anchors */
+
+			--thumbnail-position: center center / cover no-repeat;
+		}
+
+		* {
+			margin: 0px;
+			padding: 0px;
+			box-sizing: border-box;
+			font-family: 'Times New Roman';
+		}
+		body {
+			background-color: var(--background-nav);
+            font-size: var(--fluid-font-size);
+		}
+        button {
+            color: var(--text-dark);
+            background-color: transparent;
+            border: none;
+            outline: none;
+        }
+
+        /* flexbox */
+		.flex-sep {
+			width: 0;
+			flex-grow: 1;
+		}
+		.flex-row {
+			display: flex;
+			flex-direction: row;
+			align-items: start;
+		}
+		.flex-col {
+			display: flex;
+			flex-direction: column;
+		}
+        .flex-adapt {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .flex-adapt-reverse {
+            display: flex;
+            flex-direction: row;
+            align-items: normal;
+            justify-content: center;
+        }
+
+		/**** NAV BAR ****/
+
+		#nav-bar {
+			color: var(--text-nav);
+			background-color: var(--background-nav);
+            border-bottom: 1px solid var(--border-nav);
+
+			position: sticky;
+			padding: var(--nav-pad);
+			top: 0px;
+			width: 100%;
+            font-size: var(--title-font-size);
+            text-align: center;
+
+			z-index: var(--layer-nav); /* nav elems and hanging tabs are on top of other content, but not fullscreen modals */
+		}
+        #nav-title {
+            /* unstyle <h1> */
+            font-size: var(--title-font-size);
+            line-height: var(--title-font-size);
+            font-weight: normal;
+        }
+        #nav-menu {
+            /* https://www.sliderrevolution.com/resources/css-dropdown-menu/ */
+            cursor: pointer;
+
+            display: inline-block;
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            width: var(--nav-height);
+            height: var(--nav-height);
+        }
+        #nav-menu ul {
+            cursor: default;
+            color: var(--text-dark);
+            background-color: var(--background-nav-unselected);
+            /* border-top: 1px solid var(--text-light); */
+            border-bottom: 1px solid var(--border-light);
+
+            visibility: hidden;
+            position: absolute;
+            top: var(--nav-height);
+            left: 0px;
+            width: 100vw;
+            padding: 0.25em;
+
+            text-align: left;
+            list-style: none;
+            flex-wrap: wrap;
+        }
+        #nav-menu div + div {
+            border-left: 1px solid var(--text-dark);
+        }
+        #nav-menu ul li {
+            cursor: pointer;
+            color: var(--text-dark);
+            /* padding: 0.15em 0.75em; */
+            font-size: 0.8em;
+        }
+        #nav-menu ul li:hover {
+            color: var(--text-nav);
+            background-color: var(--background-nav-selected);
+        }
+        #nav-menu:focus-within > ul, #nav-menu:hover ul {
+            visibility: visible;
+        }
+        #nav-menu ul li a {
+            /* border: 1px solid blue; */
+            display: inline-block;
+            width: 100%;
+            padding: 0.15em 0.75em;
+            color: inherit;
+            text-decoration: inherit;
+        }
+        .nav-greyed-out {
+            cursor: default;
+            color: var(--text-dark);
+            padding: 0.15em 0.75em;
+            font-size: 0.8em;
+            opacity: 50%;
+        }
+
+        /**** SITE LAYOUT ****/
+
+        #content { /* fullscreen container so subpanels can position:sticky independently of each other */
+            background-color: var(--background-light);
+            min-height: calc(100vh - var(--nav-height));
+            /* padding: 0 var(--content-pad); */
+            gap: var(--content-pad);
+        }
+		#selection-panel { /* left/top panel: select vocab set */
+            color: var(--text-dark);
+            background-color: var(--background-light);
+            border-radius: 0.5em;
+            filter: drop-shadow(var(--popout-shadow));
+            /* box-shadow: var(--popout-shadow); */
+            z-index: var(--layer-front); /* ensure shadow correctly overlays neighboring content */
+
+            display: inline-block;
+            margin-top: var(--content-pad);
+            max-width: calc(100vw - 2 * var(--content-pad));
+            /* max-height: 50vh; /* if added here, cannot be overridden by media query for some reason */
+            overflow-x: hidden;
+            overflow-y: scroll;
+        }
+        #flashcards-panel { /* right/bottom panel: view flashcards */
+            border: 1px solid red;
+            color: var(--text-dark);
+            background-color: var(--background-light);
+
+            position: relative; /* allow children to anchor */
+            scroll-margin-top: var(--nav-height); /* adjust for navbar when auto-scrolling */
+            /* flex-grow: 1; */
+            width: calc(100% - var(--content-pad) * 2);
+            min-height: 50vh;
+
+            align-items: center;
+        }
+
+        /**** STORY SELECTION PANEL ****/
+
+        #selection-panel-title {
+            color: var(--text-nav);
+            background-color: var(--background-nav);
+            /* background-color: var(--border-nav); */
+
+            position: sticky;
+            top: 0;
+            padding: 0.25em 0.5em;
+            margin-bottom: 0.5em;
+
+            /* unstyle <h2> */
+            font-size: 1.0em;
+            line-height: 1.0em;
+            font-weight: normal;
+        }
+        .selection-panel-row {
+            cursor: pointer;
+            border-radius: 0.25em;
+            margin: 0 0.5em;
+            padding: 0.25em;
+            gap: 0.5em;
+            align-items: center;
+        }
+        .selection-panel-row + .selection-panel-row {
+            margin-top: 2px;
+        }
+        .selection-greyed-out {
+            cursor: default;
+            opacity: 0.5;
+        }
+        .selected-vocab-row {
+            background-color: var(--background-inset);
+        }
+
+        /**** FLASHCARDS ****/
+
+        /* #flashcards-content {
+            margin-top: 1.0em;
+            font-size: 1.0em;
+            text-wrap: wrap;
+            text-align: center;
+
+            gap: 0.75em;
+        } */
+
+        #flashcard-set-title {            
+            /* position: absolute; */
+            /* top: 5vh; */
+            
+            font-size: 1.2em;
+            text-align: center;
+            text-decoration: underline;
+        }
+        #flashcard-wrapper {
+            /* border: 2px solid blue; */
+            /* position: absolute; */
+            /* top: 50%; */
+        }
+
+        .flashcard {
+            --w: min(90vw, 16em);
+            --h: calc(0.6 * var(--w));
+            border: 0.1em solid var(--border-dark);
+
+            position: absolute;
+            top: calc(var(--h) / -2);
+			left: calc(var(--w) / -2);
+            width: var(--w);
+            height: var(--h);
+        }
+        .flashcard-inactive-left {
+            transform: translate(-5.5em,0);
+			opacity: 0.0;
+        }
+        .flashcard-inactive-right {
+            transform: translate(5.5em,0);
+			opacity: 0.0;
+        }
+
+
+
+
+        .widget-anchor {
+			filter: drop-shadow(0 0 2px #0008);
+			position: absolute;
+			top: var(--widget-anchor-v);
+		}
+		.widget-anchor > div {
+			transition: var(--widget-transition);
+			position: absolute;
+			top: calc(var(--widget-size) / -2);
+			left: calc(var(--widget-size) / -2);
+			width: var(--widget-size);
+			height: var(--widget-size);
+		}
+		.widget-inactive-left {
+			transform: translate(-5.5em,0);
+			opacity: 0.0;
+		}
+		.widget-inactive-right {
+			transform: translate(5.5em,0);
+			opacity: 0.0;
+		}
+
+
+        /**** MEDIA QUERIES ****/
+
+        /* mobile-first styling for better load times on less-powerful devices */
+        @media (max-aspect-ratio: 5/4) { /* mobile mode */
+            #selection-panel {
+                width: 100vw;
+                max-height: 50vh;
+            }
+        }
+		@media (min-aspect-ratio: 5/4) { /* desktop mode */
+            :root {
+                --title-font-size: 1.0em;
+                --nav-height: calc(1.5 * var(--fluid-font-size)); /* ref height for content anchors; 1.0em text + 2*0.25em padding */
+            }
+            #content {
+                padding-left: var(--content-pad);
+            }
+			.flex-adapt {
+				flex-direction: row;
+                align-items: normal;
+				justify-content: center;
+			}
+            .flex-adapt-reverse {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            .player-panel {
+                width: auto;
+            }
+            #selection-panel {
+                position: sticky;
+                top: calc(var(--nav-height) + var(--content-pad));
+                width: 33vw;
+                max-height: calc(100vh - var(--nav-height) - 2 * var(--content-pad));
+            }
+            #scroll-to-selection {
+                display: none;
+            }
+		}
+		
+	</style>
+</head>
+<body>
+
+<div id='nav-bar'>
+    <h1 id='nav-title'>Chukchansi Flashcards</h1>
+    <nav id='nav-menu' role='navigation'>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="24" height="24" stroke-width="1.25" style='width:100%;height:100%;pointer-events:none;'>
+            <path d="M5 8l14 0"></path>
+            <path d="M5 12l14 0"></path>
+            <path d="M5 16l14 0"></path>
+        </svg>
+        <ul id='nav-dropdown' class='flex-row'>
+            <div class='flex-col'>
+                <!-- <li><a>Home</a></li> -->
+                <p class='nav-greyed-out'>Home</p>
+            </div>
+            <div class='flex-col'>
+                <li><a href='speaking-dictionary'>Speaking Dictionary</a></li>
+                <li><a href='pdf-dictionary'>PDF Dictionary</a></li>
+                <li><a href='stories'>Story Reader</a></li>
+                <li><a href='wordsearch'>Wordsearch</a></li>
+            </div>
+        </ul>
+    </nav>
+</div>
+<div id='content' class='flex-adapt'>
+    <div> <!-- need wrapper div so position:sticky plays nice with flexbox -->
+        <div id='selection-panel' class='flex-col'>
+            <h2 id='selection-panel-title'>Pick a Vocab List</h2>
+                <div id='vocab-0' class='flex-row selection-panel-row selected-vocab-row'>
+                    How Stinkbug Became Black
+                </div>
+                <div id='vocab-1' class='flex-row selection-panel-row'>
+                    Why Coyote's Eyes are the Best
+                </div>
+                <div id='vocab-2' class='flex-row selection-panel-row'>
+                    Dove and Hummingbird Race Each Other
+                </div>
+                <div id='vocab-3' class='flex-row selection-panel-row'>
+                    A Rock to be Jumped
+                </div>
+
+                <p style='margin:1.0em;font-style:italic;'>More coming soon!</p>
+        </div>
+    </div>
+        
+    <div id='flashcards-panel' class='flex-col'>
+        <!-- <div id='flashcards-content' class='flex-col'></div> -->
+        <div id='flashcard-set-title'>[Vocab Set]</div>
+        <div id='flashcard-wrapper'>
+            <div class='flashcard'></div>
+        </div>
+    </div>
+</div>
+
+<!-- load story data -->
+<script type='text/javascript' src="source/story-0/sox-siksikaʔ-data-annotated.js"></script>
+<script type='text/javascript' src="source/story-1/kaʔyuʔun-shashaʔ-data-annotated.js"></script>
+<script type='text/javascript' src="source/story-2/ʔuplalliʔ-deemaysuʔ-data-annotated.js"></script>
+<script type='text/javascript' src="source/story-3/shelel'-shilithanaʔ-data-annotated.js"></script>
+
+
+
+
+
+
+
+<script type='text/javascript'>
+
+
+    //// WAVE 3 ////
+
+    // 2.5 hrs: set up basic page layout
+
+
+    
+    // DOM anchors
+    // const navTitle = document.getElementById('nav-title');
+    // const navButton = document.getElementById('nav-menu');
+    // const navDropdown = document.getElementById('nav-dropdown');
+    // const selectionPanel = document.getElementById('selection-panel');
+    // const storyReaderPanel = document.getElementById('flashcards-panel');
+    // const readerContent = document.getElementById('flashcards-content');
+
+
+    
+    //////////////////////
+
+    let stories = [
+        story_sox_siksikaʔ,
+        story_kaʔyuʔun_shashaʔ,
+        story_ʔuplalliʔ_deemaysuʔ,
+        story_shelel_shilithanaʔ
+    ];
+    
+
+</script>
+
+</body>
+</html>
