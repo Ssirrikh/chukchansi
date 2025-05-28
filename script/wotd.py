@@ -2,6 +2,7 @@
 #### wave 3 ####
 
 # 1.5 hrs: dev word-of-the-day compiler to auto-gen js file
+# 1.5 hrs: set up auto-generation of js file and prep for future build automation
 
 
 
