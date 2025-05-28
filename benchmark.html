@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset='utf-8'>
+	<meta name='viewport' content='width=device-width, initial-scale=1'>
+	<title>Chukchansi Benchmarking</title>
+</head>
+<body>
+
+<!-- load dependencies -->
+<script type='text/javascript' src='script/dictionary-v2.js'></script>
+<script type='text/javascript' src='data/en-ch-v13.js'></script>
+<script type='text/javascript' src='source/resources.js'></script>
+
+<script type='text/javascript'>
+    // build dictionary
+    let dictionary = new Dictionary(primary_eng, secondary_chk);
+    dictionary.loadData( parse_en_ch_v13(tsv_en_ch_v13) );
+
+    // indexing
+    let indexedPrimary = dictionaryUtils.indexPrimaryWords(dictionary);
+    let indexedSecondary = dictionaryUtils.indexSecondaryWords(dictionary);
+    // duplication
+    let primaryDuplicates = dictionaryUtils.listDuplicateEntries(indexedPrimary);
+    let secondaryDuplicates = dictionaryUtils.listDuplicateEntries(indexedSecondary);
+    // duplication stats
+    const primaryDashes = (primaryDuplicates.words.indexOf('---') === -1) ? 0 : primaryDuplicates.entries[primaryDuplicates.words.indexOf('---')].length;
+    const secondaryDashes = (secondaryDuplicates.words.indexOf('---') === -1) ? 0 : secondaryDuplicates.entries[secondaryDuplicates.words.indexOf('---')].length;
+    const [primaryFormDupes,primaryEntryDupes] = dictionaryUtils.getDuplicationStats(primaryDuplicates);
+    const [secondaryFormDupes,secondaryEntryDupes] = dictionaryUtils.getDuplicationStats(secondaryDuplicates);
+    console.log(`${primaryDuplicates.words.length} English duplications found. \n${primaryFormDupes} were duped forms in the same entry, ${primaryEntryDupes} were words that appeared in more than one entry.${(primaryDashes>0) ? ('\nA placeholder "---" occured '+primaryDashes+' times.') : ''}`);
+    console.log(`${secondaryDuplicates.words.length} Chukchansi duplications found. \n${secondaryFormDupes} were duped forms in the same entry, ${secondaryEntryDupes} were words that appeared in more than one entry.${(secondaryDashes>0) ? ('\nA placeholder "---" occured '+secondaryDashes+' times.') : ''}`);
+    
+    // for (let dupe of primaryDuplicates.entries) {
+    //     dictionaryUtils.printEntries(dupe,dictionary,'primary');
+    // }
+    // for (let dupe of secondaryDuplicates.entries) {
+    //     dictionaryUtils.printEntries(dupe,dictionary,'secondary');
+    // }
+    // for english:
+        // flower!noun vs flower!verb; flower!verb entry uses "bloom" in sentence translations, but has diff chk word than actual entry for bloom!verb
+    // for chukchansi:
+        // many entries have identical words in form0/form1, or form1/form2; need to check if those are intentional
+        // "---" was old notation for unelicited forms that are heavily suspected to exist
+            // what notation is desired?
+            // should they be converted to blanks like newer unelicited forms, or is there a special meaning to the remaining "---"?
+        // need additional script to identify duplicate words in diff entries, as opposed to duplicate forms in same entry
+            // unsure whether current script is treating word_1 and word_2 as identical, check this
+    
+    
+</script>
+
+</body>
+</html>
