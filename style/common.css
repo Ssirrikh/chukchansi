@@ -1,0 +1,261 @@
+
+/**** common.css ****/
+
+/* Common styling is shared across entire site. */
+
+/* Website (C) 2025 Narayana "Kat" Adisasmito-Smith */
+/* Text and images from this site may not be used as training data for AI. */
+
+:root {
+    --background-nav: #461220;
+    --text-nav: #ffd994;
+    --border-nav: #64182c;
+
+    --background-nav-selected: #6b4226;
+    --background-nav-unselected: #eac8a2;
+
+    --background-light: #f2e3d3;
+    --background-inset: #dbb78f; /* vibrant */
+    --background-medium: #bfa07e; /* muted */
+    --background-dark: #ad8e6c; /* fractionally darker than medium */
+    --text-dark: #4f3a09;
+    --text-medium: #806d46;
+    --text-light: #fdf7ea;
+
+    --border-dark: #4f3a09;
+    --border-medium: #75544b;
+    --border-light: #bfa07e;
+
+    --popout-shadow: 0 0 10px #00000038;
+
+    --layer-front: 2; /* elems that hover over content (hanging tabs, search history) */
+    --layer-nav: 3; /* nav elements are always topmost, except for overlays */
+    --layer-overlay: 5; /* modal overlays */
+
+    /* dynamic units calculated mobile-first; see media queries for desktop */
+    --fluid-font-size: max(2.5vh, calc(1rem + 1.0vw));
+    /* --fluid-font-size: calc(1rem + 1.0vw); */
+    /* --fluid-font-size: 2.5vh; */
+    --nav-pad: 0.25em;
+    --content-pad: 0.6rem;
+    --title-font-size: calc(1.17 * var(--fluid-font-size)); /* unsure why 1.17, but it seems to be pixel-perfect at all sizes */
+    --nav-height: calc(1.75 * var(--fluid-font-size)); /* ref height for content anchors */
+
+    --thumbnail-position: center center / cover no-repeat;
+}
+
+
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Times New Roman';
+}
+body {
+    background-color: var(--background-nav);
+    font-size: var(--fluid-font-size);
+    overflow-x: hidden; /* 100vw overflows horizontally on chrome cuz it doesn't treat scrollbars the way everyone else does */
+}
+button {
+    color: var(--text-dark);
+    background-color: transparent;
+    border: none;
+    outline: none;
+}
+h1, h2, h3, h4, h5, h6 {
+    font-weight: normal;
+}
+
+
+
+/**** FLEXBOX UTILITY ****/
+
+.flex-sep {
+    width: 0;
+    flex-grow: 1;
+}
+.flex-row {
+    display: flex;
+    flex-direction: row !important;
+    align-items: start;
+}
+.flex-col {
+    display: flex;
+    flex-direction: column !important;
+}
+.flex-adapt {
+    /* column on mobile, row on desktop */
+    display: flex;
+    flex-direction: column !important;
+    align-items: center;
+}
+.flex-adapt-reverse {
+    /* row on mobile, column on desktop */
+    display: flex;
+    flex-direction: row !important;
+    align-items: normal;
+    justify-content: center;
+}
+.flex-centered {
+    align-items: center;
+    justify-content: center;
+}
+
+
+/**** BEHAVIOR ****/
+
+.no-scrollbar {
+    overflow: scroll;
+    -ms-overflow-style: none;  /* Hide scrollbar for IE and Edge */
+    scrollbar-width: none;  /* Hide scrollbar for Firefox */
+}
+.no-scrollbar::-webkit-scrollbar { display: none; } /* Hide scrollbar for Chrome, Safari, and Opera */
+.desktop-only {
+    /* visibility: hidden; */
+    /* display: none; */
+}
+
+
+
+/**** NAV BAR ****/
+
+#nav-bar {
+    /* top header bar */
+    color: var(--text-nav);
+    background-color: var(--background-nav);
+    border-bottom: 1px solid var(--border-nav);
+
+    position: sticky;
+    padding: var(--nav-pad);
+    top: 0;
+    width: 100%;
+    font-size: var(--title-font-size);
+    text-align: center;
+
+    /* nav elems and hanging tabs are on top of other content, but not fullscreen modals */
+    z-index: var(--layer-nav);
+}
+#nav-title {
+    /* page title, centered in header bar */
+    /* unstyle <h1> */
+    font-size: var(--title-font-size);
+    line-height: var(--title-font-size);
+    font-weight: normal;
+}
+#nav-menu {
+    /* wrapper for nav manu */
+    /* https://www.sliderrevolution.com/resources/css-dropdown-menu/ */
+    cursor: pointer;
+
+    display: inline-block;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    /* width: var(--nav-height); */
+    height: var(--nav-height);
+}
+#nav-target {
+    /* always-visible click/hover target to trigger menu dropdown */
+    font-size: 0.8em;
+    align-items: center;
+    gap: 0.2em;
+    padding-right: 0.2em; /* provide larger click target for touchscreens */
+}
+
+#nav-menu ul {
+    cursor: default;
+    color: var(--text-dark);
+    background-color: var(--background-nav-unselected);
+    /* border-top: 1px solid var(--text-light); */
+    border-bottom: 1px solid var(--border-light);
+
+    visibility: hidden;
+    position: absolute;
+    top: var(--nav-height);
+    left: 0px;
+    width: 100vw;
+    /* width: 100%; */
+    padding: 0.25em;
+
+    text-align: left;
+    list-style: none;
+    flex-wrap: wrap;
+}
+#nav-menu div + div {
+    border-left: 1px solid var(--text-dark);
+}
+#nav-menu ul li {
+    cursor: pointer;
+    color: var(--text-dark);
+    /* padding: 0.15em 0.75em; */
+    font-size: 0.8em;
+}
+#nav-menu ul li:hover {
+    color: var(--text-nav);
+    background-color: var(--background-nav-selected);
+}
+#nav-menu:focus-within > ul, #nav-menu:hover ul {
+    visibility: visible;
+}
+#nav-menu ul li a {
+    /* border: 1px solid blue; */
+    display: inline-block;
+    width: 100%;
+    padding: 0.15em 0.75em;
+    color: inherit;
+    text-decoration: inherit;
+}
+.nav-greyed-out {
+    cursor: default;
+    color: var(--text-dark);
+    padding: 0.15em 0.75em;
+    font-size: 0.8em;
+    opacity: 50%;
+}
+
+.nav-arrow {
+    --thickness: 0.11em;
+    --border: var(--thickness) solid var(--text-nav);
+    border-top: var(--border);
+    border-right: var(--border);
+    transform: translate(0,-50%) rotate(135deg);
+    transform-origin: center;
+    /* filter: drop-shadow(0 0 1px #000); */
+
+    display: inline-block;
+    width: calc(4 * var(--thickness));
+    height: calc(4 * var(--thickness));
+}
+
+
+
+/**** MEDIA QUERIES ****/
+
+@media (max-aspect-ratio: 5/4) { /* mobile mode */
+    /* all styling is mobile-first, but if an element requires specific overrides, those go here */
+    .desktop-only {
+        display: none;
+    }
+}
+@media (min-aspect-ratio: 5/4) { /* desktop mode */
+    :root {
+        --title-font-size: 1.0em;
+        --nav-height: calc(1.5 * var(--fluid-font-size)); /* ref height for content anchors; 1.0em text + 2*0.25em padding */
+    }
+    .flex-adapt {
+        display: flex;
+        flex-direction: row !important;
+        align-items: normal;
+        justify-content: center;
+    }
+    .flex-adapt-reverse {
+        display: flex;
+        flex-direction: column !important;
+        align-items: center;
+    }
+    .desktop-only {
+        /* visibility: visible; */
+        /* display: ''; */
+    }
+}
