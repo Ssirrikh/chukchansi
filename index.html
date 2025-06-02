@@ -9,7 +9,21 @@
     <link rel='stylesheet' href='style/common.css'>
     <style>
 
-		
+		body {
+            background: none;
+        }
+        body::before {
+            --blur: 8px;
+            content: '';
+            position: fixed;
+            top: calc(0px - 2 * var(--blur));
+            left: calc(0px - 2 * var(--blur));
+            height: calc(100% + 4 * var(--blur));
+            width: calc(100% + 4 * var(--blur));
+            background: url('source/Picayune\ Ranch.jpg') center center / cover no-repeat;
+            filter: blur(var(--blur));
+            z-index: -1;
+        }
 
         /**** SITE LAYOUT ****/
 
@@ -391,6 +405,7 @@
 <div id='nav-bar'>
     <h1 id='nav-title'>The Chukchansi Language Project</h1>
     <nav id='nav-menu' role='navigation'>
+
         <div id='nav-target' class='flex-row'>
             <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' width='24' height='24' stroke-width='1.25' style='width:var(--nav-height);height:var(--nav-height);pointer-events:none;'>
                 <path d='M5 8l14 0'></path>
@@ -398,43 +413,25 @@
                 <path d='M5 16l14 0'></path>
             </svg>
             <p class='desktop-only'>Menu</p>
-            <div><div class='nav-arrow'></div></div>
+            <div class='nav-arrow desktop-only'><div></div></div>
         </div>
         
         <div id='nav-dropdown' class='flex-adapt'>
-            <div class='flex-col'>
-                <p class='nav-greyed-out'>Home</p>
-            </div>
             <ul class='flex-col'>
-                <li><p>Speaking Dictionary</p></li>
+                <li><a href='/'>Home</a></li>
             </ul>
             <ul class='flex-col'>
-                <li><p>Story Reader</p></li>
-            </ul>
-            <!-- <ul class='flex-col'>
                 <li><a href='speaking-dictionary'>Speaking Dictionary</a></li>
                 <li><a href='pdf-dictionary'>PDF Dictionary</a></li>
                 <li><a href='stories'>Story Reader</a></li>
                 <li><a href='wordsearch'>Wordsearch</a></li>
-            </ul> -->
+            </ul>
         </div>
 
-
-        <!-- <ul id='nav-dropdown' class='flex-row'>
-            <div class='flex-col'>
-                <p class='nav-greyed-out'>Home</p>
-            </div>
-            <div class='flex-col'>
-                <li><a href='speaking-dictionary'>Speaking Dictionary</a></li>
-                <li><a href='pdf-dictionary'>PDF Dictionary</a></li>
-                <li><a href='stories'>Story Reader</a></li>
-                <li><a href='wordsearch'>Wordsearch</a></li>
-            </div>
-        </ul> -->
     </nav>
 </div>
 
-<div id='bg-img'></div>
+<!-- <div id='bg-img'></div> -->
 
 <!-- TITLE SECTION -->
 <div class='flex-row section-header'></div>
@@ -534,7 +531,9 @@
     // 3.5 hrs: admin stuff, web hosting research
     // 0.5 hrs: add custom error message and direct download link to pdf dictionary
     // 6.0 hrs: debug pdf viewer breaking after firefox update, add multistep fallback for the future
-    // 2.5 hrs: create common stylesheet, clean up css, improve nav bar responsiveness
+    // 2.5 hrs: create common stylesheet, clean up css
+    // 2.0 hrs: improve standardized navbar
+    // 3.0 hrs: sim hover behavior in js, since ios doesn't respect actual :hover behavior
 
 
 
@@ -548,7 +547,34 @@
     
     // DOM anchors
     const navTitle = document.getElementById('nav-title');
+    const navMenu = document.getElementById('nav-menu');
+    const navTarget = document.getElementById('nav-target');
+    const navDropdown = document.getElementById('nav-dropdown');
 
+    // nav menu cross-platform hover dropdown
+    let navDropdownBlockDoubleFire = false; // touchstart fires before mousemove, so block first mousemove after each touchstart
+    window.addEventListener('mousemove', e => {
+        if (navDropdownBlockDoubleFire) {
+            navDropdownBlockDoubleFire = false;
+            return;
+        }
+        if (navMenu.contains(e.target)) {
+            navDropdown.style.visibility = 'visible';
+        } else {
+            navDropdown.style.visibility = 'hidden';
+        }
+    });
+    // allow touch devices to tap the menu icon to close the dropdown
+    navTarget.addEventListener('touchstart', e => {
+        if (navDropdown.style.visibility === 'visible') {
+            navDropdown.style.visibility = 'hidden';
+            navDropdownBlockDoubleFire = true;
+        }
+    });
+
+
+
+    // responsive navbar title
     window.addEventListener('resize', e => {
         navTitle.innerHTML = (window.innerWidth < window.innerHeight) ? 'The Chukchansi Project' : 'The Chukchansi Language Project';
     });

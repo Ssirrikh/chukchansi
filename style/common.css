@@ -163,11 +163,52 @@ h1, h2, h3, h4, h5, h6 {
     padding-right: 0.2em; /* provide larger click target for touchscreens */
 }
 
-#nav-menu ul {
+#nav-dropdown {
+    background-color: var(--background-nav-unselected);
+    border-bottom: 1px solid var(--border-light);
+
+    /* starts out hidden, revealed on hover/tap */
+    /* visibility: hidden; */
+
+    position: absolute;
+    top: var(--nav-height);
+    left: 0px;
+    width: 100vw;
+    padding: 0.25em;
+
+    align-items: stretch;
+    justify-content: start;
+}
+#nav-dropdown > ul {
+    text-align: left;
+    list-style: none;
+    /* flex-wrap: wrap; */
+}
+#nav-dropdown > ul + ul {
+    border-left: none;
+    border-top: 1px solid var(--text-dark);
+}
+#nav-dropdown > ul > li {
+    cursor: pointer;
+    color: var(--text-dark);
+    font-size: 0.8em;
+}
+#nav-dropdown > ul > li:hover {
+    color: var(--text-nav);
+    background-color: var(--background-nav-selected);
+}
+#nav-dropdown > ul > li > a, #nav-dropdown > ul > li > p {
+    color: inherit;
+    display: inline-block;
+    width: 100%;
+    padding: 0.15em 0.75em;
+    text-decoration: inherit;
+
+}
+/* #nav-menu ul {
     cursor: default;
     color: var(--text-dark);
     background-color: var(--background-nav-unselected);
-    /* border-top: 1px solid var(--text-light); */
     border-bottom: 1px solid var(--border-light);
 
     visibility: hidden;
@@ -175,37 +216,34 @@ h1, h2, h3, h4, h5, h6 {
     top: var(--nav-height);
     left: 0px;
     width: 100vw;
-    /* width: 100%; */
     padding: 0.25em;
 
     text-align: left;
     list-style: none;
     flex-wrap: wrap;
-}
-#nav-menu div + div {
+} */
+/* #nav-menu div + div {
     border-left: 1px solid var(--text-dark);
-}
-#nav-menu ul li {
+} */
+/* #nav-menu ul li {
     cursor: pointer;
     color: var(--text-dark);
-    /* padding: 0.15em 0.75em; */
     font-size: 0.8em;
-}
-#nav-menu ul li:hover {
+} */
+/* #nav-menu ul li:hover {
     color: var(--text-nav);
     background-color: var(--background-nav-selected);
-}
-#nav-menu:focus-within > ul, #nav-menu:hover ul {
+} */
+/* #nav-menu:focus-within > ul, #nav-menu:hover ul {
     visibility: visible;
-}
-#nav-menu ul li a {
-    /* border: 1px solid blue; */
+} */
+/* #nav-menu ul li a {
     display: inline-block;
     width: 100%;
     padding: 0.15em 0.75em;
     color: inherit;
     text-decoration: inherit;
-}
+} */
 .nav-greyed-out {
     cursor: default;
     color: var(--text-dark);
@@ -215,13 +253,20 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .nav-arrow {
+    display: flex;
+    width: calc(0.5 * var(--nav-height));
+    height: var(--nav-height);
+
+    align-items: center;
+    justify-content: center;
+}
+.nav-arrow > div {
     --thickness: 0.11em;
     --border: var(--thickness) solid var(--text-nav);
     border-top: var(--border);
     border-right: var(--border);
-    transform: translate(0,-50%) rotate(135deg);
+    transform: translate(0,-25%) rotate(135deg);
     transform-origin: center;
-    /* filter: drop-shadow(0 0 1px #000); */
 
     display: inline-block;
     width: calc(4 * var(--thickness));
@@ -257,5 +302,10 @@ h1, h2, h3, h4, h5, h6 {
     .desktop-only {
         /* visibility: visible; */
         /* display: ''; */
+    }
+
+    #nav-dropdown > ul + ul {
+        border-left: 1px solid var(--text-dark);
+        border-top: none;
     }
 }
