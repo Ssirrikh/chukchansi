@@ -9,18 +9,23 @@
     <link rel='stylesheet' href='style/common.css'>
     <style>
 
+        :root {
+            /* --layer- */
+        }
+
 		body {
             background: none;
         }
         body::before {
-            --blur: 8px;
+            --blur: 4px;
             content: '';
             position: fixed;
             top: calc(0px - 2 * var(--blur));
             left: calc(0px - 2 * var(--blur));
             height: calc(100% + 4 * var(--blur));
             width: calc(100% + 4 * var(--blur));
-            background: url('source/Picayune\ Ranch.jpg') center center / cover no-repeat;
+            /* background: url('source/Picayune\ Ranch.jpg') center center / cover no-repeat; */
+            background: url('source/Narayana\ Kat\ Adisasmito-Smith\ -\ These\ Hills\ of\ Ours.webp') center center / cover no-repeat;
             filter: blur(var(--blur));
             z-index: -1;
         }
@@ -332,6 +337,26 @@
 
 
 
+
+        #section-proj {
+            position: sticky;
+            top: var(--nav-height);
+            padding: 1em;
+        }
+        .section-banner {
+            color: var(--text-nav);
+            background-color: var(--background-nav);
+            z-index: var(--layer-front);
+
+            
+            /* top: calc(var(--nav-height) + 1em); */
+            /* top: 2em; */
+            padding: 0.5em;
+            font-size: 1em;
+        }
+
+
+
         /**** FOOTER ****/
 
         .footer-no-ai {
@@ -413,7 +438,7 @@
                 <path d='M5 16l14 0'></path>
             </svg>
             <p class='desktop-only'>Menu</p>
-            <div class='nav-arrow desktop-only'><div></div></div>
+            <!-- <div class='nav-arrow desktop-only'><div></div></div> -->
         </div>
         
         <div id='nav-dropdown' class='flex-adapt'>
@@ -438,7 +463,7 @@
 <div id='section-title' class='flex-col'>
     <div id='site-description-wrapper' class='flex-col'>
         <h2 id='site-title'>The Chukchansi Language Project</h2>
-        <p id='site-description'>The Chukchansi Language Revitalization Project is documenting the Chukchansi Yokuts language. Our bilingual dictionary and educational resources are helping the next generation improve their fluency and connect with their heritage.</p>
+        <p id='site-description'>Helping the next generation improve their fluency and connect with their heritage.</p>
     </div>
 </div>
 
@@ -446,6 +471,11 @@
 <div class='flex-row section-header'>
     <div class='header-arrow-up'></div>
 </div>
+
+<div id='section-proj' class='flex-col'>
+    <h2 class='section-banner'>Our Projects</h2>
+</div>
+
 <div id='section-projects' class='flex-col'>
     <div class='flex-col project-card-large'>
         <div class='flex-row project-card-title-large'>
@@ -534,6 +564,8 @@
     // 2.5 hrs: create common stylesheet, clean up css
     // 2.0 hrs: improve standardized navbar
     // 3.0 hrs: sim hover behavior in js, since ios doesn't respect actual :hover behavior
+    // 3.5 hrs: web design
+    // 1.0 hrs: paint background img for homepage
 
 
 
@@ -542,6 +574,18 @@
     // word of the day
     // tile matching memory game
     // chukchansi wordle
+
+
+    //// REF ////
+    // https://www.dropbox.com/
+    // https://slack.com/
+    // https://www.carmax.com/
+    // https://www.healthline.com/
+    // https://www.trivago.com/
+    // https://www.century21.com/
+    // https://www.starbucks.com/
+    // https://lumbazzi.com/
+    // https://land-book.com/
 
 
     
