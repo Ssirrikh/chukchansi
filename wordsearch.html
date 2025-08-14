@@ -747,6 +747,7 @@
     const settingsCurrent = document.getElementById('settings-current'); // used by button onclicks
     const settingsNew = document.getElementById('settings-new');
     const settingsVocabSelect = document.getElementById('settings-vocab-select');
+    const settingsDifficultyLabel = document.getElementById('wordlist-difficulty');
     const wordsearch = document.getElementById('wordsearch-click-area');
     const wordsearchContainer = document.getElementById('wordsearch-wrapper');
     const cursorCaterpillar = document.getElementById('cursor-caterpillar');
@@ -866,6 +867,8 @@
             getWordsearch(controller.newGameSettings.gridsize, controller.wordlist);
             // initial render
             renderWordsearch(controller.grid);
+            // update difficulty
+            settingsDifficultyLabel.innerHTML = `${['Easy','Medium','Hard'][controller.newGameSettings.difficulty]}`;
         },
 
         // gamestate
@@ -1265,7 +1268,7 @@
                 // Fish, Coyote, eyes, river, stick, think, good, bad, want, see
             "Dove and Hummingbird Race Each Other"  : Object.freeze(["ʔuplalliʔ","deemay'suʔ","baanewshit","hoy'nit","ʔayax","wentaw","hayk'itaw","hoyonhiy'","ch'awit","hidyaʔ"]),
                 // Dove, Hummingbird, race each other, fly, fast, start, finish (line), wing, win, everybody
-            "A Rock to be Jumped"                   : Object.freeze(["shelel'","shil't'eʔ","hiky'eʔ","lihmit","bohloʔ","xishweʔ","texeetan'","noneeʔi","mokeela","peeli"])
+            "A Rock to be Jumped"                   : Object.freeze(["shelel'","shil't'eʔ","hik'yeʔ","lihmit","bohloʔ","xishweʔ","texeetan'","noneeʔi","mokeela","peeli"])
                 // rock, jump, play, run, grow, scratch, hurt, men, women, road
         }),
         'grammar' : Object.freeze({
