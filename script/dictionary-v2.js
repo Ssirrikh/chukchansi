@@ -2,6 +2,7 @@
 // 3.0 hrs: implement per-word indexing, begin applying to error checking and statistics
 // 0.5 hrs: cleanup
 // 4.0 hrs: move word indexing to discreet dictionaryUtils obj, bugfix, add duplication checking/stats
+// 1.0 hrs: add filters to detect intended duplicate forms
 
 (() => {
 	//// private global methods ////
@@ -323,7 +324,28 @@
 		const t0_findDupes = performance.now();
 		let duplicatedWords = [];
 		let duplicatedEntries = [];
+		// const hasAllSameForm = entries => {
+		// 	let lastEntry;
+		// 	for (let [entryIndex,formNum] of entries) {
+		// 		if (lastEntry === undefined) {
+		// 			lastEntry = 
+		// 		}
+		// 	}
+		// };
+		const reRootVowel = /^.*([aeiou])ʔ\1n$/gm; // root ending with vowel causes multiple forms to end in VʔVn
+		const spansMultipleEntries = entries => {
+			const [firstEntryIndex,firstForm] = entries[0];
+			return entries.every(entry => {
+				const [entryIndex,formNum] = entry;
+				return entryIndex === firstEntryIndex;
+			});
+		}
+		const multiEntryDupes = [];
+		const singleEntryDupes = [];
 		for (let word in indexedWords) {
+			if (spansMultipleEntries(indexedWords[word].entries)) {
+				multiEntryDupes.push([word,...])
+			}
 			if (indexedWords[word].entries.length > 1) {
 				// object key guaranteed unique; word/entry arrays are coindexed
 				duplicatedWords.push(word);

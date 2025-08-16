@@ -23,13 +23,13 @@
     // duplication
     let primaryDuplicates = dictionaryUtils.listDuplicateEntries(indexedPrimary);
     let secondaryDuplicates = dictionaryUtils.listDuplicateEntries(indexedSecondary);
-    // duplication stats
-    const primaryDashes = (primaryDuplicates.words.indexOf('---') === -1) ? 0 : primaryDuplicates.entries[primaryDuplicates.words.indexOf('---')].length;
-    const secondaryDashes = (secondaryDuplicates.words.indexOf('---') === -1) ? 0 : secondaryDuplicates.entries[secondaryDuplicates.words.indexOf('---')].length;
-    const [primaryFormDupes,primaryEntryDupes] = dictionaryUtils.getDuplicationStats(primaryDuplicates);
-    const [secondaryFormDupes,secondaryEntryDupes] = dictionaryUtils.getDuplicationStats(secondaryDuplicates);
-    console.log(`${primaryDuplicates.words.length} English duplications found. \n${primaryFormDupes} were duped forms in the same entry, ${primaryEntryDupes} were words that appeared in more than one entry.${(primaryDashes>0) ? ('\nA placeholder "---" occured '+primaryDashes+' times.') : ''}`);
-    console.log(`${secondaryDuplicates.words.length} Chukchansi duplications found. \n${secondaryFormDupes} were duped forms in the same entry, ${secondaryEntryDupes} were words that appeared in more than one entry.${(secondaryDashes>0) ? ('\nA placeholder "---" occured '+secondaryDashes+' times.') : ''}`);
+    // // duplication stats
+    // const primaryDashes = (primaryDuplicates.words.indexOf('---') === -1) ? 0 : primaryDuplicates.entries[primaryDuplicates.words.indexOf('---')].length;
+    // const secondaryDashes = (secondaryDuplicates.words.indexOf('---') === -1) ? 0 : secondaryDuplicates.entries[secondaryDuplicates.words.indexOf('---')].length;
+    // const [primaryFormDupes,primaryEntryDupes] = dictionaryUtils.getDuplicationStats(primaryDuplicates);
+    // const [secondaryFormDupes,secondaryEntryDupes] = dictionaryUtils.getDuplicationStats(secondaryDuplicates);
+    // console.log(`${primaryDuplicates.words.length} English duplications found. \n${primaryFormDupes} were duped forms in the same entry, ${primaryEntryDupes} were words that appeared in more than one entry.${(primaryDashes>0) ? ('\nA placeholder "---" occured '+primaryDashes+' times.') : ''}`);
+    // console.log(`${secondaryDuplicates.words.length} Chukchansi duplications found. \n${secondaryFormDupes} were duped forms in the same entry, ${secondaryEntryDupes} were words that appeared in more than one entry.${(secondaryDashes>0) ? ('\nA placeholder "---" occured '+secondaryDashes+' times.') : ''}`);
     
     // for (let dupe of primaryDuplicates.entries) {
     //     dictionaryUtils.printEntries(dupe,dictionary,'primary');
