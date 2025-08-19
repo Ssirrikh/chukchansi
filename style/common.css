@@ -1,12 +1,15 @@
 
 /**** common.css ****/
 
-/* Common styling is shared across entire site. */
+/* Common styling shared across entire site. */
+/* Includes themeing, destyling, flexbox utilities, and the shared navbar. */
 
 /* Website (C) 2025 Narayana "Kat" Adisasmito-Smith */
 /* Text and images from this site may not be used as training data for AI. */
 
 :root {
+    /**** color palette and theming ****/
+
     --background-nav: #461220;
     --text-nav: #ffd994;
     --border-nav: #64182c;
@@ -28,20 +31,23 @@
 
     --popout-shadow: 0 0 10px #00000038;
 
-    --layer-front: 2; /* elems that hover over content (hanging tabs, search history) */
-    --layer-nav: 3; /* nav elements are always topmost, except for overlays */
-    --layer-overlay: 5; /* modal overlays */
+    /**** positioning ****/
 
-    /* dynamic units calculated mobile-first; see media queries for desktop */
-    --fluid-font-size: max(2.5vh, calc(1rem + 1.0vw));
-    /* --fluid-font-size: calc(1rem + 1.0vw); */
-    /* --fluid-font-size: 2.5vh; */
-    --nav-pad: 0.25em;
-    --content-pad: 0.6rem;
-    --title-font-size: calc(1.17 * var(--fluid-font-size)); /* unsure why 1.17, but it seems to be pixel-perfect at all sizes */
-    --nav-height: calc(1.75 * var(--fluid-font-size)); /* ref height for content anchors */
+    --layer-background: -1; /* static backgrounds */
+    --layer-front: 2; /* elems that hover over content */
+    --layer-nav: 3; /* nav elements, and elements that hang from navbar */
+    --layer-overlay: 5; /* modals and overlays */
 
     --thumbnail-position: center center / cover no-repeat;
+
+    /**** responsive layout and fluid typography ****/
+
+    /* dynamic units calculated mobile-first; see media queries for desktop layout */
+    --fluid-font-size: max(2.5vh, calc(1rem + 1.0vw));
+    --nav-pad: 0.25em;
+    --content-pad: 0.6rem;
+    --title-font-size: calc(1.17 * var(--fluid-font-size));
+    --nav-height: calc(2 * var(--content-pad) + var(--title-font-size)); /* anchor for hanging content */
 }
 
 
@@ -55,7 +61,7 @@
 body {
     background-color: var(--background-nav);
     font-size: var(--fluid-font-size);
-    overflow-x: hidden; /* 100vw overflows horizontally on chrome cuz it doesn't treat scrollbars the way everyone else does */
+    overflow-x: hidden; /* 100vw overflows horizontally only on chrome; chrome scrollbars contribute to viewport size, but position themselves outside it, forcing it to expand */
 }
 button {
     color: var(--text-dark);
@@ -115,6 +121,9 @@ h1, h2, h3, h4, h5, h6 {
     /* visibility: hidden; */
     /* display: none; */
 }
+.no-wrap {
+    white-space: nowrap;
+}
 
 
 
@@ -125,64 +134,62 @@ h1, h2, h3, h4, h5, h6 {
     color: var(--text-nav);
     background-color: var(--background-nav);
     border-bottom: 1px solid var(--border-nav);
+    z-index: var(--layer-nav);
 
     position: sticky;
-    padding: var(--nav-pad);
     top: 0;
     width: 100%;
     font-size: var(--title-font-size);
-    text-align: center;
 
-    /* nav elems and hanging tabs are on top of other content, but not fullscreen modals */
-    z-index: var(--layer-nav);
+    align-items: center;
+    justify-content: space-between;
 }
 #nav-title {
     /* page title, centered in header bar */
+    margin-left: var(--content-pad);
     /* unstyle <h1> */
     font-size: var(--title-font-size);
     line-height: var(--title-font-size);
-    font-weight: normal;
 }
 #nav-menu {
-    /* wrapper for nav manu */
     /* https://www.sliderrevolution.com/resources/css-dropdown-menu/ */
     cursor: pointer;
-
     display: inline-block;
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    /* width: var(--nav-height); */
-    height: var(--nav-height);
 }
 #nav-target {
     /* always-visible click/hover target to trigger menu dropdown */
     font-size: 0.8em;
     align-items: center;
     gap: 0.2em;
-    padding-right: 0.2em; /* provide larger click target for touchscreens */
+    padding: 0 0.2em; /* provide larger click target for touchscreens */
+}
+
+#nav-icon {
+    pointer-events: none;
+    width: var(--nav-height);
+    height: var(--nav-height);
 }
 
 #nav-dropdown {
     background-color: var(--background-nav-unselected);
     border-bottom: 1px solid var(--border-light);
 
-    /* starts out hidden, revealed on hover/tap */
-    /* visibility: hidden; */
+    /* initially hidden, revealed on hover/tap */
+    visibility: hidden;
 
     position: absolute;
     top: var(--nav-height);
-    left: 0px;
+    /* left: 0px; */
+    right: 0;
     width: 100vw;
     padding: 0.25em;
 
     align-items: stretch;
-    justify-content: start;
+    /* justify-content: end; */
 }
 #nav-dropdown > ul {
     text-align: left;
     list-style: none;
-    /* flex-wrap: wrap; */
 }
 #nav-dropdown > ul + ul {
     border-left: none;
@@ -205,45 +212,6 @@ h1, h2, h3, h4, h5, h6 {
     text-decoration: inherit;
 
 }
-/* #nav-menu ul {
-    cursor: default;
-    color: var(--text-dark);
-    background-color: var(--background-nav-unselected);
-    border-bottom: 1px solid var(--border-light);
-
-    visibility: hidden;
-    position: absolute;
-    top: var(--nav-height);
-    left: 0px;
-    width: 100vw;
-    padding: 0.25em;
-
-    text-align: left;
-    list-style: none;
-    flex-wrap: wrap;
-} */
-/* #nav-menu div + div {
-    border-left: 1px solid var(--text-dark);
-} */
-/* #nav-menu ul li {
-    cursor: pointer;
-    color: var(--text-dark);
-    font-size: 0.8em;
-} */
-/* #nav-menu ul li:hover {
-    color: var(--text-nav);
-    background-color: var(--background-nav-selected);
-} */
-/* #nav-menu:focus-within > ul, #nav-menu:hover ul {
-    visibility: visible;
-} */
-/* #nav-menu ul li a {
-    display: inline-block;
-    width: 100%;
-    padding: 0.15em 0.75em;
-    color: inherit;
-    text-decoration: inherit;
-} */
 .nav-greyed-out {
     cursor: default;
     color: var(--text-dark);
@@ -304,8 +272,12 @@ h1, h2, h3, h4, h5, h6 {
         /* display: ''; */
     }
 
-    #nav-dropdown > ul + ul {
+    #nav-dropdown {
+        width: auto;
+        height: calc(100vh - var(--nav-height));
+    }
+    /* #nav-dropdown > ul + ul {
         border-left: 1px solid var(--text-dark);
         border-top: none;
-    }
+    } */
 }
