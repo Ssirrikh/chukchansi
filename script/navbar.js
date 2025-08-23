@@ -30,7 +30,6 @@
         } else {
             navDropdown.style.visibility = 'hidden';
         }
-        console.log(navMenu.contains(e.target));
     });
     // allow touch devices to tap the menu icon to close the dropdown
     navTarget.addEventListener('touchstart', e => {
