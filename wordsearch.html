@@ -1130,7 +1130,7 @@
         if (type === 'rand') {
             return vocabRandomized['story'][Object.keys(vocabRandomized['story'])[id]](minWordlen,maxWordlen);
         } else {
-            return vocabCurated[type][Object.keys(vocabRandomized['story'])[id]].map(x => x); // get non-frozen deep copy;
+            return vocabCurated[type][Object.keys(vocabCurated[type])[id]].map(x => x); // get non-frozen deep copy;
         }
     }
     function getVocabByName (name,type,minWordlen,maxWordlen) {
