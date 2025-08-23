@@ -130,7 +130,6 @@ h1, h2, h3, h4, h5, h6 {
 /**** NAV BAR ****/
 
 #nav-bar {
-    /* top header bar */
     color: var(--text-nav);
     background-color: var(--background-nav);
     border-bottom: 1px solid var(--border-nav);
@@ -145,7 +144,6 @@ h1, h2, h3, h4, h5, h6 {
     justify-content: space-between;
 }
 #nav-title {
-    /* page title, centered in header bar */
     margin-left: var(--content-pad);
     /* unstyle <h1> */
     font-size: var(--title-font-size);
@@ -272,6 +270,9 @@ h1, h2, h3, h4, h5, h6 {
         /* display: ''; */
     }
 
+    #nav-title {
+        margin-left: calc(2 * var(--content-pad));
+    }
     #nav-dropdown {
         width: auto;
         height: calc(100vh - var(--nav-height));
