@@ -6,42 +6,9 @@
     <meta name='robots' content='index, follow'>
     <meta name='description' content='A fun and educational Chukchansi wordsearch puzzle for language learners to practice word recognition.'>
 	<meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' href='style/common.css'>
     <style>
         :root {
-			--background-nav: #461220; /* navbar */
-            --text-nav: #ffd994; /* previously #ffdab3 */
-            --border-nav: #64182c; /* #64182c, #771932 */
-
-            --background-nav-selected: #6b4226;
-            --background-nav-unselected: #eac8a2;
-
-			--background-light: #f2e3d3; /* main content bg */
-			--background-inset: #dbb78f; /* inset panels; vibrant bg */
-			--background-medium: #bfa07e; /* side panels; muted bg */
-			--background-dark: #ad8e6c; /* fractionally darker interactibles bg */
-			--text-dark: #4f3a09; /* main content text */
-			--text-medium: #806d46; /* interactible text */
-			--text-light: #fdf7ea;
-
-			--border-dark: #4f3a09; /* content separation */
-			--border-medium: #75544b; /* inset panel border */
-			--border-light: #bfa07e; /* interactible textbox border */
-
-            --popout-shadow: 0 0 10px #00000038;
-
-			--layer-front: 2; /* elems that hover over content (hanging tabs, search history) */
-			--layer-nav: 3; /* nav elements are always topmost */
-			--layer-overlay: 5; /* modal overlays */
-
-            /* dynamic units calculated for mobile-first; see media queries for desktop */
-            --fluid-font-size: max(2.5vh, calc(1rem + 1.0vw));
-            /* --fluid-font-size: calc(1rem + 1.0vw); */
-            /* --fluid-font-size: 2.5vh; */
-            --nav-pad: 0.25em;
-            --content-pad: 0.8rem;
-            --title-font-size: calc(1.17 * var(--fluid-font-size)); /* unsure why 1.17, but it seems to be pixel-perfect at all sizes */
-            --nav-height: calc(1.75 * var(--fluid-font-size)); /* ref height for content anchors */
-
 			--wordsearch-grid-size: 11;
             --wordsearch-pad: 0.25em;
             --wordsearch-width: max(min(60vh, calc(100vw - 2 * var(--content-pad))));
@@ -50,16 +17,6 @@
             --wordsearch-tile-font-size: calc(0.7 * var(--wordsearch-tile-width));
 		}
 
-		* {
-			margin: 0px;
-			padding: 0px;
-			box-sizing: border-box;
-			font-family: 'Times New Roman';
-		}
-		body {
-			background-color: var(--background-nav);
-            font-size: var(--fluid-font-size);
-		}
         button {
             color: var(--text-dark);
             background-color: transparent;
@@ -67,113 +24,6 @@
             outline: none;
         }
 
-        /* flexbox */
-		.flex-sep {
-			width: 0;
-			flex-grow: 1;
-		}
-		.flex-row {
-			display: flex;
-			flex-direction: row;
-			align-items: start;
-		}
-		.flex-col {
-			display: flex;
-			flex-direction: column;
-		}
-        .flex-adapt {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .flex-adapt-reverse {
-            flex-direction: row;
-            align-items: normal;
-            justify-content: center;
-        }
-
-        /**** NAV BAR ****/
-
-		#nav-bar {
-			color: var(--text-nav);
-			background-color: var(--background-nav);
-            border-bottom: 1px solid var(--border-nav);
-
-			position: sticky;
-			padding: var(--nav-pad);
-			top: 0px;
-			width: 100%;
-            font-size: var(--title-font-size);
-            text-align: center;
-
-			z-index: var(--layer-nav); /* nav elems and hanging tabs are on top of other content, but not fullscreen modals */
-		}
-        #nav-title {
-            /* unstyle <h1> */
-            font-size: var(--title-font-size);
-            line-height: var(--title-font-size);
-            font-weight: normal;
-        }
-        #nav-menu {
-            /* https://www.sliderrevolution.com/resources/css-dropdown-menu/ */
-            cursor: pointer;
-
-            display: inline-block;
-            position: absolute;
-            top: 0px;
-            left: 0px;
-            width: var(--nav-height);
-            height: var(--nav-height);
-        }
-        #nav-menu ul {
-            cursor: default;
-            color: var(--text-dark);
-            background-color: var(--background-nav-unselected);
-            /* border-top: 1px solid var(--text-light); */
-            border-bottom: 1px solid var(--border-light);
-
-            visibility: hidden;
-            position: absolute;
-            top: var(--nav-height);
-            left: 0px;
-            width: 100vw;
-            padding: 0.25em;
-
-            text-align: left;
-            list-style: none;
-            flex-wrap: wrap;
-        }
-        #nav-menu div + div {
-            border-left: 1px solid var(--text-dark);
-        }
-        #nav-menu ul li {
-            cursor: pointer;
-            color: var(--text-dark);
-            /* padding: 0.15em 0.75em; */
-            font-size: 0.8em;
-        }
-        #nav-menu ul li:hover {
-            color: var(--text-nav);
-            background-color: var(--background-nav-selected);
-        }
-        #nav-menu:focus-within > ul, #nav-menu:hover ul {
-            visibility: visible;
-        }
-        #nav-menu ul li a {
-            /* border: 1px solid blue; */
-            display: inline-block;
-            width: 100%;
-            padding: 0.15em 0.75em;
-            color: inherit;
-            text-decoration: inherit;
-        }
-        .nav-greyed-out {
-            cursor: default;
-            color: var(--text-dark);
-            padding: 0.15em 0.75em;
-            font-size: 0.8em;
-            opacity: 50%;
-        }
 
         /**** SITE LAYOUT ****/
 
@@ -184,7 +34,7 @@
             padding: var(--content-pad);
 
             gap: var(--content-pad);
-            flex-direction: column-reverse;
+            flex-direction: column-reverse !important;
             justify-content: start;
         }
         #wordlist-wrapper {
@@ -514,25 +364,12 @@
         }
 		@media (min-aspect-ratio: 5/4) { /* desktop mode */
             :root {
-                --title-font-size: 1.0em;
-                --nav-height: calc(1.5 * var(--fluid-font-size)); /* ref height for content anchors; 1.0em text + 2*0.25em padding */
-
                 /* 50% width < x < 100% height, min 11em */
                 --wordsearch-width: max( min(50vw, calc(100vh - var(--nav-height) - 2 * var(--content-pad))), calc(11 * var(--fluid-font-size)) );
             }
-			.flex-adapt {
-				flex-direction: row;
-                align-items: normal;
-				justify-content: center;
-			}
-            .flex-adapt-reverse {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-            }
 
             #content {
-                flex-direction: row;
+                flex-direction: row !important;
                 align-items: center;
                 justify-content: center;
             }
@@ -568,28 +405,34 @@
 </head>
 <body>
 
-<div id='nav-bar'>
-    <h1 id='nav-title'>Chukchansi Wordsearch</h1>
+<div id='nav-bar' class='flex-row'>
+    <h1 id='nav-title'>Chukchansi Dictionary</h1>
     <nav id='nav-menu' role='navigation'>
-        <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' width='24' height='24' stroke-width='1.25' style='width:100%;height:100%;pointer-events:none;'>
-            <path d='M5 8l14 0'></path>
-            <path d='M5 12l14 0'></path>
-            <path d='M5 16l14 0'></path>
-        </svg>
-        <ul id='nav-dropdown' class='flex-row'>
-            <div class='flex-col'>
-                <!-- <li><a>Home</a></li> -->
-                <p class='nav-greyed-out'>Home</p>
-            </div>
-            <div class='flex-col'>
+
+        <div id='nav-target' class='flex-row'>
+            <p class='desktop-only'>Menu</p>
+            <svg id='nav-icon' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' width='24' height='24' stroke-width='1.25'>
+                <path d='M5 8l14 0'></path>
+                <path d='M5 12l14 0'></path>
+                <path d='M5 16l14 0'></path>
+            </svg>
+        </div>
+        
+        <div id='nav-dropdown' class='flex-col'>
+            <ul class='flex-col'>
+                <li><a href='/'>Home</a></li>
+            </ul>
+            <ul class='flex-col'>
                 <li><a href='speaking-dictionary'>Speaking Dictionary</a></li>
                 <li><a href='pdf-dictionary'>PDF Dictionary</a></li>
                 <li><a href='stories'>Story Reader</a></li>
                 <li><a href='wordsearch'>Wordsearch</a></li>
-            </div>
-        </ul>
+            </ul>
+        </div>
+
     </nav>
 </div>
+
 <div id='content' class='flex-adapt'>
     <div id='wordlist-wrapper' class='flex-col'>
         <div id='wordlist' class='flex-col'>
@@ -697,6 +540,8 @@
 <script type='text/javascript' src="source/story-2/ʔuplalliʔ-deemaysuʔ-data-annotated.js"></script>
 <script type='text/javascript' src="source/story-3/shelel'-shilithanaʔ-data-annotated.js"></script>
 
+<script type='text/javascript' src='script/navbar.js'></script>
+
 <script type='text/javascript'>
 
     //// WAVE 3 ////
@@ -747,6 +592,7 @@
     const settingsCurrent = document.getElementById('settings-current'); // used by button onclicks
     const settingsNew = document.getElementById('settings-new');
     const settingsVocabSelect = document.getElementById('settings-vocab-select');
+    const settingsDifficultyLabel = document.getElementById('wordlist-difficulty');
     const wordsearch = document.getElementById('wordsearch-click-area');
     const wordsearchContainer = document.getElementById('wordsearch-wrapper');
     const cursorCaterpillar = document.getElementById('cursor-caterpillar');
@@ -866,6 +712,8 @@
             getWordsearch(controller.newGameSettings.gridsize, controller.wordlist);
             // initial render
             renderWordsearch(controller.grid);
+            // update difficulty
+            settingsDifficultyLabel.innerHTML = `${['Easy','Medium','Hard'][controller.newGameSettings.difficulty]}`;
         },
 
         // gamestate
@@ -1265,7 +1113,7 @@
                 // Fish, Coyote, eyes, river, stick, think, good, bad, want, see
             "Dove and Hummingbird Race Each Other"  : Object.freeze(["ʔuplalliʔ","deemay'suʔ","baanewshit","hoy'nit","ʔayax","wentaw","hayk'itaw","hoyonhiy'","ch'awit","hidyaʔ"]),
                 // Dove, Hummingbird, race each other, fly, fast, start, finish (line), wing, win, everybody
-            "A Rock to be Jumped"                   : Object.freeze(["shelel'","shil't'eʔ","hiky'eʔ","lihmit","bohloʔ","xishweʔ","texeetan'","noneeʔi","mokeela","peeli"])
+            "A Rock to be Jumped"                   : Object.freeze(["shelel'","shil't'eʔ","hik'yeʔ","lihmit","bohloʔ","xishweʔ","texeetan'","noneeʔi","mokeela","peeli"])
                 // rock, jump, play, run, grow, scratch, hurt, men, women, road
         }),
         'grammar' : Object.freeze({
@@ -1282,7 +1130,7 @@
         if (type === 'rand') {
             return vocabRandomized['story'][Object.keys(vocabRandomized['story'])[id]](minWordlen,maxWordlen);
         } else {
-            return vocabCurated[type][Object.keys(vocabRandomized['story'])[id]].map(x => x); // get non-frozen deep copy;
+            return vocabCurated[type][Object.keys(vocabCurated[type])[id]].map(x => x); // get non-frozen deep copy;
         }
     }
     function getVocabByName (name,type,minWordlen,maxWordlen) {
