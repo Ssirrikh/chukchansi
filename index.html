@@ -10,99 +10,46 @@
     <style>
 
         :root {
-            /* --layer- */
+            /*  */
         }
 
-		body {
-            background: none;
-        }
         body::before {
+            /* use inset = -2*blur to "enlarge" bg img so edge px have something to interpolate from */
             --blur: 4px;
             content: '';
             position: fixed;
-            top: calc(0px - 2 * var(--blur));
-            left: calc(0px - 2 * var(--blur));
-            height: calc(100% + 4 * var(--blur));
-            width: calc(100% + 4 * var(--blur));
+            /* width: 100vw; */
+            /* height: 100vh; */
+            inset: calc(-2 * var(--blur));
             /* background: url('source/Picayune\ Ranch.jpg') center center / cover no-repeat; */
             background: url('source/Narayana\ Kat\ Adisasmito-Smith\ -\ These\ Hills\ of\ Ours.webp') center center / cover no-repeat;
-            filter: blur(var(--blur));
+            filter: blur(var(--blur)) brightness(90%);
             z-index: -1;
         }
 
         /**** SITE LAYOUT ****/
 
-        #bg-img {
-            background: var(--background-inset) url('source/Picayune\ Ranch.jpg') center center / cover no-repeat;
-            filter: blur(4px);
-
-            position: fixed;
-            top: var(--nav-height);
-            left: 0;
-            width: 100%;
-            height: calc(100vh - var(--nav-height));
-        }
-
-        #section-title {
+        #section-intro {
             background-color: transparent;
             filter: drop-shadow(var(--popout-shadow));
 
-            /* display: inline-block; */
             width: 100%;
-            /* height: calc(100vh - var(--nav-height) - 4.0em); */
-            /* min-height: max(20em, calc(100vh - var(--nav-height) - 4.0em)); */
-            /* padding: 1.0em; */
-            /* padding: 4em 2em; */
-            padding: var(--content-pad);
             text-align: center;
 
             align-items: center;
             justify-content: space-around;
         }
-        #section-projects {
-            /* background-color: var(--background-inset); */
-            background-color: transparent;
-            filter: drop-shadow(var(--popout-shadow));
-
-            width: 100%;
-            padding: var(--content-pad);
-            gap: 1.5em;
-        }
-        #section-resources {
+        #section-projects, #section-resources {
             background-color: var(--background-inset);
-            /* background-color: transparent; */
             filter: drop-shadow(var(--popout-shadow));
-
             width: 100%;
         }
-        #section-personnel {
-            background-color: transparent;
-            filter: drop-shadow(var(--popout-shadow));
 
-            width: 100%;
-            padding: var(--content-pad);
-            gap: 1.0em;
-            align-items: center;
-        }
-
-        .section-title {
-            background-color: var(--background-light);
-            color: var(--text-dark);
-            /* text-shadow: 0 0 2px #000; */
-            z-index: var(--layer-front); /* positions under everything by default otherwise; no idea why */
-
-            padding: 0.5em 2em;
-            font-size: 1.5em;
-            text-align: center;
-            /* align-self: center; */
-        }
-        .section-header {
+        .section-separator {
             position: relative;
-            /* border: 1px solid red; */
-            z-index: var(--layer-front); /* positions under everything by default otherwise; no idea why */
 
             width: 100%;
-            height: 2em;
+            height: 4em;
             align-items: center;
             justify-content: center;
         }
@@ -120,6 +67,15 @@
             height: 0.8em;
         }
 
+        .section-title {
+            background-color: var(--background-light);
+            color: var(--text-dark);
+
+            padding: 0.5em 2em;
+            font-size: 1.2em;
+            text-align: center;
+        }
+
         /**** TITLE SECTION ****/
 
         #site-description-wrapper {
@@ -128,151 +84,155 @@
             border-radius: 1.0em;
             filter: drop-shadow(var(--popout-shadow));
 
-            width: min(70vw, 16em);
+            width: min(90vw, 24em);
             padding: 1.0em;
-            padding-top: 0em;
-            /* padding-left: 2.0em; */
-            /* padding: 0.5em 1.0em 1.0em 3.0em; */
+            margin: 1em 0;
 
-            /* gap: 1.0em; */
             align-items: center;
         }
-        #site-title-wrapper {
-            border: 1px solid blue;
-            width: 70vw;
-            min-height: 4.0em;
-            gap: 1.0em;
-            justify-content: space-between;
-            align-items: center;
-        }
+
         #site-title {
-            color: var(--text-dark);
-            background-color: var(--background-inset);
-            border-radius: 0.5em;
-
             position: relative;
-            left: -2.0em;
-            top: -0.5em;
-            padding: 0.5em;
-            font-size: 1.5em;
+            padding: 0.1em 0.5em;
+            font-size: 1.2em;
         }
-        #site-description {
-            display: inline-block;
-            font-size: 0.8em;
-        }
-
-        /**** PROJECTS SECTION ****/
-
-        .project-card-large {
-            background-color: var(--background-light);
-            border-radius: 0.5em;
-            filter: drop-shadow(var(--popout-shadow));
-
-            width: calc(100vw - 2 * var(--content-pad));
-            overflow: hidden;
-        }
-        .project-card {
-            --w: min(33vw, 8em + 15vw);
-            color: var(--text-nav); /* must set text color here to override blue link underline of <a> */
-            background-color: var(--background-light);
-            filter: drop-shadow(var(--popout-shadow));
-            transform: translate(1em,0);
-
-            display: inline-block;
-            width: var(--w);
-            height: var(--w);
-            font-size: 0.8em;
-        }
-        .project-card:hover {
-            text-decoration: underline;
-            filter: drop-shadow(var(--popout-shadow)) drop-shadow(var(--popout-shadow));
-        }
-
-        .project-card-title {
-            color: var(--text-nav);
-            background-color: var(--background-nav);
-            transform: translate(-2em,0.25em);
-
-            padding: 0.5em;
-        }
-        .project-card-title-large {
-            color: var(--text-nav);
-            background-color: var(--background-nav);
-
-            width: 100%;
-            padding-left: 0.5em; /* vertical padding set by .project-link */
-            align-items: center;
-            justify-content: space-between;
-        }
-        .project-link {
-            color: var(--text-nav);
+        #site-title::before, #site-title::after {
+            content: '';
             background-color: var(--border-nav);
 
-            padding: 0.25em 0.5em; /* this decides the height of parent .project-card-title-large */
-            text-decoration: none;
-            gap: 0.5em;
-            align-items: center;
-            align-self: stretch;
+            display: inline-block;
+            position: absolute;
+            top: 50%;
+            width: 0.25em;
+            height: 0.25em;
         }
-        .project-link:hover {
+        #site-title::before {
+            transform: translate(-50%,-50%) rotate(45deg);
+            left: 0;
+        }
+        #site-title::after {
+            transform: translate(50%,-50%) rotate(45deg);
+            right: 0;
+        }
+        .site-description {
+            color: var(--text-medium);
+            display: inline-block;
+            margin: 1.5em 0;
+            width: min(21em, 70vw);
+            font-size: 0.8em;
+        }
+        #cta-main {
+            color: var(--text-nav);
+            background-color: var(--border-nav);
+            border: 1px solid var(--background-nav);
+            border-radius: 0.3em;
+
+            padding: 0.3em 0.9em;
+
+            text-decoration: none;
+        }
+        #cta-main > p {
+            display: inline;
+        }
+
+        /**** PROJECT/RESOURCE SECTIONS ****/
+
+        .resource-card-group {
+            padding: 1.0em;
+            gap: 1.0em;
+        }
+        .resource-card, .resource-card-centered {
+            background-color: var(--background-light);
+            filter: drop-shadow(var(--popout-shadow));
+            border-radius: 0.5em;
+
+            padding: 0.5em;
+
+            gap: 0.25em;
+        }
+        .resource-card-centered {
+            max-width: 30em;
+        }
+        .resource-card-title {
+            color: var(--text-dark);
+            font-size: 1.0em;
+        }
+        .resource-card-contents {
+            color: var(--text-medium);
+            font-size: 0.8em;
+        }
+        .resource-card-link, .resource-card-link-large {
+            color: var(--text-nav);
+            /* background-color: var(--background-nav-selected); */
+            background-color: var(--border-nav);
+            border-radius: 0.25em;
+
+            padding: 0.25em 0.5em;
+            width: 6em;
+            font-size: 0.8em;
+            text-align: center;
+            text-decoration: none;
+            align-self: end;
+        }
+        .resource-card-link-large {
+            width: 10em;
+        }
+        .resource-card-link:hover, .resource-card-link-large:hover {
             text-decoration: underline;
         }
 
-        .project-card-contents {
-            padding: 0.5em;
-            gap: var(--content-pad);
-            align-items: center;
-        }
-        #project-thumbnail-dictionary {
-            border: 0.1em solid var(--background-nav);
-            /* filter: blur(2px); */
-            
-            display: block; /* necessary so parent container perfectly matches image dimensions */
-            max-width: 40vw;
-            width: auto;
-            height: auto;
-        }
-        #project-thumbnail-story-reader {
-            background: var(--background-light) url(source/thumbnails/story-reader-thumbnail.png) var(--thumbnail-position);
-        }
-        #project-thumbnail-wordsearch {
-            background: var(--background-light) url(source/thumbnails/wordsearch-thumbnail.png) var(--thumbnail-position);
-        }
+        .resource-card-section-separator {
+            background-color: var(--border-nav);
+            transform: rotate(45deg);
 
-        .project-thumbnail {
-            filter: drop-shadow(var(--popout-shadow));
+            position: relative;
+            margin: 1em 0;
+            width: 0.25em;
+            height: 0.25em;
 
-            display: inline-block;
-            position: relative; /* anchor for internal elements */
-            margin: 0.5em;
-
-            /* this didn't use to be necessary, until suddenly it was */
-            height: 100%;
             align-self: center;
         }
-        .thumbnail-overlay {
-            cursor: pointer;
-            color: var(--text-nav);
-            background-color: #0006;
-            filter: drop-shadow(var(--popout-shadow));
-            text-shadow: 0 0 2px #000;
-            /* opacity: 0.0; */
+        .resource-card-section-separator::before, .resource-card-section-separator::after {
+            content: '';
+            background-color: var(--border-nav);
 
+            display: inline-block;
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            padding: 0.25em;
+            width: 0.25em;
+            height: 0.25em;
+        }
+        .resource-card-section-separator::before {
+            transform: translate(-0.7em,0.7em);
+        }
+        .resource-card-section-separator::after {
+            transform: translate(0.7em,-0.7em);
+        }
+
+        /* #resource-card-logo-1 {
+            background: var(--background-inset) url('source/logo-picayune.png') center center / cover no-repeat;
+        }
+        #resource-card-logo-2 {
+            background: var(--background-inset) url('source/logo-language-culture.png') center center / cover no-repeat;
+        } */
+
+        /**** FOOTER ****/
+
+        .footer {
+            color: var(--text-nav);
+            background-color: var(--background-nav);
+
+            position: relative;
+            z-index: var(--layer-nav);
+            padding: 0.5em;
+            font-size: 0.8em;
+
+            gap: 0.5em;
+        }
+        .footer p {
             text-align: center;
-            align-items: center;
-            justify-content: center;
         }
-        .thumbnail-overlay:hover {
-            background-color: #000b;
-            /* opacity: 1.0; */
-            text-decoration: underline;
-        }
+
+        /**** CSS ICONOGRAPHY ****/
 
         .link-arrow {
             --thickness: 0.2em;
@@ -285,128 +245,6 @@
             height: 0.5em;
         }
 
-        /**** RESOURCES SECTION ****/
-
-        .resource-column-title {
-            font-size: 1.0em;
-        }
-        .resource-container {
-            padding: 1.0em;
-            gap: 1.0em;
-        }
-        .resource-card-large {
-            background-color: var(--background-light);
-            filter: drop-shadow(var(--popout-shadow));
-            /* border: 1px solid blue; */
-            border-radius: 0.5em;
-
-            padding: 0.5em;
-
-            gap: 0.25em;
-        }
-        .resource-card-title {
-            color: var(--text-dark);
-            font-size: 1.0em;
-        }
-        .resource-card-blurb {
-            color: var(--text-medium);
-            font-size: 0.8em;
-        }
-        .resource-card-link {
-            color: var(--text-nav);
-            background-color: var(--background-nav-selected);
-            border-radius: 0.25em;
-
-            padding: 0.25em 0.5em;
-            width: 6em;
-            font-size: 0.8em;
-            text-align: center;
-            text-decoration: none;
-            align-self: end;
-        }
-        .resource-card-link:hover {
-            text-decoration: underline;
-        }
-
-        #resource-card-logo-1 {
-            background: var(--background-inset) url('source/logo-picayune.png') center center / cover no-repeat;
-        }
-        #resource-card-logo-2 {
-            background: var(--background-inset) url('source/logo-language-culture.png') center center / cover no-repeat;
-        }
-
-
-
-
-        #section-proj {
-            position: sticky;
-            top: var(--nav-height);
-            padding: 1em;
-        }
-        .section-banner {
-            color: var(--text-nav);
-            background-color: var(--background-nav);
-            z-index: var(--layer-front);
-
-            
-            /* top: calc(var(--nav-height) + 1em); */
-            /* top: 2em; */
-            padding: 0.5em;
-            font-size: 1em;
-        }
-
-
-
-        /**** FOOTER ****/
-
-        .footer-no-ai {
-            color: var(--text-dark);
-            background-color: var(--background-inset);
-            position: relative;
-            padding: 0.5em 2em;
-            text-align: center;
-        }
-        
-        .footer-nav {
-            color: var(--text-nav);
-            background-color: var(--border-nav);
-
-            position: relative;
-            z-index: var(--layer-nav);
-            padding: 0.5em;
-            font-size: 0.8em;
-        }
-        .footer-nav ul {
-            list-style: none;
-        }
-        .footer-nav ul + ul {
-            border-left: 1px solid var(--text-nav);
-        }
-        .footer-nav ul li {
-            padding: 0.25em 0.5em;
-            text-decoration: none;
-        }
-        .footer-nav ul li:hover {
-            text-decoration: underline;
-        }
-        .footer p {
-            text-align: center;
-        }
-
-        .footer {
-            color: var(--text-nav);
-            background-color: var(--background-nav);
-
-            position: relative;
-            z-index: var(--layer-nav);
-            padding: 0.5em;
-            font-size: 0.8em;
-            /* align-content: space-between !important; */
-            /* text-align: center; */
-
-            gap: 0.5em;
-        }
-
         /**** MEDIA QUERIES ****/
 
         @media (max-aspect-ratio: 5/4) { /* mobile mode */
@@ -414,12 +252,7 @@
         }
         @media (min-aspect-ratio: 5/4) { /* desktop mode */
             :root {
-                --content-pad: 1.0em;
-            }
-
-            .project-card-large {
-                width: min(90vw, 37em);
-                align-self: center;
+                /* --content-pad: 1.0em; */
             }
 		}
 		
@@ -427,21 +260,22 @@
 </head>
 <body>
 
-<div id='nav-bar'>
-    <h1 id='nav-title'>The Chukchansi Language Project</h1>
+<!-- NAVBAR -->
+<div id='nav-bar' class='flex-row'>
+    <h1 id='nav-title'>Chukchansi Language Project</h1>
     <nav id='nav-menu' role='navigation'>
 
         <div id='nav-target' class='flex-row'>
-            <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' width='24' height='24' stroke-width='1.25' style='width:var(--nav-height);height:var(--nav-height);pointer-events:none;'>
+            <p class='desktop-only'>Menu</p>
+            <svg id='nav-icon' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' width='24' height='24' stroke-width='1.25'>
                 <path d='M5 8l14 0'></path>
                 <path d='M5 12l14 0'></path>
                 <path d='M5 16l14 0'></path>
             </svg>
-            <p class='desktop-only'>Menu</p>
             <!-- <div class='nav-arrow desktop-only'><div></div></div> -->
         </div>
         
-        <div id='nav-dropdown' class='flex-adapt'>
+        <div id='nav-dropdown' class='flex-col'>
             <ul class='flex-col'>
                 <li><a href='/'>Home</a></li>
             </ul>
@@ -456,92 +290,85 @@
     </nav>
 </div>
 
-<!-- <div id='bg-img'></div> -->
-
 <!-- TITLE SECTION -->
-<div class='flex-row section-header'></div>
-<div id='section-title' class='flex-col'>
+<div class='flex-row section-separator'></div>
+<div id='section-intro' class='flex-col'>
     <div id='site-description-wrapper' class='flex-col'>
-        <h2 id='site-title'>The Chukchansi Language Project</h2>
-        <p id='site-description'>Helping the next generation improve their fluency and connect with their heritage.</p>
+        <h2 id='site-title'><span>Chukchansi</span> <span class='no-wrap'>Language Project</span></h2>
+        <p class='site-description'>Helping the next generation improve their fluency and connect with their heritage.</p>
+        <a id='cta-main' href='speaking-dictionary'>
+            <p>Visit the Dictionary</p>
+            <div class='link-arrow'></div>
+        </a>
     </div>
 </div>
 
 <!-- PROJECTS SECTION -->
-<div class='flex-row section-header'>
+<div class='flex-row section-separator'>
     <div class='header-arrow-up'></div>
 </div>
-
-<div id='section-proj' class='flex-col'>
-    <h2 class='section-banner'>Our Projects</h2>
-</div>
-
 <div id='section-projects' class='flex-col'>
-    <div class='flex-col project-card-large'>
-        <div class='flex-row project-card-title-large'>
-            <h3>Speaking Dictionary</h3>
-            <a class='flex-row project-link' href='speaking-dictionary'>
-                <span>Visit</span>
-                <div class='link-arrow'></div>
-            </a>
+    <h2 class='section-title'>Web Apps</h2>
+    <div class='flex-adapt resource-card-group'>
+        <div class='flex-col resource-card-centered'>
+            <!-- speaking dictionary -->
+            <h3 class='resource-card-title'>Speaking Dictionary</h3>
+            <p class='resource-card-contents'>Quickly search words in English or Chukchansi, then hear them read aloud by native speakers Holly and Jane Wyatt. This bilingual dictionary features thousands of translated words and sentences, many with pictures and audio.</p>
+            <p class='resource-card-contents'>You can also view a PDF of the <a href='pdf-dictionary'>6th Edition Printed Dictionary.</a></p>
+            <a class='resource-card-link-large' href='speaking-dictionary'>Visit Dictionary</a>
+            <!-- <div class='resource-card-section-separator'></div> -->
+            <!-- story reader -->
+            <h3 class='resource-card-title'>Story Reader</h3>
+            <p class='resource-card-contents'>Listen as Holly Wyatt tells traditional Chukchansi stories, from the schemes of Coyote to the legend of the rock that nobody could jump over. Features line-by-line translations in an easy read-along format.</p>
+            <p class='resource-card-contents'>These stories were originally published in English by Dr. Rogers and and Dr. Gayton in their collection <i>27 Chukchansi Yokuts Myths</i>. It was only more recently that Dr. Adisasmito-Smith worked with Holly to translate them into the original Chukchansi. Now, you can read that translation alongside Holly.</p>
+            <a class='resource-card-link-large' href='stories'>Listen Now</a>
+            <!-- <div class='resource-card-section-separator'></div> -->
+            <!-- wordsearch -->
+            <h3 class='resource-card-title'>Chukchansi Wordsearch</h3>
+            <p class='resource-card-contents'>Try your hand at finding familiar words from the Story Reader, or shake things up with randomly-generated puzzles. Customizable difficulty settings provide wordsearches for all skill levels.</p>
+            <a class='resource-card-link-large' href='wordsearch'>Try a Puzzle</a>
         </div>
-        <div class='flex-adapt project-card-contents'>
-            <div class='flex-col' style='gap: 0.5em;justify-content: center;'>
-                <p> The online speaking dictionary is a powerful interactive tool for looking up words or example sentences in Chukchansi. Many entries include recordings of fluent speakers reading the words aloud.</p>
-                <p> You can also view a PDF of the <a href='pdf-dictionary'>6th Edition Printed Dictionary.</a></p>
-            </div>
-            <div class='project-thumbnail'>
-                <img id='project-thumbnail-dictionary' src='source/thumbnails/speaking-dictionary-thumbnail-small.png' alt='Screenshot of the entry for blackberry'></img>
-                <div class='flex-row thumbnail-overlay' aria-hidden='true' onclick='window.location.href="speaking-dictionary"'>Click to visit dictionary</div>
-            </div>
-        </div>
-    </div>
-    <div class='flex-row' style='justify-content: space-around;'>
-        <a href='stories'><div id='project-thumbnail-story-reader' class='project-card'>
-            <div class='project-card-title'>Story Reader</div>
-        </div></a>
-        <a href='wordsearch'><div id='project-thumbnail-wordsearch' class='project-card'>
-            <div class='project-card-title'>Wordsearch</div>
-        </div></a>
     </div>
 </div>
 
 <!-- OTHER RESOURCES SECTION -->
-<div class='flex-row section-header'></div>
+<div class='flex-row section-separator'></div>
 <div id='section-resources' class='flex-col'>
     <h2 class='section-title'>Want to learn more?</h2>
-    <div class='flex-adapt resource-container'>
+    <div class='flex-adapt resource-card-group'>
         <div class='flex-col' style='gap: 1em;justify-content: space-between;'>
-            <div class='flex-col resource-card-large'>
+            <div class='flex-col resource-card'>
                 <h3 class='resource-card-title'>Picayune Rancheria Homepage</h3>
-                <p class='resource-card-blurb'>The official website of The Picayune Rancheria of the Chukchansi Indians, with information and resources for tribe members.</p>
+                <p class='resource-card-contents'>The official website of The Picayune Rancheria of the Chukchansi Indians, with information and resources for tribe members.</p>
                 <a class='resource-card-link' href='https://chukchansi-nsn.gov/'>Visit Site</a>
             </div>
-            <div class='flex-col resource-card-large'>
+            <div class='flex-col resource-card'>
                 <h3 class='resource-card-title'>Dept. of Language and Culture</h3>
-                <p class='resource-card-blurb'>The hub site for the Department of Language and Culture, with educational resources and event calendars.</p>
+                <p class='resource-card-contents'>The hub site for the Department of Language and Culture, with event calendars and educational resources.</p>
                 <a class='resource-card-link' href='https://www.chukchansilanguage.org/'>Visit Site</a>
             </div>
         </div>
-        <div class='flex-col resource-card-large'>
+        <div class='flex-col resource-card'>
             <h3 class='resource-card-title'>Other Resources</h3>
-            <p class='resource-card-blurb'><a href='https://www.youtube.com/playlist?list=PLAanj6d8R-Thc5fmNNf6XhW4WawZiiBew'>A video series</a> by Shonna Alexander covers the basics of the language on YouTube.</p>
-            <p class='resource-card-blurb'><a href='https://www.youtube.com/@ChukchansiLanguage-pn3ko'>Recordings of online language classes</a> are available on another YouTube channel.</p>
-            <p class='resource-card-blurb'>Fresno State University published an <a href='https://www.fresnostatenews.com/2012/05/07/chukchansi-pledges-1-million-for-language-study-and-revitalization/'>article</a> about the original research grant that funded the project, including a <a href='https://www.youtube.com/watch?v=B-0NAS640-4'>video of the Bear Eagle Dance.</a></p>
-            <p class='resource-card-blurb'>Fresno State's <a href='https://cah.fresnostate.edu/linguistics/research/ilg.html'>Indigenous Languages Group</a> has a section covering the Chukchansi Yokuts.</p>
-            <p class='resource-card-blurb'>Another <a href='https://fresnostatecah.com/2023/10/21/native-speakers-and-fresno-state-linguists-release-online-chukchansi-speaking-dictionary/'>article</a> covered the speaking dictionary when it first released, including an interview with linguist Niken Adisasmito-Smith.</p>
+            <p class='resource-card-contents'><a href='https://www.youtube.com/playlist?list=PLAanj6d8R-Thc5fmNNf6XhW4WawZiiBew'>A video series</a> by Shonna Alexander covers the basics of the language on YouTube.</p>
+            <p class='resource-card-contents'><a href='https://www.youtube.com/@ChukchansiLanguage-pn3ko'>Recordings of online language classes</a> are available on another YouTube channel.</p>
+            <p class='resource-card-contents'>Fresno State University published an <a href='https://www.fresnostatenews.com/2012/05/07/chukchansi-pledges-1-million-for-language-study-and-revitalization/'>article</a> about the original research grant that funded the project, including a <a href='https://www.youtube.com/watch?v=B-0NAS640-4'>video of the Bear Eagle Dance.</a></p>
+            <p class='resource-card-contents'>Fresno State's <a href='https://cah.fresnostate.edu/linguistics/research/ilg.html'>Indigenous Languages Group</a> has a section covering the Chukchansi Yokuts.</p>
+            <p class='resource-card-contents'>Another <a href='https://fresnostatecah.com/2023/10/21/native-speakers-and-fresno-state-linguists-release-online-chukchansi-speaking-dictionary/'>article</a> covered the speaking dictionary when it first released, including an interview with linguist Niken Adisasmito-Smith.</p>
         </div>
     </div>
 </div>
 
 <!-- FOOTER -->
-<div class='flex-row section-header'></div>
+<div class='flex-row section-separator'></div>
 <div class='flex-col footer'>
     <p>Website &copy 2025 Narayana "Kat" Adisasmito-Smith</p>
     <p>Text and images from this site may not be used as training data for AI.</p>
 </div>
 
 
+
+<script type='text/javascript' src='script/navbar.js'></script>
 
 <script type='text/javascript'>
 
@@ -564,8 +391,35 @@
     // 2.5 hrs: create common stylesheet, clean up css
     // 2.0 hrs: improve standardized navbar
     // 3.0 hrs: sim hover behavior in js, since ios doesn't respect actual :hover behavior
-    // 3.5 hrs: web design
+    // 6.0 hrs: web design
     // 1.0 hrs: paint background img for homepage
+    // 6.0 hrs: homepage-lite redesign
+
+    // index/pdf/general: 56 hrs
+    // stories: 65 hrs
+    // flashcards/memory match/wotd: 9 hrs
+    // wordsearch: 67 hrs
+    // dictionary: 86 hrs + 13 hrs + 9 hrs
+    // data: 24 hrs
+    // grammar: 8 hrs + 9 hrs
+    // python tooling: 7 hrs
+
+    // 353 hrs @ $30/hr = $10,590
+
+    // final round of cleanup/bugfixes:
+        // finish index page and go live
+            // 5.5 hrs dev site
+            // 0.5 hrs: strongly worded letter re: SEO
+        // re-integrate history into dictionary
+        // add standardized navbar to all pages
+            // 1.5 hrs add to pdf dictionary, fix menu sometimes not closing due to embedded contexts
+            // 3.5 hrs add cross-platform hover module, improve ux
+        // 0.5 hrs: fix wordsearch difficulty not updating; fix typos in vocab lists
+        // update github readme
+    
+    // 365 hrs with current cleanup
+    // +20 hrs follow-up
+    // 385 hrs @ $30/hr
 
 
 
@@ -591,38 +445,12 @@
     
     // DOM anchors
     const navTitle = document.getElementById('nav-title');
-    const navMenu = document.getElementById('nav-menu');
-    const navTarget = document.getElementById('nav-target');
-    const navDropdown = document.getElementById('nav-dropdown');
-
-    // nav menu cross-platform hover dropdown
-    let navDropdownBlockDoubleFire = false; // touchstart fires before mousemove, so block first mousemove after each touchstart
-    window.addEventListener('mousemove', e => {
-        if (navDropdownBlockDoubleFire) {
-            navDropdownBlockDoubleFire = false;
-            return;
-        }
-        if (navMenu.contains(e.target)) {
-            navDropdown.style.visibility = 'visible';
-        } else {
-            navDropdown.style.visibility = 'hidden';
-        }
-    });
-    // allow touch devices to tap the menu icon to close the dropdown
-    navTarget.addEventListener('touchstart', e => {
-        if (navDropdown.style.visibility === 'visible') {
-            navDropdown.style.visibility = 'hidden';
-            navDropdownBlockDoubleFire = true;
-        }
-    });
-
-
 
     // responsive navbar title
     window.addEventListener('resize', e => {
-        navTitle.innerHTML = (window.innerWidth < window.innerHeight) ? 'The Chukchansi Project' : 'The Chukchansi Language Project';
+        navTitle.innerHTML = (window.innerWidth < window.innerHeight) ? 'Chukchansi Project' : 'Chukchansi Language Project';
     });
-    navTitle.innerHTML = (window.innerWidth < window.innerHeight) ? 'The Chukchansi Project' : 'The Chukchansi Language Project';
+    navTitle.innerHTML = (window.innerWidth < window.innerHeight) ? 'Chukchansi Project' : 'Chukchansi Language Project';
 
     //////////////////////
     
