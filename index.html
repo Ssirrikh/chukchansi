@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang='en' xml:lang='en'>
+<head>
+	<meta charset = 'utf-8'>
+	<title>The Chukchansi Project</title>
+    <meta name='robots' content='index, follow'>
+    <meta name='description' content='The Chukchansi Language Revitalization Project is documenting the Chukchansi Yokuts language. Our bilingul dictionary and educational resources are helping the next generation to improve their fluency and connect with their heritage.'>
+	<meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' href='style/common.css'>
+    <style>
+
+        :root {
+            /*  */
+        }
+
+        body::before {
+            /* use inset = -2*blur to "enlarge" bg img so edge px have something to interpolate from */
+            --blur: 4px;
+            content: '';
+            position: fixed;
+            /* width: 100vw; */
+            /* height: 100vh; */
+            inset: calc(-2 * var(--blur));
+            /* background: url('source/Picayune\ Ranch.jpg') center center / cover no-repeat; */
+            background: url('source/Narayana\ Kat\ Adisasmito-Smith\ -\ These\ Hills\ of\ Ours.webp') center center / cover no-repeat;
+            filter: blur(var(--blur)) brightness(90%);
+            z-index: -1;
+        }
+
+        /**** SITE LAYOUT ****/
+
+        #section-intro {
+            background-color: transparent;
+            filter: drop-shadow(var(--popout-shadow));
+
+            width: 100%;
+            text-align: center;
+
+            align-items: center;
+            justify-content: space-around;
+        }
+        #section-projects, #section-resources {
+            background-color: var(--background-inset);
+            filter: drop-shadow(var(--popout-shadow));
+            width: 100%;
+        }
+
+        .section-separator {
+            position: relative;
+
+            width: 100%;
+            height: 4em;
+            align-items: center;
+            justify-content: center;
+        }
+        .header-arrow-up {
+            --thickness: 0.2em;
+            --border: var(--thickness) solid var(--background-light);
+            /* --border: var(--thickness) solid var(--background-nav-selected); */
+            border-top: var(--border);
+            border-right: var(--border);
+            transform: rotate(-45deg) translate(0,50%);
+            filter: drop-shadow(0 0 1px #000);
+
+            display: inline-block;
+            width: 0.8em;
+            height: 0.8em;
+        }
+
+        .section-title {
+            background-color: var(--background-light);
+            color: var(--text-dark);
+
+            padding: 0.5em 2em;
+            font-size: 1.2em;
+            text-align: center;
+        }
+
+        /**** TITLE SECTION ****/
+
+        #site-description-wrapper {
+            color: var(--text-dark);
+            background-color: var(--background-light);
+            border-radius: 1.0em;
+            filter: drop-shadow(var(--popout-shadow));
+
+            width: min(90vw, 24em);
+            padding: 1.0em;
+            margin: 1em 0;
+
+            align-items: center;
+        }
+
+        #site-title {
+            position: relative;
+            padding: 0.1em 0.5em;
+            font-size: 1.2em;
+        }
+        #site-title::before, #site-title::after {
+            content: '';
+            background-color: var(--border-nav);
+
+            display: inline-block;
+            position: absolute;
+            top: 50%;
+            width: 0.25em;
+            height: 0.25em;
+        }
+        #site-title::before {
+            transform: translate(-50%,-50%) rotate(45deg);
+            left: 0;
+        }
+        #site-title::after {
+            transform: translate(50%,-50%) rotate(45deg);
+            right: 0;
+        }
+        .site-description {
+            color: var(--text-medium);
+            display: inline-block;
+            margin: 1.5em 0;
+            width: min(21em, 70vw);
+            font-size: 0.8em;
+        }
+        #cta-main {
+            color: var(--text-nav);
+            background-color: var(--border-nav);
+            border: 1px solid var(--background-nav);
+            border-radius: 0.3em;
+
+            padding: 0.3em 0.9em;
+
+            text-decoration: none;
+        }
+        #cta-main > p {
+            display: inline;
+        }
+
+        /**** PROJECT/RESOURCE SECTIONS ****/
+
+        .resource-card-group {
+            padding: 1.0em;
+            gap: 1.0em;
+        }
+        .resource-card, .resource-card-centered {
+            background-color: var(--background-light);
+            filter: drop-shadow(var(--popout-shadow));
+            border-radius: 0.5em;
+
+            padding: 0.5em;
+
+            gap: 0.25em;
+        }
+        .resource-card-centered {
+            max-width: 30em;
+        }
+        .resource-card-title {
+            color: var(--text-dark);
+            font-size: 1.0em;
+        }
+        .resource-card-contents {
+            color: var(--text-medium);
+            font-size: 0.8em;
+        }
+        .resource-card-link, .resource-card-link-large {
+            color: var(--text-nav);
+            /* background-color: var(--background-nav-selected); */
+            background-color: var(--border-nav);
+            border-radius: 0.25em;
+
+            padding: 0.25em 0.5em;
+            width: 6em;
+            font-size: 0.8em;
+            text-align: center;
+            text-decoration: none;
+            align-self: end;
+        }
+        .resource-card-link-large {
+            width: 10em;
+        }
+        .resource-card-link:hover, .resource-card-link-large:hover {
+            text-decoration: underline;
+        }
+
+        .resource-card-section-separator {
+            background-color: var(--border-nav);
+            transform: rotate(45deg);
+
+            position: relative;
+            margin: 1em 0;
+            width: 0.25em;
+            height: 0.25em;
+
+            align-self: center;
+        }
+        .resource-card-section-separator::before, .resource-card-section-separator::after {
+            content: '';
+            background-color: var(--border-nav);
+
+            display: inline-block;
+            position: absolute;
+            width: 0.25em;
+            height: 0.25em;
+        }
+        .resource-card-section-separator::before {
+            transform: translate(-0.7em,0.7em);
+        }
+        .resource-card-section-separator::after {
+            transform: translate(0.7em,-0.7em);
+        }
+
+        /* #resource-card-logo-1 {
+            background: var(--background-inset) url('source/logo-picayune.png') center center / cover no-repeat;
+        }
+        #resource-card-logo-2 {
+            background: var(--background-inset) url('source/logo-language-culture.png') center center / cover no-repeat;
+        } */
+
+        /**** FOOTER ****/
+
+        .footer {
+            color: var(--text-nav);
+            background-color: var(--background-nav);
+
+            position: relative;
+            z-index: var(--layer-nav);
+            padding: 0.5em;
+            font-size: 0.8em;
+
+            gap: 0.5em;
+        }
+        .footer p {
+            text-align: center;
+        }
+
+        /**** CSS ICONOGRAPHY ****/
+
+        .link-arrow {
+            --thickness: 0.2em;
+            border-top: var(--thickness) solid var(--text-nav);
+            border-right: var(--thickness) solid var(--text-nav);
+            transform: rotate(45deg);
+
+            display: inline-block;
+            width: 0.5em;
+            height: 0.5em;
+        }
+
+        /**** MEDIA QUERIES ****/
+
+        @media (max-aspect-ratio: 5/4) { /* mobile mode */
+            /* all styling is mobile-first, but if an element requires specific overrides, those go here */
+        }
+        @media (min-aspect-ratio: 5/4) { /* desktop mode */
+            :root {
+                /* --content-pad: 1.0em; */
+            }
+		}
+		
+	</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<div id='nav-bar' class='flex-row'>
+    <h1 id='nav-title'>Chukchansi Language Project</h1>
+    <nav id='nav-menu' role='navigation'>
+
+        <div id='nav-target' class='flex-row'>
+            <p class='desktop-only'>Menu</p>
+            <svg id='nav-icon' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' width='24' height='24' stroke-width='1.25'>
+                <path d='M5 8l14 0'></path>
+                <path d='M5 12l14 0'></path>
+                <path d='M5 16l14 0'></path>
+            </svg>
+            <!-- <div class='nav-arrow desktop-only'><div></div></div> -->
+        </div>
+        
+        <div id='nav-dropdown' class='flex-col'>
+            <ul class='flex-col'>
+                <li><a href='/'>Home</a></li>
+            </ul>
+            <ul class='flex-col'>
+                <li><a href='speaking-dictionary'>Speaking Dictionary</a></li>
+                <li><a href='pdf-dictionary'>PDF Dictionary</a></li>
+                <li><a href='stories'>Story Reader</a></li>
+                <li><a href='wordsearch'>Wordsearch</a></li>
+            </ul>
+        </div>
+
+    </nav>
+</div>
+
+<!-- TITLE SECTION -->
+<div class='flex-row section-separator'></div>
+<div id='section-intro' class='flex-col'>
+    <div id='site-description-wrapper' class='flex-col'>
+        <h2 id='site-title'><span>Chukchansi</span> <span class='no-wrap'>Language Project</span></h2>
+        <p class='site-description'>Helping the next generation improve their fluency and connect with their heritage.</p>
+        <a id='cta-main' href='speaking-dictionary'>
+            <p>Visit the Dictionary</p>
+            <div class='link-arrow'></div>
+        </a>
+    </div>
+</div>
+
+<!-- PROJECTS SECTION -->
+<div class='flex-row section-separator'>
+    <div class='header-arrow-up'></div>
+</div>
+<div id='section-projects' class='flex-col'>
+    <h2 class='section-title'>Web Apps</h2>
+    <div class='flex-adapt resource-card-group'>
+        <div class='flex-col resource-card-centered'>
+            <!-- speaking dictionary -->
+            <h3 class='resource-card-title'>Speaking Dictionary</h3>
+            <p class='resource-card-contents'>Quickly search words in English or Chukchansi, then hear them read aloud by native speakers Holly and Jane Wyatt. This bilingual dictionary features thousands of translated words and sentences, many with pictures and audio.</p>
+            <p class='resource-card-contents'>You can also view a PDF of the <a href='pdf-dictionary'>6th Edition Printed Dictionary.</a></p>
+            <a class='resource-card-link-large' href='speaking-dictionary'>Visit Dictionary</a>
+            <!-- <div class='resource-card-section-separator'></div> -->
+            <!-- story reader -->
+            <h3 class='resource-card-title'>Story Reader</h3>
+            <p class='resource-card-contents'>Listen as Holly Wyatt tells traditional Chukchansi stories, from the schemes of Coyote to the legend of the rock that nobody could jump over. Features line-by-line translations in an easy read-along format.</p>
+            <p class='resource-card-contents'>These stories were originally published in English by Dr. Rogers and and Dr. Gayton in their collection <i>27 Chukchansi Yokuts Myths</i>. It was only more recently that Dr. Adisasmito-Smith worked with Holly to translate them into the original Chukchansi. Now, you can read that translation alongside Holly.</p>
+            <a class='resource-card-link-large' href='stories'>Listen Now</a>
+            <!-- <div class='resource-card-section-separator'></div> -->
+            <!-- wordsearch -->
+            <h3 class='resource-card-title'>Chukchansi Wordsearch</h3>
+            <p class='resource-card-contents'>Try your hand at finding familiar words from the Story Reader, or shake things up with randomly-generated puzzles. Customizable difficulty settings provide wordsearches for all skill levels.</p>
+            <a class='resource-card-link-large' href='wordsearch'>Try a Puzzle</a>
+        </div>
+    </div>
+</div>
+
+<!-- OTHER RESOURCES SECTION -->
+<div class='flex-row section-separator'></div>
+<div id='section-resources' class='flex-col'>
+    <h2 class='section-title'>Want to learn more?</h2>
+    <div class='flex-adapt resource-card-group'>
+        <div class='flex-col' style='gap: 1em;justify-content: space-between;'>
+            <div class='flex-col resource-card'>
+                <h3 class='resource-card-title'>Picayune Rancheria Homepage</h3>
+                <p class='resource-card-contents'>The official website of The Picayune Rancheria of the Chukchansi Indians, with information and resources for tribe members.</p>
+                <a class='resource-card-link' href='https://chukchansi-nsn.gov/'>Visit Site</a>
+            </div>
+            <div class='flex-col resource-card'>
+                <h3 class='resource-card-title'>Dept. of Language and Culture</h3>
+                <p class='resource-card-contents'>The hub site for the Department of Language and Culture, with event calendars and educational resources.</p>
+                <a class='resource-card-link' href='https://www.chukchansilanguage.org/'>Visit Site</a>
+            </div>
+        </div>
+        <div class='flex-col resource-card'>
+            <h3 class='resource-card-title'>Other Resources</h3>
+            <p class='resource-card-contents'><a href='https://www.youtube.com/playlist?list=PLAanj6d8R-Thc5fmNNf6XhW4WawZiiBew'>A video series</a> by Shonna Alexander covers the basics of the language on YouTube.</p>
+            <p class='resource-card-contents'><a href='https://www.youtube.com/@ChukchansiLanguage-pn3ko'>Recordings of online language classes</a> are available on another YouTube channel.</p>
+            <p class='resource-card-contents'>Fresno State University published an <a href='https://www.fresnostatenews.com/2012/05/07/chukchansi-pledges-1-million-for-language-study-and-revitalization/'>article</a> about the original research grant that funded the project, including a <a href='https://www.youtube.com/watch?v=B-0NAS640-4'>video of the Bear Eagle Dance.</a></p>
+            <p class='resource-card-contents'>Fresno State's <a href='https://cah.fresnostate.edu/linguistics/research/ilg.html'>Indigenous Languages Group</a> has a section covering the Chukchansi Yokuts.</p>
+            <p class='resource-card-contents'>Another <a href='https://fresnostatecah.com/2023/10/21/native-speakers-and-fresno-state-linguists-release-online-chukchansi-speaking-dictionary/'>article</a> covered the speaking dictionary when it first released, including an interview with linguist Niken Adisasmito-Smith.</p>
+        </div>
+    </div>
+</div>
+
+<!-- FOOTER -->
+<div class='flex-row section-separator'></div>
+<div class='flex-col footer'>
+    <p>Website &copy 2025 Narayana "Kat" Adisasmito-Smith</p>
+    <p>Text and images from this site may not be used as training data for AI.</p>
+</div>
+
+
+
+<script type='text/javascript' src='script/navbar.js'></script>
+
+<script type='text/javascript'>
+
+    //// WAVE 3 ////
+
+    // 1.0 hrs: research publically available chukchansi resources, create initial site readme
+    // 0.5 hrs: SEO analysis
+    // 1.0 hrs: whitebox homepage
+    // 1.5 hrs: dev initial site layout
+    // 4.0 hrs: improve site layout, add resources section
+    // 0.5 hrs: add navbar to pdf dictionary
+    // 0.5 hrs: add personnel cards
+    // 6.0 hrs: overhaul projects section, make fully dynamic and mobile-friendly
+    // 4.5 hrs: complete resources section, improve dynamic layout
+    // 1.0 hrs: research copyright and site hosting
+    // 4.5 hrs: finish personnel section
+    // 3.5 hrs: admin stuff, web hosting research
+    // 0.5 hrs: add custom error message and direct download link to pdf dictionary
+    // 6.0 hrs: debug pdf viewer breaking after firefox update, add multistep fallback for the future
+    // 2.5 hrs: create common stylesheet, clean up css
+    // 2.0 hrs: improve standardized navbar
+    // 3.0 hrs: sim hover behavior in js, since ios doesn't respect actual :hover behavior
+    // 6.0 hrs: web design
+    // 1.0 hrs: paint background img for homepage
+    // 6.0 hrs: homepage-lite redesign
+
+    // index/pdf/general: 56 hrs
+    // stories: 65 hrs
+    // flashcards/memory match/wotd: 9 hrs
+    // wordsearch: 67 hrs
+    // dictionary: 86 hrs + 13 hrs + 9 hrs
+    // data: 24 hrs
+    // grammar: 8 hrs + 9 hrs
+    // python tooling: 7 hrs
+
+    // 353 hrs @ $30/hr = $10,590
+
+    // final round of cleanup/bugfixes:
+        // finish index page and go live
+            // 5.5 hrs dev site
+            // 0.5 hrs: strongly worded letter re: SEO
+        // re-integrate history into dictionary
+        // add standardized navbar to all pages
+            // 1.5 hrs add to pdf dictionary, fix menu sometimes not closing due to embedded contexts
+            // 3.5 hrs add cross-platform hover module, improve ux
+        // 0.5 hrs: fix wordsearch difficulty not updating; fix typos in vocab lists
+        // update github readme
+    
+    // 365 hrs with current cleanup
+    // +20 hrs follow-up
+    // 385 hrs @ $30/hr
+
+    // 1.0 hrs update project descriptions, improve navbar styling
+
+
+
+    //// TODO ////
+    // flashcards
+    // word of the day
+    // tile matching memory game
+    // chukchansi wordle
+
+
+    //// REF ////
+    // https://www.dropbox.com/
+    // https://slack.com/
+    // https://www.carmax.com/
+    // https://www.healthline.com/
+    // https://www.trivago.com/
+    // https://www.century21.com/
+    // https://www.starbucks.com/
+    // https://lumbazzi.com/
+    // https://land-book.com/
+
+
+    
+    // DOM anchors
+    const navTitle = document.getElementById('nav-title');
+
+    // responsive navbar title
+    window.addEventListener('resize', e => {
+        navTitle.innerHTML = (window.innerWidth < window.innerHeight) ? 'Chukchansi Project' : 'Chukchansi Language Project';
+    });
+    navTitle.innerHTML = (window.innerWidth < window.innerHeight) ? 'Chukchansi Project' : 'Chukchansi Language Project';
+
+    //////////////////////
+    
+    // init
+
+</script>
+
+</body>
+</html>
