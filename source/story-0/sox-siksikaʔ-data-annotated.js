@@ -25,7 +25,7 @@ let story_sox_siksikaʔ = {
 		`Waʔ henew ʔadil’, Siksikaʔ t’uluntaʔ.`,
 		`Way down there, Stinkbug burned up.`,
 		34.3,
-		`Waʔ ʔamaʔ ʔadil’, ʔamaʔ ʔoshit shaapintaʔ.`,
+		`Waʔ ʔamaa ʔadil’, ʔamaʔ ʔoshit shaapintaʔ.`,
 		`Then, way down there, the fire went out.`,
 		39.0,
 		`Miʔin ʔamaʔ Siksikaʔ tishtaʔ, meejinmi limeek’am.`,
@@ -70,7 +70,7 @@ let story_sox_siksikaʔ = {
 			`Stinkbug burned up.`
 		],[
 			34.3,
-			`Waʔ ʔamaʔ ʔadil’, `,
+			`Waʔ ʔamaa ʔadil’, `,
 			`Then, way down there,`,
 			36.0,
 			`ʔamaʔ ʔoshit shaapintaʔ.`,
