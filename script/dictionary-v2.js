@@ -1,13 +1,15 @@
 
-// 3.0 hrs: implement per-word indexing, begin applying to error checking and statistics
+// 1.0 hrs: implement per-word indexing, begin applying to error checking and statistics
 // 0.5 hrs: cleanup
 // 4.0 hrs: move word indexing to discreet dictionaryUtils obj, bugfix, add duplication checking/stats
 // 1.0 hrs: add filters to detect intended duplicate forms
+// 2.0 hrs: formalize Language objects as class
 
 (() => {
 	//// private global methods ////
 
 	const SYNONYM_SPLITTER = '; ';
+	const ALPHABET_SPLITTER = ' ';
 
 	//// Entry() shared methods ////
 
@@ -63,9 +65,63 @@
 				return forms[formNum].indexOf(synonym);
 		return -1;
 	}
+	function alphabetizeUnicode (a,b) {
+		// alphabetization defaults to case-insensative unicode character order
+		a = a.toLowerCase();
+		b = b.toLowerCase();
+		if (a > b) return 1;
+		if (a < b) return -1;
+		return 0;
+	}
 
 	//// Entry() ////
 
+	class Language {
+		constructor (name = 'New Language', abbreviation = 'lng', alphabet = '') {
+			this.name = name;
+			this.abbr = this.abbreviation = abbreviation;
+			this.alphabet = this.alphabet.split(ALPHABET_SPLITTER);
+			this.alphabetize = alphabetizeUnicode;
+			this.usesForms = false;
+			this.forms = {};
+		}
+		setCatgForms (catg, forms) {
+			this.usesForms = true;
+			for (let form of this.forms[catg]) {
+				if (form) {
+					console.warn(`Overwriting form names ${this.forms[catg]} -> ${forms}.`);
+					break;
+				}
+			}
+			this.forms[catg] = [];
+			for (let form in forms) {
+				this.forms[catg].push(form);
+			}
+		}
+		addForm (catg, formNum, formName) {
+			this.usesForms = true;
+			if (!this.forms[catg]) {
+				this.forms.catg = [];
+			}
+			if (this.forms[catg][formNum] && this.forms[catg][formNum] != formName) {
+				console.warn(`Replacing ${catg} form ${formNum} "${this.forms[catg][formNum]}" with "${formName}" (${this.name}).`);
+			}
+			this.forms[catg][formNum] = formName;
+		}
+		getForm (catg, formNum) {
+			if (this.forms[catg] && this.forms[catg][formNum]) {
+				return this.forms[catg][formNum];
+			} else {
+				// return `Form ${formNum}`;
+				return '';
+			}
+		}
+		hasForm (catg, formNum) {
+			return this.forms[catg] && this.forms[catg][formNum];
+		}
+	}
+
+	// Entry() factory allows for private data and clean API, but uses more memory storing per-entry methods
 	function Entry () {
 		let pForms = [];
 		let sForms = [];
@@ -116,6 +172,7 @@
 			}
 		}
 	}
+	// Entry() class saves memory, but has messier API and no private data
 
 
 
@@ -135,15 +192,6 @@
 			this._sLang = secondaryLang;
 			this._sOrderedWords = [];
 			this._sOrderedEntryWords = [];
-			// // indexed data
-			// this._indexedWords = {
-			// 	// 'fire' : {
-			// 	// 	entries : [e1,e2,...],
-			// 	// 	sentences : [ [entry,sentence,word] ]
-			// 	// }
-			// };
-			// this._sentenceNoEntry = []; // array of chk words that appear in a sentence, but don't have an entry (catches misspellings)
-			// this._duplicateEntries = []; // array of chk words that appear in more than one entry
 			// settings
 			this._togglePrimary = false;
 			this._trimSearch = false;
@@ -182,29 +230,6 @@
 			this._pOrderedEntryWords.sort(this._pLang.alphabetize);
 			this._sOrderedEntryWords.sort(this._sLang.alphabetize);
 		}
-		// indexSecondaryWords () {
-		// 	const t0_indexSecondary = performance.now();
-		// 	let numEntries = 0;
-		// 	this.forEachEntry((entry,entryIndex) => {
-		// 		entry.forEachSecondaryForm((synonyms,formNum) => {
-		// 			for (let synonym of synonyms) {
-		// 				if (this._indexedWords[synonym] === undefined) { this._indexedWords[synonym] = { entries : [], sentences : [] }; }
-		// 				this._indexedWords[synonym].entries.push( [entryIndex,formNum] );
-		// 			}
-		// 		});
-		// 		entry.forEachSentence((sentence,sentenceForm,sentenceNum) => {
-		// 			// discard non-alphanumeric characters and subscript from each sentence
-		// 			//// TODO: need to convert angled ' and ' to vertical '
-		// 			const words = sentence.secondary.toLowerCase().replace(/_.*/g,'').replace(/[^0-9a-z\'ʔ ]/g, '').split(' '); // sterilize chars
-		// 			for (let i = 0; i < words.length; i++) {
-		// 				if (this._indexedWords[words[i]] === undefined) { this._indexedWords[words[i]] = { entries : [], sentences : [] }; }
-		// 				this._indexedWords[words[i]].sentences.push( [entryIndex,sentenceNum,i] );
-		// 			}
-		// 		});
-		// 		numEntries++;
-		// 	});
-		// 	console.log(`Secondary words from ${numEntries} entries indexed in ${performance.now()-t0_indexSecondary} ms.`);
-		// }
 	
 		get primary() { return (!this._togglePrimary) ? this._pLang.name : this._sLang.name; }
 		get secondary() { return (!this._togglePrimary) ? this._sLang.name : this._pLang.name; }
@@ -270,6 +295,9 @@
 
 	//// utils ////
 
+	// entry/sentence indexing:
+		// group every occurence of a word spelling across all entries/wordforms (used to tag duplicates, homographs, etc)
+		// tag every word in every example sentence with the entry it originates from
 	function indexSecondaryWords (dictionary) {
 		const t0_index = performance.now();
 		let indexedWords = {};
@@ -282,7 +310,7 @@
 				}
 			});
 			entry.forEachSentence((sentence,sentenceForm,sentenceNum) => {
-				// discard non-alphanumeric characters and subscript from each sentence
+				// discard subscripts and non-alphanumeric characters from each sentence
 				//// TODO: need to convert angled ' and ' to vertical '
 				const words = sentence.secondary.toLowerCase().replace(/_.*/g,'').replace(/[^0-9a-z\'ʔ ]/g, '').split(' '); // sterilize chars
 				for (let i = 0; i < words.length; i++) {
@@ -397,6 +425,7 @@
 
 	//// public interface ////
 
+	window.Language = Language; // bind class
 	window.Entry = Entry; // bind factory
 	window.Dictionary = Dictionary; // bind class
 	window.dictionaryUtils = {
@@ -411,75 +440,25 @@
 
 
 
+//// lang def ////
+
+let L1_eng = new Language('English', 'eng', `a b c d e f g h i j k l m n o p q r s t u v w x y z`);
+	// L1_eng.alphabetize = alphabetizeUnicode;
+let L2_chk = new Language('Chukchansi', 'chk', `a b c d e f g h i j k l m n o p r s t u w x y ' ʔ`);
+	L2_chk.setCatgForms('noun',				['subject', 'object', 'owner', 'owned', 'tool', 'place']);
+	L2_chk.setCatgForms('adjective',		['subject', 'object', 'owner', 'owned', 'tool', 'place']);
+	L2_chk.setCatgForms('demonstrative',	['subject', 'object', 'owner', 'owned', 'tool', 'place']);
+	L2_chk.setCatgForms('verb',				['recent past', 'remote past', 'yesterday past', 'ongoing', 'command', 'suggestive', 'hypothetical', 'future', 'precedent gerundial', 'consequent gerundial']);
+	L2_chk.setCatgForms('auxiliary verb',	['recent past', 'remote past', 'yesterday past', 'ongoing', 'command', 'suggestive', 'hypothetical', 'future', 'precedent gerundial', 'consequent gerundial']);
+	L2_chk.setCatgForms('pronoun',			['subject', 'object']);
+	// L2_chk.alphabetize = alphabetizeUnicode;
+
+
+
+//// input parsing ////
+
 const SEP_LINES = '\n';
 const SEP_CELLS = '\t';
-const SEP_SYNONYMS = '; ';
-const SEP_ALPHABET = ' ';
-
-let primary_eng = {
-	name: 'English',
-	abbr: 'en',
-	abbr3: 'eng',
-	alphabet: `a b c d e f g h i j k l m n o p q r s t u v w x y z`.split(SEP_ALPHABET),
-	alphabetize: (a,b) => {
-		a = a[0].toLowerCase();
-		b = b[0].toLowerCase();
-		if (a > b) return 1;
-		if (a < b) return -1;
-		return 0;
-	},
-	forms: {
-		// default: (i) => 'form '+i
-		default: (i) => ''
-	},
-	formStr: (catg,i) => {
-		return (primary_eng.forms.hasOwnProperty(catg) && i < primary_eng.forms[catg].length)
-			? primary_eng.forms[catg][i]
-			: primary_eng.forms.default(i)
-	}
-};
-
-let secondary_chk = {
-	name: 'Chukchansi',
-	abbr: 'ch',
-	abbr3: 'chk',
-	// alphabet: `b c d f g h j k l m n p q r s t v w x y z ʔa ʔe ʔi ʔo ʔu`.split(' '),
-	// alphabet: `a aa b ch ch' d e ee f g h i ii j k k' l l' m m' n n' o oo p p' r s sh t t' u uu w w' x y y' ʔ`.split(' '),
-	alphabet: `a b c d e f g h i j k l m n o p r s t u w x y ' ʔ`.split(SEP_ALPHABET),
-	alphabetize: (a,b) => { // piggy-back off unicode char order for now
-		a = a[0].toLowerCase();
-		b = b[0].toLowerCase();
-		if (a > b) return 1;
-		if (a < b) return -1;
-		return 0;
-	},
-	forms: {
-		'noun'           : ['subject', 'object', 'owner', 'owned',   'tool',    'place'],
-		'adjective'      : ['subject', 'object', 'owner', 'owned',   'tool',    'place'],
-		'demonstrative'  : ['subject', 'object', 'owner', 'owned',   'tool',    'place'],
-		'verb'           : ['recent past', 'remote past', 'yesterday past', 'ongoing', 'command', 'suggestive', 'hypothetical', 'future', 'precedent gerundial', 'consequent gerundial'],
-		'auxiliary verb' : ['recent past', 'remote past', 'yesterday past', 'ongoing', 'command', 'suggestive', 'hypothetical', 'future', 'precedent gerundial', 'consequent gerundial'],
-		'pronoun'        : ['subject', 'object'],
-		// default: (i) => 'form '+i
-		default: (i) => ''
-
-		// 'n': ['subject', 'object', 'possessive',     'possessed', 'instrumental', 'locative'],
-		// 'v': ['subject', 'object', 'yesterday past', 'ongoing',   'command',      'hypothetical', 'future']
-		// precedent gerundial of "arrived": "He arrived when I was eating." [did precedent gerundial during main action]
-	},
-	formStr: (catg,i) => {
-		return (secondary_chk.forms.hasOwnProperty(catg) && i < secondary_chk.forms[catg].length)
-			? secondary_chk.forms[catg][i]
-			: secondary_chk.forms.default(i)
-	},
-	hasForm: (catg,i) => {
-		if (!secondary_chk.forms[catg]) return false;
-		if (i && !secondary_chk.forms[catg][i]) return false;
-		return true;
-	}
-};
-
-
 
 function parse_en_ch_v13 (tsv) {
 	// input: "eng1   catg   chk1-10   sent1-10   bonusSent1-2   notes\n"
