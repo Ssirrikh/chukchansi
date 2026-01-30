@@ -80,7 +80,7 @@
 		constructor (name = 'New Language', abbreviation = 'lng', alphabet = '') {
 			this.name = name;
 			this.abbr = this.abbreviation = abbreviation;
-			this.alphabet = this.alphabet.split(ALPHABET_SPLITTER);
+			this.alphabet = alphabet.split(ALPHABET_SPLITTER);
 			this.alphabetize = alphabetizeUnicode;
 			this.usesForms = false;
 			this.forms = {};
