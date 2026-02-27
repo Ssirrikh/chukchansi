@@ -903,8 +903,8 @@
 
 	<!-- load dependencies -->
 	<script type='text/javascript' src='script/dictionary.js'></script>
-	<script type='text/javascript' src='data/en-ch-v12.js'></script>
-	<script type='text/javascript' src='data/en-ch-v13.js'></script>
+	<!-- <script type='text/javascript' src='data/en-ch-v13.js'></script> -->
+	<script type='text/javascript' src='data/en-ch-v14.js'></script>
 	<script type='text/javascript' src='source/resources.js'></script>
 	<!-- temp resource list for jasmine's demo -->
 	<script type='text/javascript' src='source/resources-jasmine.js'></script>
@@ -1041,7 +1041,9 @@
 		// build dictionary
 		let dictionary = new Dictionary(primary_eng, secondary_chk);
 		// dictionary.loadData( parse_en_ch_v12(tsv_en_ch_v12) );
-		dictionary.loadData( parse_en_ch_v13(tsv_en_ch_v13) );
+		// dictionary.loadData( parse_en_ch_v13(tsv_en_ch_v13) );
+		
+		dictionary.loadData( parse_en_ch_v14(tsv_en_ch_v14) );
 
 		// resource access
 		let soundSettings = {
