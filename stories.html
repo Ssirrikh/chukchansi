@@ -363,6 +363,9 @@
         #thumbnail-3 {
             background: url('source/story-3/shelel\'-shilithanaʔ-thumbnail-small.jpg') var(--thumbnail-position);
         }
+        #thumbnail-4 {
+            background: url('source/story-4/bonoy\'-ʔipishanaʔ-nooch\'oʔ-thumbnail-small.jpg') var(--thumbnail-position);
+        }
 
 
 
@@ -459,6 +462,13 @@
                         <p class='selection-panel-story-subtitle'>A Rock to be Jumped</p>
                     </div>
                 </div>
+                <div id='story-4' class='flex-row selection-panel-row' onclick='loadStory(4)'>
+                    <div id='thumbnail-4' class='selection-panel-story-thumbnail'></div>
+                    <div class='flex-col'>
+                        <p class='selection-panel-story-title'>Bonoy’ ʔipishanaʔ Nooch’oʔ</p>
+                        <p class='selection-panel-story-subtitle'>Two Orphan Boys</p>
+                    </div>
+                </div>
 
                 <p style='margin:1.0em;font-style:italic;'>More coming soon!</p>
             <!-- </div> -->
@@ -531,6 +541,7 @@
 <script type='text/javascript' src="source/story-1/kaʔyuʔun-shashaʔ-data-annotated.js"></script>
 <script type='text/javascript' src="source/story-2/ʔuplalliʔ-deemaysuʔ-data-annotated.js"></script>
 <script type='text/javascript' src="source/story-3/shelel'-shilithanaʔ-data-annotated.js"></script>
+<script type='text/javascript' src="source/story-4/bonoy'-ʔipishanaʔ-nooch'oʔ-data-annotated.js"></script>
 
 
 
@@ -587,6 +598,11 @@
     // 0.5 hrs: fix issue that made nav links hard to click
     // 4.0 hrs: UX improvements
     // 4.0 hrs: add audio downloads, clean/compress audio files
+
+    //// WAVE 4 ////
+
+    // 2.0 hrs: begin fixing broken READ_BY_SENTENCE mode
+    // 2.0 hrs: annotate orphan boys story; generate thumbnail
 
 
     
@@ -712,9 +728,14 @@
     storyReader.player.ontimeupdate = () => {
         // update highlighting if we started a new clause
         const nextSectionId = storyReader.currentSectionId + 1;
+        console.log(`Next section ${nextSectionId}`);
+        console.log(`id2lineSection`, storyReader.id2lineSection);
         if (nextSectionId < storyReader.id2lineSection.length) {
             const [nextLine,nextSection] = storyReader.id2lineSection[nextSectionId];
-            if (storyReader.player.currentTime > storyReader.currentStoryData[storyReader.readMode][nextLine][3*nextSection]) {
+            if (storyReader.readMode === READ_BY_CLAUSE && storyReader.player.currentTime > storyReader.currentStoryData[storyReader.readMode][nextLine][3*nextSection]) {
+                storyReader.highlightSection(nextSectionId);
+                storyReader.currentSectionId = nextSectionId;
+            } else if (storyReader.readMode === READ_BY_SENTENCE && storyReader.player.currentTime > storyReader.currentStoryData[storyReader.readMode][nextLine][3*nextSection]) {
                 storyReader.highlightSection(nextSectionId);
                 storyReader.currentSectionId = nextSectionId;
             }
@@ -771,33 +792,61 @@
         let id = 0;
         storyReader.id2lineSection = [];
         storyReader.lineSection2id = [];
-        for (let line = 0; line < storyData[storyReader.readMode].length; line++) {
-            storyReader.lineSection2id[line] = [];
-            for (let i = 0; i < storyData[storyReader.readMode][line].length; i+=3) {
-                const section = i / 3;
-                storyReader.id2lineSection.push([line,section]);
-                storyReader.lineSection2id[line].push(id);
-                id++;
+        if (storyReader.readMode === READ_BY_CLAUSE) {
+            for (let line = 0; line < storyData[storyReader.readMode].length; line++) {
+                storyReader.lineSection2id[line] = [];
+                for (let i = 0; i < storyData[storyReader.readMode][line].length; i+=3) {
+                    const section = i / 3;
+                    storyReader.id2lineSection.push([line,section]);
+                    storyReader.lineSection2id[line].push(id);
+                    id++;
+                }
             }
+        } else if (storyReader.readMode === READ_BY_SENTENCE) {
+            // for (let line = 0; line < storyData[storyReader.readMode].length; line++) {
+            //     storyReader.lineSection2id[line] = [];
+            //     for (let i = 0; i < storyData[storyReader.readMode][line].length; i+=3) {
+            //         const section = i / 3;
+            //         storyReader.id2lineSection.push([line,section]);
+            //         storyReader.lineSection2id[line].push(id);
+            //         id++;
+            //     }
+            // }
         }
+        
         console.log(`LOAD Story data indexed after ${(performance.now()-storyReader.loadStart).toFixed(0)} ms.`);
 
         // construct dynamic content (is independent of audio, but don't render until audio playable)
         let contentStr = '';
-        for (let line = 0; line < storyData[storyReader.readMode].length; line++) {
+        if (storyReader.readMode === READ_BY_CLAUSE) {
+            for (let line = 0; line < storyData[storyReader.readMode].length; line++) {
+                contentStr += `<div>`;
+                for (let i = 0; i < storyData[storyReader.readMode][line].length; i+=3) {
+                    const section = i / 3;
+                    const id = storyReader.lineSection2id[line][section];
+                    const timestamp = storyData[storyReader.readMode][line][i];
+                    const textCHK = storyData[storyReader.readMode][line][i+1];
+                    const textENG = storyData[storyReader.readMode][line][i+2];
+                    contentStr += `<p><span id='reader-section-${id}' class='reader-section' onClick='storyReader.setSectionId(${id})'>${textCHK}</span></p>`;
+                    contentStr += '\n';
+                    contentStr += `<p><span id='reader-section-translation-${id}' class='reader-section-translation' onClick='storyReader.setSectionId(${id})'>${textENG}</span></p>`;
+                }
+                contentStr += `</div>`;
+            }
+        } else if (storyReader.readMode === READ_BY_SENTENCE) {
             contentStr += `<div>`;
-            for (let i = 0; i < storyData[storyReader.readMode][line].length; i+=3) {
-                const section = i / 3;
-                const id = storyReader.lineSection2id[line][section];
-                const timestamp = storyData[storyReader.readMode][line][i];
-                const textCHK = storyData[storyReader.readMode][line][i+1];
-                const textENG = storyData[storyReader.readMode][line][i+2];
+            for (let i = 0; i < storyData[storyReader.readMode].length; i+=3) {
+                const id = i / 3;
+                const timestamp = storyData[storyReader.readMode][i];
+                const textCHK = storyData[storyReader.readMode][i+1];
+                const textENG = storyData[storyReader.readMode][i+2];
                 contentStr += `<p><span id='reader-section-${id}' class='reader-section' onClick='storyReader.setSectionId(${id})'>${textCHK}</span></p>`;
                 contentStr += '\n';
                 contentStr += `<p><span id='reader-section-translation-${id}' class='reader-section-translation' onClick='storyReader.setSectionId(${id})'>${textENG}</span></p>`;
             }
             contentStr += `</div>`;
         }
+        
         console.log(`LOAD Dynamic content generated after ${(performance.now()-storyReader.loadStart).toFixed(0)} ms.`);
 
         // render content to screen only after audio is playable
@@ -820,6 +869,7 @@
                 playerLoadingScreen.style.visibility = 'hidden';
                 console.log(`LOAD Dynamic content rendered after ${(performance.now()-storyReader.loadStart).toFixed(0)} ms.`);
             } else if (storyReader.player.readyState >= 2) {
+                console.log(`LOAD Set audio currentTime to ${t0}`);
                 storyReader.player.currentTime = t0;
                 // console.log(`LOAD Set audio currentTime to ${storyReader.player.currentTime}`);
                 setTimeout(()=>trySetInitialTime(t0), 50);
@@ -836,7 +886,8 @@
                 readerTitle.innerHTML = storyData.titleCHK;
                 readerSubtitle.innerHTML = storyData.titleENG;
                 console.log(`LOAD Audio first frame playable after ${(performance.now()-storyReader.loadStart).toFixed(0)} ms.`);
-                trySetInitialTime(storyReader.currentStoryData[storyReader.readMode][0][0]);
+                if (storyReader.readMode === READ_BY_CLAUSE) trySetInitialTime(storyReader.currentStoryData[storyReader.readMode][0][0]);
+                if (storyReader.readMode === READ_BY_SENTENCE) trySetInitialTime(storyReader.currentStoryData[storyReader.readMode][0]);
             }
         };
 
@@ -935,7 +986,8 @@
         story_sox_siksikaʔ,
         story_kaʔyuʔun_shashaʔ,
         story_ʔuplalliʔ_deemaysuʔ,
-        story_shelel_shilithanaʔ
+        story_shelel_shilithanaʔ,
+        story_bonoy_ʔipishanaʔ_noochoʔ,
     ];
     
     loadStory(0);
