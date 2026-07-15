@@ -155,11 +155,13 @@ h1, h2, h3, h4, h5, h6 {
     display: inline-block;
 }
 #nav-target {
+    cursor: pointer;
     /* always-visible click/hover target to trigger menu dropdown */
     font-size: 0.8em;
     align-items: center;
     gap: 0.2em;
     padding: 0 0.2em; /* provide larger click target for touchscreens */
+    background-color: #f0f;
 }
 
 #nav-icon {
