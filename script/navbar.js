@@ -16,29 +16,6 @@
     // selectors
     const EMBEDDED_CTX_SELECTOR = 'iframe, object[type="application/pdf"], embed[type="application/pdf"]';
 
-    // // touchstart fires before mousemove, so block next mousemove if interaction already handled
-    // let navDropdownBlockDoubleFire = false;
-
-    // // cross-platform hover/tap dropdown
-    // window.addEventListener('mousemove', e => {
-    //     if (navDropdownBlockDoubleFire) {
-    //         navDropdownBlockDoubleFire = false;
-    //         return;
-    //     }
-    //     if (navMenu.contains(e.target)) {
-    //         navDropdown.style.visibility = 'visible';
-    //     } else {
-    //         navDropdown.style.visibility = 'hidden';
-    //     }
-    // });
-    // // allow touch devices to tap the menu icon to close the dropdown
-    // navTarget.addEventListener('touchstart', e => {
-    //     if (navDropdown.style.visibility === 'visible') {
-    //         navDropdown.style.visibility = 'hidden';
-    //         navDropdownBlockDoubleFire = true;
-    //     }
-    // });
-
     // toggle menu on click/tap
     const toggleNav = evt => {
         if (navDropdown.style.visibility === 'visible') {
@@ -49,6 +26,9 @@
             if (navMenu.contains(evt.target)) navDropdown.style.visibility = 'visible';
         }
     }
+    // TODO: recent safari update messes with window-scope click/tap listeners
+        // only <button> and other explicitly clickable elements will register event
+        // <div> and other non-clickable elems CANNOT register events unless given explicit onclick
     window.addEventListener('click', toggleNav);
 
     // close dropdown if user interacts with embedded browsing contexts, since they capture mousemove
