@@ -6,7 +6,7 @@ let story_bonoy_ʔipishanaʔ_noochoʔ = {
 	titleShortENG : `Orphan Boys`,
 	titleShortCHK : `ʔipishanaʔ Nooch’oʔ`,
 	timestampsBySentence : [
-		        0.0,
+		0.0,
         `Bonoy’ ʔipishanaʔ nooch’oʔ`,
         `Two thrown-away (orphan) boys`,
         2.5,
