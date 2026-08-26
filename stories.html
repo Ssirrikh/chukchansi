@@ -366,6 +366,19 @@
         #thumbnail-4 {
             background: url('source/story-4/bonoy\'-ʔipishanaʔ-nooch\'oʔ-thumbnail-small.jpg') var(--thumbnail-position);
         }
+        
+        #thumbnail-5 {
+            background: url('source/story-5/ʔamaʔ-dawhalch\'ich\'in-nasis-thumbnail.jpg') var(--thumbnail-position);
+        }
+        #thumbnail-6 {
+            background: url('source/story-6/ʔamak\'-noch\'eeʔi-hoyeenataʔ-hidyaw-helew-thumbnail.jpg') var(--thumbnail-position);
+        }
+        #thumbnail-7 {
+            background: url('source/story-7/kaʔyuʔ-ʔamaʔ-yoʔ-nohʔoʔ-thumbnail.jpg') var(--thumbnail-position);
+        }
+        #thumbnail-8 {
+            background: url('source/story-8/kaʔyuʔ-wanhantaʔ-p\'umaʔhiyan-thumbnail.jpg') var(--thumbnail-position);
+        }
 
 
 
@@ -470,6 +483,35 @@
                     </div>
                 </div>
 
+                <div id='story-5' class='flex-row selection-panel-row' onclick='loadStory(5)'>
+                    <div id='thumbnail-5' class='selection-panel-story-thumbnail'></div>
+                    <div class='flex-col'>
+                        <p class='selection-panel-story-title'>ʔamaʔ Dawhalch’ich’in Nasis</p>
+                        <p class='selection-panel-story-subtitle'>The Ambitious Snake</p>
+                    </div>
+                </div>
+                <div id='story-6' class='flex-row selection-panel-row' onclick='loadStory(6)'>
+                    <div id='thumbnail-6' class='selection-panel-story-thumbnail'></div>
+                    <div class='flex-col'>
+                        <p class='selection-panel-story-title'>ʔamak’ Noch’eeʔi Hoyeenataʔ Hidyaw Helew</p>
+                        <p class='selection-panel-story-subtitle'>The Boys Who Became Quail and Flew Away</p>
+                    </div>
+                </div>
+                <div id='story-7' class='flex-row selection-panel-row' onclick='loadStory(7)'>
+                    <div id='thumbnail-7' class='selection-panel-story-thumbnail'></div>
+                    <div class='flex-col'>
+                        <p class='selection-panel-story-title'>Kaʔyuʔ ʔamaʔ yoʔ Nohʔoʔ Leelupsataʔ</p>
+                        <p class='selection-panel-story-subtitle'>Coyote and Bear Swing</p>
+                    </div>
+                </div>
+                <div id='story-8' class='flex-row selection-panel-row' onclick='loadStory(8)'>
+                    <div id='thumbnail-8' class='selection-panel-story-thumbnail'></div>
+                    <div class='flex-col'>
+                        <p class='selection-panel-story-title'>Kaʔyuʔ Wanhantaʔ P’umaʔhiyan</p>
+                        <p class='selection-panel-story-subtitle'>Coyote Is Given a Beak</p>
+                    </div>
+                </div>
+
                 <p style='margin:1.0em;font-style:italic;'>More coming soon!</p>
             <!-- </div> -->
         </div>
@@ -542,6 +584,10 @@
 <script type='text/javascript' src="source/story-2/ʔuplalliʔ-deemaysuʔ-data-annotated.js"></script>
 <script type='text/javascript' src="source/story-3/shelel'-shilithanaʔ-data-annotated.js"></script>
 <script type='text/javascript' src="source/story-4/bonoy'-ʔipishanaʔ-nooch'oʔ-data-annotated.js"></script>
+<script type='text/javascript' src="source/story-5/ʔamaʔ-dawhalch'ich'in-nasis-data-annotated.js"></script>
+<script type='text/javascript' src="source/story-6/ʔamak'-noch'eeʔi-hoyeenataʔ-hidyaw-helew-data-annotated.js"></script>
+<script type='text/javascript' src="source/story-7/kaʔyuʔ-ʔamaʔ-yoʔ-nohʔoʔ-data-annotated.js"></script>
+<script type='text/javascript' src="source/story-8/kaʔyuʔ-wanhantaʔ-p'umaʔhiyan-data-annotated.js"></script>
 
 
 
@@ -983,11 +1029,17 @@
     //////////////////////
 
     let stories = [
+        // batch 1: stories 0-4
         story_sox_siksikaʔ,
         story_kaʔyuʔun_shashaʔ,
         story_ʔuplalliʔ_deemaysuʔ,
         story_shelel_shilithanaʔ,
         story_bonoy_ʔipishanaʔ_noochoʔ,
+        // batch 2: stories 5-8
+        story_ʔamaʔ_dawhalchichin_nasis,
+        story_ʔamak_nocheeʔi_hoyeenataʔ_hidyaw_helew,
+        story_kaʔyuʔ_ʔamaʔ_yoʔ_nohʔoʔ,
+        story_kaʔyuʔ_wanhantaʔ_pumaʔhiyan,
     ];
     
     loadStory(0);

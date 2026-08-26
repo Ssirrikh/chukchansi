@@ -1,4 +1,4 @@
-let story_kaʔyuʔ_wanhantaʔ_p’umaʔhiyan = {
+let story_kaʔyuʔ_wanhantaʔ_pumaʔhiyan = {
     "thumbnail": "source/story-8/kaʔyuʔ-wanhantaʔ-p'umaʔhiyan-thumbnail.jpg",
     "audio": "source/story-8/kaʔyuʔ-wanhantaʔ-p'umaʔhiyan-audio.mp3",
     "titleENG": "Coyote Is Given a Beak",

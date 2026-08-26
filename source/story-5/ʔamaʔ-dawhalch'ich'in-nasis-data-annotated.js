@@ -1,4 +1,4 @@
-let story_ʔamaʔ_dawhalch’ich’in_nasis = {
+let story_ʔamaʔ_dawhalchichin_nasis = {
     "thumbnail": "source/story-5/ʔamaʔ-dawhalch'ich'in-nasis-thumbnail.jpg",
     "audio": "source/story-5/ʔamaʔ-dawhalch'ich'in-nasis-audio.mp3",
     "titleENG": "The Ambitious Snake",

@@ -1,4 +1,4 @@
-let story_ʔamak’_noch’eeʔi_hoyeenataʔ_hidyaw_helew = {
+let story_ʔamak_nocheeʔi_hoyeenataʔ_hidyaw_helew = {
     "thumbnail": "source/story-6/ʔamak'-noch'eeʔi-hoyeenataʔ-hidyaw-helew-thumbnail.jpg",
     "audio": "source/story-6/ʔamak'-noch'eeʔi-hoyeenataʔ-hidyaw-helew-audio.mp3",
     "titleENG": "The Boys Who Became Quail and Flew Away",
