@@ -1,0 +1,166 @@
+let story_kaʔyuʔ_halaʔletaʔ_waʔlaʔan = {
+    "thumbnail": "source/story-11/kaʔyuʔ-halaʔletaʔ-waʔlaʔan-thumbnail.jpg",
+    "audio": "source/story-11/kaʔyuʔ-halaʔletaʔ-waʔlaʔan-audio.mp3",
+    "titleENG": "Coyote Lifts Up the Sky",
+    "titleCHK": "Kaʔyuʔ Halaʔletaʔ Waʔlaʔan",
+    "titleShortENG": "Coyote Lifts Up the Sky",
+    "titleShortCHK": "Kaʔyuʔ Halaʔletaʔ Waʔlaʔan",
+    "timestampsBySentence":
+    [
+        0.0,
+        "Kaʔyuʔ Halaʔletaʔ Waʔlaʔan",
+        "Coyote Lifts Up the Sky",
+        3.7,
+        "Heyeemaʔ ʔalit, waʔlaʔ ʔamaʔ yoʔ hol’giʔ niwwishtaʔ.",
+        "A long time ago, the sky and the earth touched each other.",
+        9,
+        "Waʔlaʔ hon’tetaʔ ʔamaa hol’giw.",
+        "The sky was bouncing up and down on the earth.",
+        12.5,
+        "T’ee naʔash yokuch’ nahniʔ hol’gigin demeenal taanal ʔamaa,",
+        "If any person or animal tried to go through there,",
+        18.1,
+        "nahniʔ ʔaman naʔash hashwinal.",
+        "they might die.",
+        21,
+        "Kaʔyuʔ ch’edmataʔ hin.",
+        "Coyote pondered on this.",
+        23.4,
+        "Hoyoch’taʔ ʔamla yokooch’i.",
+        "He wanted to help the Indians.",
+        26.3,
+        "ʔamaʔ wiltaʔ, ʔohom’ may’ naʔash hew’nexol holoomun.",
+        "He said, “We can't be like this all the time.",
+        31.2,
+        "ʔohom’ naʔash waʔlaʔ wuk’yal.",
+        "The sky should not move.”",
+        34.1,
+        "Kaʔyuʔ taʔan hudoʔ hawitmi miʔin diʔsheʔ.",
+        "Coyote knew how he’s going to fix it.",
+        38.1,
+        "ʔamaʔ ch’edmataʔ, xayal naʔ naʔash jawwani hedeesha ʔadlen waʔlaw, potʔiʔxooyich’ sipin’.",
+        "He thought, “I could put a piece of hard wood under the sky to hold it up.",
+        46.5,
+        "Ch’edmataʔ, ʔohom’ naʔ naʔash xayal hedeesha.",
+        "Then he thought, “I should not use wood.",
+        50.3,
+        "Nahniʔ naʔash chik’nal.",
+        "It could rot.”",
+        52.5,
+        "Ch’edmataʔ, Naʔash naʔ xayal ch’eeya.",
+        "Then he thought, “I should use a bone.",
+        56.3,
+        "Naʔash tishʔahanal xooyin dadaach’iw.",
+        "It could be taken from a deer’s leg.”",
+        59.8,
+        "Maxwishtaʔ mayni.",
+        "He got it himself.",
+        62,
+        "Miʔin tantaʔ ʔamaa taawintaw, miʔin taʔshiʔxootoʔ.",
+        "Then he went to where the sun was rising and watched.",
+        67.4,
+        "Miʔin waʔlaʔan hon’tetaw, xayaataʔ ch’eeya ʔamaa p’onooshan ʔam.",
+        "When the sky bounced up, he put in the bone with his hand.",
+        73.4,
+        "Waʔlaʔ lak’wuntaʔ ʔamaa ch’eeyaw, miʔin heddaʔ potʔiʔxon’ waʔlaʔan.",
+        "The sky came down on the bone which is still holding up the sky."
+    ],
+    "timestampsByClause":
+    [
+        [
+            0.0,
+            "Kaʔyuʔ Halaʔletaʔ Waʔlaʔan",
+            "Coyote Lifts Up the Sky"
+        ],
+        [
+            3.7,
+            "Heyeemaʔ ʔalit, waʔlaʔ ʔamaʔ yoʔ hol’giʔ niwwishtaʔ.",
+            "A long time ago, the sky and the earth touched each other."
+        ],
+        [
+            9,
+            "Waʔlaʔ hon’tetaʔ ʔamaa hol’giw.",
+            "The sky was bouncing up and down on the earth."
+        ],
+        [
+            12.5,
+            "T’ee naʔash yokuch’ nahniʔ hol’gigin demeenal taanal ʔamaa,",
+            "If any person or animal tried to go through there,"
+        ],
+        [
+            18.1,
+            "nahniʔ ʔaman naʔash hashwinal.",
+            "they might die."
+        ],
+        [
+            21,
+            "Kaʔyuʔ ch’edmataʔ hin.",
+            "Coyote pondered on this."
+        ],
+        [
+            23.4,
+            "Hoyoch’taʔ ʔamla yokooch’i.",
+            "He wanted to help the Indians."
+        ],
+        [
+            26.3,
+            "ʔamaʔ wiltaʔ, ʔohom’ may’ naʔash hew’nexol holoomun.",
+            "He said, “We can't be like this all the time."
+        ],
+        [
+            31.2,
+            "ʔohom’ naʔash waʔlaʔ wuk’yal.",
+            "The sky should not move.”"
+        ],
+        [
+            34.1,
+            "Kaʔyuʔ taʔan hudoʔ hawitmi miʔin diʔsheʔ.",
+            "Coyote knew how he’s going to fix it."
+        ],
+        [
+            38.1,
+            "ʔamaʔ ch’edmataʔ, xayal naʔ naʔash jawwani hedeesha ʔadlen waʔlaw, potʔiʔxooyich’ sipin’.",
+            "He thought, “I could put a piece of hard wood under the sky to hold it up."
+        ],
+        [
+            46.5,
+            "Ch’edmataʔ, ʔohom’ naʔ naʔash xayal hedeesha.",
+            "Then he thought, “I should not use wood."
+        ],
+        [
+            50.3,
+            "Nahniʔ naʔash chik’nal.",
+            "It could rot.”"
+        ],
+        [
+            52.5,
+            "Ch’edmataʔ, Naʔash naʔ xayal ch’eeya.",
+            "Then he thought, “I should use a bone."
+        ],
+        [
+            56.3,
+            "Naʔash tishʔahanal xooyin dadaach’iw.",
+            "It could be taken from a deer’s leg.”"
+        ],
+        [
+            59.8,
+            "Maxwishtaʔ mayni.",
+            "He got it himself."
+        ],
+        [
+            62,
+            "Miʔin tantaʔ ʔamaa taawintaw, miʔin taʔshiʔxootoʔ.",
+            "Then he went to where the sun was rising and watched."
+        ],
+        [
+            67.4,
+            "Miʔin waʔlaʔan hon’tetaw, xayaataʔ ch’eeya ʔamaa p’onooshan ʔam.",
+            "When the sky bounced up, he put in the bone with his hand."
+        ],
+        [
+            73.4,
+            "Waʔlaʔ lak’wuntaʔ ʔamaa ch’eeyaw, miʔin heddaʔ potʔiʔxon’ waʔlaʔan.",
+            "The sky came down on the bone which is still holding up the sky."
+        ]
+    ]
+};

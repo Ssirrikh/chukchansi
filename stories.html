@@ -351,6 +351,8 @@
         /* /////////////////////////////// */
         
         /* thumbnail assets; hardcoded into html/css since there's a finite/limited number of stories */
+
+        /* batch 1: stories 0-4 */
         #thumbnail-0 {
             background: url('source/story-0/sox-siksikaʔ-thumbnail-small.jpg') var(--thumbnail-position);
         }
@@ -366,7 +368,7 @@
         #thumbnail-4 {
             background: url('source/story-4/bonoy\'-ʔipishanaʔ-nooch\'oʔ-thumbnail-small.jpg') var(--thumbnail-position);
         }
-        
+        /* batch 2: stories 5-8 */
         #thumbnail-5 {
             background: url('source/story-5/ʔamaʔ-dawhalch\'ich\'in-nasis-thumbnail.jpg') var(--thumbnail-position);
         }
@@ -378,6 +380,26 @@
         }
         #thumbnail-8 {
             background: url('source/story-8/kaʔyuʔ-wanhantaʔ-p\'umaʔhiyan-thumbnail.jpg') var(--thumbnail-position);
+        }
+        /* batch 3: stories 9-13 */
+        #thumbnail-9 {
+            background: transparent;
+        }
+        #thumbnail-10 {
+            background: transparent;
+        }
+        #thumbnail-11 {
+            background: url('source/story-11/kaʔyuʔ-halaʔletaʔ-waʔlaʔan-thumbnail.jpg') var(--thumbnail-position);
+        }
+        #thumbnail-12 {
+            background: url('source/story-12/dullun-humnul\'-ʔamaʔ-yoʔ-namix-thumbnail.jpg') var(--thumbnail-position);
+        }
+        #thumbnail-13 {
+            background: transparent;
+        }
+        /* batch 4: story 14 */
+        #thumbnail-14 {
+            background: transparent;
         }
 
 
@@ -500,7 +522,7 @@
                 <div id='story-7' class='flex-row selection-panel-row' onclick='loadStory(7)'>
                     <div id='thumbnail-7' class='selection-panel-story-thumbnail'></div>
                     <div class='flex-col'>
-                        <p class='selection-panel-story-title'>Kaʔyuʔ ʔamaʔ yoʔ Nohʔoʔ Leelupsataʔ</p>
+                        <p class='selection-panel-story-title'>Kaʔyuʔ ʔamaʔ yoʔ Nohʔoʔ</p>
                         <p class='selection-panel-story-subtitle'>Coyote and Bear Swing</p>
                     </div>
                 </div>
@@ -511,6 +533,50 @@
                         <p class='selection-panel-story-subtitle'>Coyote Is Given a Beak</p>
                     </div>
                 </div>
+
+                <div id='story-9' class='flex-row selection-panel-row' onclick='loadStory(9)'>
+                    <div id='thumbnail-9' class='selection-panel-story-thumbnail'></div>
+                    <div class='flex-col'>
+                        <p class='selection-panel-story-title'>Kaʔyuʔ Potʔiʔxon’ Hol’giʔin</p>
+                        <p class='selection-panel-story-subtitle'>Coyote Holds Up the World</p>
+                    </div>
+                </div>
+                <div id='story-10' class='flex-row selection-panel-row' onclick='loadStory(10)'>
+                    <div id='thumbnail-10' class='selection-panel-story-thumbnail'></div>
+                    <div class='flex-col'>
+                        <p class='selection-panel-story-title'>Poyoʔhiyin Deneela ʔam yoʔ Seeya</p>
+                        <p class='selection-panel-story-subtitle'>Coyote Makes Mortar Holes and Pestles</p>
+                    </div>
+                </div>
+                <div id='story-11' class='flex-row selection-panel-row' onclick='loadStory(11)'>
+                    <div id='thumbnail-11' class='selection-panel-story-thumbnail'></div>
+                    <div class='flex-col'>
+                        <p class='selection-panel-story-title'>Kaʔyuʔ Halaʔletaʔ Waʔlaʔan</p>
+                        <p class='selection-panel-story-subtitle'>Coyote Lifts Up the Sky (Trickster Tricked)</p>
+                    </div>
+                </div>
+                <div id='story-12' class='flex-row selection-panel-row' onclick='loadStory(12)'>
+                    <div id='thumbnail-12' class='selection-panel-story-thumbnail'></div>
+                    <div class='flex-col'>
+                        <p class='selection-panel-story-title'>Dullun Humnul’ ʔamaʔ yoʔ Namix</p>
+                        <p class='selection-panel-story-subtitle'>Mountain Quail, Valley Quail, and Salamander</p>
+                    </div>
+                </div>
+                <div id='story-13' class='flex-row selection-panel-row' onclick='loadStory(13)'>
+                    <div id='thumbnail-13' class='selection-panel-story-thumbnail'></div>
+                    <div class='flex-col'>
+                        <p class='selection-panel-story-title'>Tew’ T’uytaʔ ʔoopo</p>
+                        <p class='selection-panel-story-subtitle'>Rabbit Shoots the Sun</p>
+                    </div>
+                </div>
+                
+                <!-- <div id='story-14' class='flex-row selection-panel-row' onclick='loadStory(14)'>
+                    <div id='thumbnail-14' class='selection-panel-story-thumbnail'></div>
+                    <div class='flex-col'>
+                        <p class='selection-panel-story-title'>Tawaanish</p>
+                        <p class='selection-panel-story-subtitle'>Morning Star</p>
+                    </div>
+                </div> -->
 
                 <p style='margin:1.0em;font-style:italic;'>More coming soon!</p>
             <!-- </div> -->
@@ -579,15 +645,26 @@
 </div>
 
 <!-- load story data -->
+
+<!-- batch 1: stories 0-4 -->
 <script type='text/javascript' src="source/story-0/sox-siksikaʔ-data-annotated.js"></script>
 <script type='text/javascript' src="source/story-1/kaʔyuʔun-shashaʔ-data-annotated.js"></script>
 <script type='text/javascript' src="source/story-2/ʔuplalliʔ-deemaysuʔ-data-annotated.js"></script>
 <script type='text/javascript' src="source/story-3/shelel'-shilithanaʔ-data-annotated.js"></script>
 <script type='text/javascript' src="source/story-4/bonoy'-ʔipishanaʔ-nooch'oʔ-data-annotated.js"></script>
+<!-- batch 2: stories 5-8 -->
 <script type='text/javascript' src="source/story-5/ʔamaʔ-dawhalch'ich'in-nasis-data-annotated.js"></script>
 <script type='text/javascript' src="source/story-6/ʔamak'-noch'eeʔi-hoyeenataʔ-hidyaw-helew-data-annotated.js"></script>
 <script type='text/javascript' src="source/story-7/kaʔyuʔ-ʔamaʔ-yoʔ-nohʔoʔ-data-annotated.js"></script>
 <script type='text/javascript' src="source/story-8/kaʔyuʔ-wanhantaʔ-p'umaʔhiyan-data-annotated.js"></script>
+<!-- batch 3: stories 9-13 -->
+<script type='text/javascript' src="source/story-9/kaʔyuʔ-potʔiʔxon'-hol'giʔin-data-annotated.js"></script>
+<script type='text/javascript' src="source/story-10/poyoʔhiyin-deneela-ʔam-yoʔ-seeya-data-annotated.js"></script>
+<script type='text/javascript' src="source/story-11/kaʔyuʔ-halaʔletaʔ-waʔlaʔan-data-annotated.js"></script>
+<script type='text/javascript' src="source/story-12/dullun-humnul'-ʔamaʔ-yoʔ-namix-data-annotated.js"></script>
+<script type='text/javascript' src="source/story-13/tew'-t'uytaʔ-ʔoopo-data-annotated.js"></script>
+<!-- batch 4: story 14 -->
+<!-- <script type='text/javascript' src="source/story-14/tawaanish-data-annotated.js"></script> -->
 
 
 
@@ -1030,16 +1107,24 @@
 
     let stories = [
         // batch 1: stories 0-4
-        story_sox_siksikaʔ,
-        story_kaʔyuʔun_shashaʔ,
-        story_ʔuplalliʔ_deemaysuʔ,
-        story_shelel_shilithanaʔ,
-        story_bonoy_ʔipishanaʔ_noochoʔ,
+        story_sox_siksikaʔ, // how stinkbug became black
+        story_kaʔyuʔun_shashaʔ, // coyote's eyes
+        story_ʔuplalliʔ_deemaysuʔ, // dove and hummingbird
+        story_shelel_shilithanaʔ, // rock to be jumped
+        story_bonoy_ʔipishanaʔ_noochoʔ, // orphan boys
         // batch 2: stories 5-8
-        story_ʔamaʔ_dawhalchichin_nasis,
-        story_ʔamak_nocheeʔi_hoyeenataʔ_hidyaw_helew,
-        story_kaʔyuʔ_ʔamaʔ_yoʔ_nohʔoʔ,
-        story_kaʔyuʔ_wanhantaʔ_pumaʔhiyan,
+        story_ʔamaʔ_dawhalchichin_nasis, // ambitious snake
+        story_ʔamak_nocheeʔi_hoyeenataʔ_hidyaw_helew, // boys who became quail
+        story_kaʔyuʔ_ʔamaʔ_yoʔ_nohʔoʔ, // coyote and bear swing
+        story_kaʔyuʔ_wanhantaʔ_pumaʔhiyan, // coyote's beak
+        // batch 3: stories 9-13
+        story_kaʔyuʔ_potʔiʔxon_holgiʔin, // trickster tricked
+        story_poyoʔhiyin_deneela_ʔam_yoʔ_seeya, // mortar holes
+        story_kaʔyuʔ_halaʔletaʔ_waʔlaʔan, // coyote props up the sky
+        story_dullun_humnul_ʔamaʔ_yoʔ_namix, // mountain quail and friends
+        story_tew_tuytaʔ_ʔoopo, // rabbit shoots sun
+        // batch 4: story 14
+            // morning star
     ];
     
     loadStory(0);
