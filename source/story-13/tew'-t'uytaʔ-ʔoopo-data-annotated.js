@@ -1,0 +1,246 @@
+let story_tew_tuytaʔ_ʔoopo = {
+    "thumbnail": "",
+    "audio": "source/story-13/tew'-t'uytaʔ-ʔoopo-audio.mp3",
+    "titleENG": "Rabbit Shoots the Sun and Eagle Becomes Chief",
+    "titleCHK": "Tew’ T’uytaʔ ʔoopo; Wuʔshul’ Teyeeshataʔ",
+    "titleShortENG": "Rabbit Shoots Sun",
+    "titleShortCHK": "Tew’ T’uytaʔ ʔoopo",
+    "timestampsBySentence":
+    [
+        0.0,
+        "Tew’ T’uytaʔ ʔoopo; Wuʔshul’ Teyeeshataʔ",
+        "Rabbit Shoots the Sun; Eagle Becomes Chief",
+        5.3,
+        "ʔamaʔ ʔop mich ʔooch’iy’ hol’giʔin.",
+        "The sun was very near the earth.",
+        9.2,
+        "Meejintaʔ xap’eelataʔ, ch’edmat yokuch’.",
+        "It made it very hot, people thought.",
+        13,
+        "Tew’ ʔamaʔ yoʔ Wuʔshul’ t’oyoosham’.",
+        "Rabbit and Eagle had a bow and arrows.",
+        16.3,
+        "Tew’ t’uytaʔ ʔoopo t’oyooshan.",
+        "Rabbit shot the sun with an arrow.",
+        20.1,
+        "ʔamaʔ t’oyosh t’apaapayich’.",
+        "The arrow was flat on the end [a bird arrow]",
+        23.3,
+        "T’uytaʔ t’oyoosha hawshil’ henew",
+        "He shot the arrow several times.",
+        26.6,
+        "Miʔin ʔamaʔ ʔop sipin’ tishtaʔ hapt’is.",
+        "Then the sun came out and up a little bit.",
+        31.0,
+        "Miʔin t’uyhantaw ʔoopin, k’otiʔ ch’enbay’ Yelilk’in som’toʔ ʔoopo hoyinhiyin ʔam.",
+        "After they shot the sun, a large bird, Condor (yelilk'in) covered the sun with its wings.",
+        39.7,
+        "Miʔin limeek’ataʔ.",
+        "Then it became dark.",
+        41.5,
+        "ʔamaʔ Yelilk’in loolotoʔ ʔoopo.",
+        "Then Condor left the sun.",
+        44.8,
+        "Miʔin doshtoʔ Wuʔshula, ʔugunga ʔilk’a!",
+        "Then he told Eagle, “Drink water.”",
+        48.9,
+        "Wuʔshul’ wiltaʔ, ʔugnoʔ naʔ miʔin ʔilk’a",
+        "Eagle said, “I’m going to drink water.”",
+        52.7,
+        "Miʔin Yelilk’in halaʔletaʔ ʔam sipin’.",
+        "Condor lifted him up.",
+        56.3,
+        "Yelilk’in dameenataʔ hashaʔweyich’ Wuʔshula",
+        "Condor was trying to kill Eagle",
+        60.1,
+        "halaadaʔ teyish hidaʔnin yokooch’am’.",
+        "because he was the leader of the other group of people.",
+        63.9,
+        "Wuʔshul’ doshtoʔ Yelilk’ina, Maʔ deyga ʔugunga.",
+        "Eagle told Condor, “You go first and drink.”",
+        68.4,
+        "ʔamaʔ Yelilk’inin yokuch’ wiltaʔ Wuʔshula,  Maʔ deyga.",
+        "But Condor's people told Eagle, “You go first.”",
+        73.9,
+        "Hashaʔwemaʔsheyich’ ʔam.",
+        "They wanted to kill him.",
+        76.1,
+        "Wuʔshul’ ʔohom’ taʔan ʔugunmaʔshen’.",
+        "Eagle did not want to drink.",
+        79.3,
+        "ʔugunga, wiltaʔ Wuʔshul’ Yelilk’ina.",
+        "“Drink.”, Eagle told Condor.",
+        82.5,
+        "Yelilk’in wilit, Huuhuʔ",
+        "Condor said, “Yes.”",
+        85.3,
+        "Miʔin ʔamaʔ ʔoch’owo ʔam ʔadil’ xayaataʔ, miʔin ʔugunmu hashwintaʔ.",
+        "Then he lowered his head, and while drinking he died.",
+        92.1,
+        "ʔamaa ʔilk’aw, ʔamaʔ daʔ shipt’an’ ch’ayax, hadbanay dadach’ waʔat’, mich shipt’an’.",
+        "At the pool there were sharp-edged rushes, four feet high, very sharp.",
+        100.8,
+        "Yelilk’in xayaataʔ ʔam ʔoch’owo ʔadil’, ʔamaʔ ch’ayax chistaʔ ʔam mik’shiw.",
+        "When Condor lowered his head, the rushes cut him off at the neck.",
+        108.4,
+        "ʔamaʔ Wuʔshul’ hach’a daʔ gaptan’ hidyaʔan ʔamaamin.",
+        "Then Eagle was now the captain of all.",
+        113.5,
+        "ʔalit, Yelilk’in teyish hidyaʔan ʔamaamin, ʔamaʔ daʔ Wuʔshul’ ʔadlen ʔam.",
+        "Sometime ago, Condor had been a chief and Eagle was a subordinate chief.",
+        119.9,
+        "Miʔin ʔamaʔ Wuʔshul’ hoyintaʔ ʔadil’ hol’giw.",
+        "Eagle then flew down to the earth.",
+        123.6,
+        "ʔamaʔ hawitmi Wuʔshul’ hach’a teyeeshataʔ.",
+        "That's how Eagle became a chief."
+    ],
+    "timestampsByClause":
+    [
+        [
+            0.0,
+            "Tew’ T’uytaʔ ʔoopo; Wuʔshul’ Teyeeshataʔ",
+            "Rabbit Shoots the Sun; Eagle Becomes Chief"
+        ],
+        [
+            5.3,
+            "ʔamaʔ ʔop mich ʔooch’iy’ hol’giʔin.",
+            "The sun was very near the earth."
+        ],
+        [
+            9.2,
+            "Meejintaʔ xap’eelataʔ, ch’edmat yokuch’.",
+            "It made it very hot, people thought."
+        ],
+        [
+            13,
+            "Tew’ ʔamaʔ yoʔ Wuʔshul’ t’oyoosham’.",
+            "Rabbit and Eagle had a bow and arrows."
+        ],
+        [
+            16.3,
+            "Tew’ t’uytaʔ ʔoopo t’oyooshan.",
+            "Rabbit shot the sun with an arrow."
+        ],
+        [
+            20.1,
+            "ʔamaʔ t’oyosh t’apaapayich’.",
+            "The arrow was flat on the end [a bird arrow]"
+        ],
+        [
+            23.3,
+            "T’uytaʔ t’oyoosha hawshil’ henew",
+            "He shot the arrow several times."
+        ],
+        [
+            26.6,
+            "Miʔin ʔamaʔ ʔop sipin’ tishtaʔ hapt’is.",
+            "Then the sun came out and up a little bit."
+        ],
+        [
+            31.0,
+            "Miʔin t’uyhantaw ʔoopin, k’otiʔ ch’enbay’ Yelilk’in som’toʔ ʔoopo hoyinhiyin ʔam.",
+            "After they shot the sun, a large bird, Condor (yelilk'in) covered the sun with its wings."
+        ],
+        [
+            39.7,
+            "Miʔin limeek’ataʔ.",
+            "Then it became dark."
+        ],
+        [
+            41.5,
+            "ʔamaʔ Yelilk’in loolotoʔ ʔoopo.",
+            "Then Condor left the sun."
+        ],
+        [
+            44.8,
+            "Miʔin doshtoʔ Wuʔshula, ʔugunga ʔilk’a!",
+            "Then he told Eagle, “Drink water.”"
+        ],
+        [
+            48.9,
+            "Wuʔshul’ wiltaʔ, ʔugnoʔ naʔ miʔin ʔilk’a",
+            "Eagle said, “I’m going to drink water.”"
+        ],
+        [
+            52.7,
+            "Miʔin Yelilk’in halaʔletaʔ ʔam sipin’.",
+            "Condor lifted him up."
+        ],
+        [
+            56.3,
+            "Yelilk’in dameenataʔ hashaʔweyich’ Wuʔshula",
+            "Condor was trying to kill Eagle"
+        ],
+        [
+            60.1,
+            "halaadaʔ teyish hidaʔnin yokooch’am’.",
+            "because he was the leader of the other group of people."
+        ],
+        [
+            63.9,
+            "Wuʔshul’ doshtoʔ Yelilk’ina, Maʔ deyga ʔugunga.",
+            "Eagle told Condor, “You go first and drink.”"
+        ],
+        [
+            68.4,
+            "ʔamaʔ Yelilk’inin yokuch’ wiltaʔ Wuʔshula,  Maʔ deyga.",
+            "But Condor's people told Eagle, “You go first.”"
+        ],
+        [
+            73.9,
+            "Hashaʔwemaʔsheyich’ ʔam.",
+            "They wanted to kill him."
+        ],
+        [
+            76.1,
+            "Wuʔshul’ ʔohom’ taʔan ʔugunmaʔshen’.",
+            "Eagle did not want to drink."
+        ],
+        [
+            79.3,
+            "ʔugunga, wiltaʔ Wuʔshul’ Yelilk’ina.",
+            "“Drink.”, Eagle told Condor."
+        ],
+        [
+            82.5,
+            "Yelilk’in wilit, Huuhuʔ",
+            "Condor said, “Yes.”"
+        ],
+        [
+            85.3,
+            "Miʔin ʔamaʔ ʔoch’owo ʔam ʔadil’ xayaataʔ, miʔin ʔugunmu hashwintaʔ.",
+            "Then he lowered his head, and while drinking he died."
+        ],
+        [
+            92.1,
+            "ʔamaa ʔilk’aw, ʔamaʔ daʔ shipt’an’ ch’ayax, hadbanay dadach’ waʔat’, mich shipt’an’.",
+            "At the pool there were sharp-edged rushes, four feet high, very sharp."
+        ],
+        [
+            100.8,
+            "Yelilk’in xayaataʔ ʔam ʔoch’owo ʔadil’, ʔamaʔ ch’ayax chistaʔ ʔam mik’shiw.",
+            "When Condor lowered his head, the rushes cut him off at the neck."
+        ],
+        [
+            108.4,
+            "ʔamaʔ Wuʔshul’ hach’a daʔ gaptan’ hidyaʔan ʔamaamin.",
+            "Then Eagle was now the captain of all."
+        ],
+        [
+            113.5,
+            "ʔalit, Yelilk’in teyish hidyaʔan ʔamaamin, ʔamaʔ daʔ Wuʔshul’ ʔadlen ʔam.",
+            "Sometime ago, Condor had been a chief and Eagle was a subordinate chief."
+        ],
+        [
+            119.9,
+            "Miʔin ʔamaʔ Wuʔshul’ hoyintaʔ ʔadil’ hol’giw.",
+            "Eagle then flew down to the earth."
+        ],
+        [
+            123.6,
+            "ʔamaʔ hawitmi Wuʔshul’ hach’a teyeeshataʔ.",
+            "That's how Eagle became a chief."
+        ]
+    ]
+};
