@@ -6,32 +6,19 @@
     <meta name='robots' content='index, follow'>
     <meta name='description' content='An interactive story reader with traditional Chukchansi stories and legends told by a native speaker in a read-along web app.'>
 	<meta name='viewport' content='width=device-width, initial-scale=1'>
-    <link rel='stylesheet' href='style/common.css'>
+    <link rel='stylesheet' href='style/common-min.css'>
+    <link rel='stylesheet' href='style/components.css'>
     <style>
-		:root {
-            /*  */
-		}
-
-        button {
-            color: var(--text-dark);
-            background-color: transparent;
-            border: none;
-            outline: none;
-        }
-
-
-
         /**** SITE LAYOUT ****/
 
         #content { /* fullscreen container so subpanels can position:sticky independently of each other */
-            background-color: var(--background-light);
+            background-color: var(--bg-light);
             min-height: calc(100vh - var(--nav-height));
-            /* padding: 0 var(--content-pad); */
             gap: var(--content-pad);
         }
 		#selection-panel { /* left/top panel: select story */
             color: var(--text-dark);
-            background-color: var(--background-light);
+            background-color: var(--bg-light);
             border-radius: 0.5em;
             filter: drop-shadow(var(--popout-shadow));
             /* box-shadow: var(--popout-shadow); */
@@ -46,7 +33,7 @@
         }
         #reader-panel { /* right/bottom panel: view story */
             color: var(--text-dark);
-            background-color: var(--background-light);
+            background-color: var(--bg-light);
 
             position: relative; /* allow children to anchor */
             scroll-margin-top: var(--nav-height); /* adjust for navbar when auto-scrolling */
@@ -57,7 +44,7 @@
 
         #selection-panel-title {
             color: var(--text-nav);
-            background-color: var(--background-nav);
+            background-color: var(--bg-nav);
             /* background-color: var(--border-nav); */
 
             position: sticky;
@@ -87,7 +74,7 @@
         }
         .selection-panel-story-thumbnail {
             --w: 2.0em;
-            background-color: var(--background-nav);
+            background-color: var(--bg-nav);
             border: 1px solid transparent;
 
             width: var(--w);
@@ -103,7 +90,7 @@
             /* opacity: 0.7; */
         }
         .selected-story-row {
-            background-color: var(--background-inset);
+            background-color: var(--bg-inset);
         }
 
         /**** MAIN STORY READER ****/
@@ -138,11 +125,11 @@
             font-style: italic;
         }
         .reader-highlight {
-            background-color: var(--background-inset);
+            background-color: var(--bg-inset);
         }
         
         #reader-end {
-            background-color: var(--background-inset);
+            background-color: var(--bg-inset);
 
             margin-top: 1.0em;
             padding: var(--content-pad);
@@ -166,7 +153,7 @@
         #reader-downloads > div > a {
             cursor: pointer;
             color: var(--text-nav);
-            background-color: var(--background-nav-selected);
+            background-color: var(--bg-nav-selected);
             border-radius: 1em;
             filter: drop-shadow(var(--popout-shadow));
             padding: 0.25em 0.75em;
@@ -184,18 +171,18 @@
         }
         #reader-nav > button {
             cursor: pointer;
-            background-color: var(--background-light);
+            background-color: var(--bg-light);
             /* border-radius: 1.0em; */
             /* filter: drop-shadow(0 0 4px #0004); */
             filter: drop-shadow(var(--popout-shadow));
             padding: 0.25em 1.0em;
 
-            width: 100%;
+            /* width: 100%; /* temp turned off cuz it overflows window */
             font-size: 1.0em; /* need to explicitly set font-size on buttons to avoid "readability adjustment" that makes text tiny */
         }
         #reader-nav > button:hover {
             /* color: var(--text-nav); */
-            /* background-color: var(--background-nav-selected); */
+            /* background-color: var(--bg-nav-selected); */
             text-decoration: underline;
         }
 
@@ -203,7 +190,7 @@
 
         .player-panel {
             color: var(--text-dark);
-            background-color: var(--background-inset);
+            background-color: var(--bg-inset);
             filter: drop-shadow(var(--popout-shadow));
 
             position: sticky;
@@ -256,7 +243,7 @@
             font-size: 0.8em;
         }
         #player-progress-background {
-            background-color: var(--background-medium);
+            background-color: var(--bg-medium);
 
             display: block;
             position: absolute;
@@ -277,7 +264,7 @@
         }
         #player-progress-slider {
             cursor: pointer;
-            background-color: var(--background-nav);
+            background-color: var(--bg-nav);
 
             display: inline-block;
             position: absolute;
@@ -291,7 +278,7 @@
         /**** LOADING SCREEN ****/
 
         #player-loading-screen {
-            background-color: var(--background-inset);
+            background-color: var(--bg-inset);
 
             position: absolute;
             padding: 0.25em;
@@ -317,14 +304,14 @@
             transform: translate(-50%,-50%) rotate(45deg);
         }
         .loading-icon-full {
-            background-color: var(--background-nav);
+            background-color: var(--bg-nav);
             left: 0%;
 
             animation: loading-left 1.5s ease infinite;
         }
         .loading-icon-empty {
-            background-color: var(--background-inset);
-            border: 0.1em solid var(--background-nav);
+            background-color: var(--bg-inset);
+            border: 0.1em solid var(--bg-nav);
             left: 100%;
 
             animation: loading-right 1.5s ease infinite;
@@ -435,21 +422,18 @@
 </head>
 <body>
 
-<div id='nav-bar' class='flex-row'>
-    <h1 id='nav-title'>Chukchansi Dictionary</h1>
-    <nav id='nav-menu' role='navigation'>
-
-        <button id='nav-target' class='flex-row'>
-            <p class='desktop-only'>Menu</p>
-            <svg id='nav-icon' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' width='24' height='24' stroke-width='1.25'>
-                <path d='M5 8l14 0'></path>
-                <path d='M5 12l14 0'></path>
-                <path d='M5 16l14 0'></path>
-            </svg>
-            <!-- <div class='nav-arrow desktop-only'><div></div></div> -->
-        </button>
-        
-        <div id='nav-dropdown' class='flex-col'>
+<nav id='navbar' class='flex-row-centered' role='navigation' aria-label='Top Level'>
+    <h1 class='flex-grow' aria-label='Chukchansi Story Reader'>Story Reader</h1>
+    <button id='nav-target' class='flex-row-centered' title='Expand and collapse menu' aria-expanded='false'>
+        <p class='desktop-only' aria-hidden='true'>Menu</p>
+        <svg id='nav-icon' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' width='24' height='24' stroke-width='1.25' aria-hidden='true'>
+            <path d='M5 8l14 0'></path>
+            <path d='M5 12l14 0'></path>
+            <path d='M5 16l14 0'></path>
+        </svg>
+    </button>
+    <div id='nav-adaptive-wrapper'>
+        <div id='nav-items' class='flex-col'>
             <ul class='flex-col'>
                 <li><a href='./'>Home</a></li>
             </ul>
@@ -460,9 +444,28 @@
                 <li><a href='wordsearch'>Wordsearch</a></li>
             </ul>
         </div>
+    </div>
+</nav>
 
-    </nav>
-</div>
+<!-- <nav id='navbar' class='flex-row-centered' role='navigation' aria-label='Top Level'>
+    <h1>Wikchamni Dictionary</h1>
+    <div class='flex-sep'></div>
+    <button id='nav-menu-target' class='mobile-only' title='Expand and collapse menu' aria-expanded='false'>
+        <svg id='nav-hamburger' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' width='24' height='24' stroke-width='1.5' aria-hidden='true'>
+            <path d='M5 8l14 0'></path>
+            <path d='M5 12l14 0'></path>
+            <path d='M5 16l14 0'></path>
+        </svg>
+    </button>
+    <div id='nav-adaptive-wrapper' class='flex-adapt'>
+        <ul class='flex-adapt'>
+            <li><a href='/'>Home</a></li>
+            <li><a href='/about'>About</a></li>
+            <li><a href='/language'>Language</a></li>
+            <li class='active' aria-label='Current page is'><p>Lexicon</p></li>
+        </ul>
+    </div>
+</nav> -->
 
 <div id='content' class='flex-adapt'>
     <div> <!-- need wrapper div so position:sticky plays nice with flexbox -->
@@ -730,9 +733,9 @@
 
     
     // DOM anchors
-    const navTitle = document.getElementById('nav-title');
+    const navTitle = document.querySelector('#navbar > h1');
     const navButton = document.getElementById('nav-menu');
-    const navDropdown = document.getElementById('nav-dropdown');
+    const navDropdown = document.getElementById('nav-items');
     const storySelectionPanel = document.getElementById('selection-panel');
     const storyReaderPanel = document.getElementById('reader-panel');
     const playPauseButton = document.getElementById('play-pause');
@@ -1089,9 +1092,9 @@
     });
 
     window.addEventListener('resize', e => {
-        navTitle.innerHTML = (window.innerWidth < window.innerHeight) ? 'Chk Story Reader' : 'Chukchansi Story Reader';
+        navTitle.innerHTML = (window.innerWidth < window.innerHeight) ? 'Story Reader' : 'Chukchansi Story Reader';
     });
-    navTitle.innerHTML = (window.innerWidth < window.innerHeight) ? 'Chk Story Reader' : 'Chukchansi Story Reader';
+    navTitle.innerHTML = (window.innerWidth < window.innerHeight) ? 'Story Reader' : 'Chukchansi Story Reader';
 
     // navButton.addEventListener('click', e => {
     //     navDropdown.style.visibility = (navDropdown.style.visibility=='hidden') ? 'visible' : 'hidden';

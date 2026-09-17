@@ -1,0 +1,187 @@
+
+/**** components.css ****/
+
+/* Sitewide theming for standard UI components, including shared navbar. */
+
+/* Website (C) 2025 Narayana "Kat" Adisasmito-Smith */
+/* Text and images from this site may not be used as training data for AI. */
+
+:root {
+    /**** color palette and theming ****/
+
+    --bg-nav: #461220;
+    --bg-nav-focus: #4c1322;
+    --bg-nav-gradient: linear-gradient(170deg, var(--bg-nav), var(--bg-nav-focus));
+    --text-nav: #ffd994;
+    --tint-nav: #64182caa;
+
+    --bg-nav-selected: #6b4226;
+    --bg-nav-unselected: #eac8a2;
+
+    --bg-light: #f2e3d3;
+    --bg-inset: #dbb78f; /* vibrant */
+    --bg-medium: #bfa07e; /* muted */
+    --bg-dark: #ad8e6c; /* fractionally darker than medium */
+    --text-dark: #4f3a09;
+    --text-medium: #806d46;
+    --text-light: #fdf7ea;
+
+    --border-dark: #4f3a09;
+    --border-medium: #75544b;
+    --border-light: #bfa07e;
+
+    --tint-darken: #00000022;
+    --tint-lighten: #ffffff44;
+
+    --bg-modal: #0008;
+    --popout-shadow: 0 0 10px #00000038;
+
+    /**** navbar ****/
+
+    --nav-height: calc(2.2 * var(--fluid-font-size)); /* anchor for hanging elems */
+}
+
+body {
+    background-color: var(--bg-nav);
+}
+
+
+
+/**** BEHAVIOR ****/
+
+/*  */
+
+
+
+/**** COMPONENTS ****/
+
+
+
+/**** NAV BAR ****/
+
+#navbar {
+    color: var(--text-nav);
+    background-color: var(--bg-nav);
+    background: var(--bg-nav-gradient);
+    /* border-bottom: thin solid var(--tint-darken); */
+        /* border-bottom renders 1px beneath dropdown and makes it look misaligned */
+        /* rely on gradient for edge-emphasis */
+    z-index: var(--layer-nav);
+
+    position: sticky;
+    top: 0;
+    width: 100%;
+    height: var(--nav-height);
+}
+#navbar > * {
+    height: 100%;
+    /* flex-centered */
+    display: flex;
+    align-items: center;
+}
+#navbar > h1 {
+    padding-left: 0.5em;
+    font-size: 1.5em;
+}
+#nav-target {
+    color: var(--text-nav);
+    padding: 0 0.5em;
+    gap: 0.3em;
+}
+#nav-target:hover {
+    background-color: var(--tint-nav);
+}
+#nav-target > svg {
+    width: 2em;
+    height: 2em;
+}
+
+#nav-adaptive-wrapper {
+    background-color: var(--bg-modal);
+
+    width: 100%;
+    height: calc(100vh - var(--nav-height) + 1px); /*  fallback for legacy browsers w/o dynamic viewport units */
+    height: calc(100dvh - var(--nav-height) + 1px);
+    position: absolute;
+    top: 100%;
+    left: 0;
+
+    /* initially hidden, revealed on hover/tap */
+    visibility: hidden;
+}
+
+#nav-items {
+    background-color: var(--bg-nav-unselected);
+    border-left: thin solid var(--border-light);
+    width: 100vw;
+    padding: 0.25em;
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 1.2em;
+    align-items: stretch;
+}
+#nav-items > ul {
+    text-align: left;
+    list-style: none;
+}
+#nav-items > ul + ul {
+    border-left: none;
+    border-top: 1px solid var(--text-dark);
+}
+#nav-items > ul > li {
+    cursor: pointer;
+    color: var(--text-dark);
+    font-size: 0.8em;
+}
+#nav-items > ul > li:hover {
+    color: var(--text-nav);
+    background-color: var(--bg-nav-selected);
+}
+#nav-items > ul > li > a, #nav-items > ul > li > p {
+    color: inherit;
+    display: inline-block;
+    width: 100%;
+    padding: 0.15em 0.75em;
+    text-decoration: inherit;
+
+}
+.nav-greyed-out {
+    cursor: default;
+    color: var(--text-dark);
+    padding: 0.15em 0.75em;
+    font-size: 0.8em;
+    opacity: 50%;
+}
+
+.nav-arrow {
+    display: flex;
+    width: calc(0.5 * var(--nav-height));
+    height: var(--nav-height);
+
+    align-items: center;
+    justify-content: center;
+}
+.nav-arrow > div {
+    --thickness: 0.11em;
+    --border: var(--thickness) solid var(--text-nav);
+    border-top: var(--border);
+    border-right: var(--border);
+    transform: translate(0,-25%) rotate(135deg);
+    transform-origin: center;
+
+    display: inline-block;
+    width: calc(4 * var(--thickness));
+    height: calc(4 * var(--thickness));
+}
+
+
+
+/**** MEDIA QUERIES ****/
+
+@media (min-aspect-ratio: 5/4) { /* desktop mode */
+    #nav-items {
+        width: auto;
+        height: calc(100vh - var(--nav-height));
+    }
+}
