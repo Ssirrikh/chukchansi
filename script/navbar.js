@@ -9,10 +9,17 @@
 
 
 (() => {
+    // CSS var manipulation
+    const CSSVars = {
+        get : (k) => getComputedStyle(document.documentElement).getPropertyValue(k),
+        set : (k,v) => document.documentElement.style.setProperty(k,v)
+    };
+
     // DOM anchors
     const navTarget = document.getElementById('nav-target'); // button to toggle nav menu
     const navWrapper = document.getElementById('nav-adaptive-wrapper'); // modal background containing nav links
     const navItems = document.getElementById('nav-items'); // inner container holding nav links
+    const footer = document.getElementById('floating-footer'); // fixed floating footer bar
     // selectors
     const EMBEDDED_CTX_SELECTOR = 'iframe, object[type="application/pdf"], embed[type="application/pdf"]';
 
@@ -51,4 +58,26 @@
     if (embeddedContexts) embeddedContexts.addEventListener('mouseenter', e => {
         navWrapper.style.visibility = 'hidden';
     });
+
+    // allow content to flow around floating footer bar, if found
+    const updateFooterHeight = () => {
+        CSSVars.set('--footer-height', footer.getBoundingClientRect().height);
+    };
+    if (!footer) {
+        console.warn('Unable to find footer. Event listeners not attached.');
+    } else {
+        window.addEventListener('resize', updateFooterHeight);
+        updateFooterHeight();
+    }
+
+    // add panel-switching to panel nav buttons, if found
+    const panelRight = document.getElementById('panel-right');
+    const gotoRight = document.getElementById('goto-right');
+    const gotoLeft = document.getElementById('goto-left');
+    if (!panelRight || !gotoRight || !gotoLeft) {
+        console.warn('Unable to find 2-panel nav buttons. Event listeners not attached.');
+    } else {
+        gotoRight.onclick = () => panelRight.classList.add('focus');
+        gotoLeft.onclick = () => panelRight.classList.remove('focus');
+    }
 })();
