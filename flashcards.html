@@ -4,455 +4,569 @@
 	<meta charset = 'utf-8'>
 	<title>Chukchansi Flashcards</title>
     <meta name='robots' content='index, follow'>
-    <meta name='description' content='Interactive flashcards to help Chukchansi language learners study and practice.'>
+    <meta name='description' content='Chukchansi flashcards help you practice your language skills, no matter your skill level. Quiz yourself, study vocab, and learn the Chukchansi language with this new educational tool.'>
 	<meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' href='style/common-min.css'>
+    <link rel='stylesheet' href='style/components.css'>
     <style>
-		:root {
-			--background-nav: #461220; /* navbar */
-            --text-nav: #ffd994; /* previously #ffdab3 */
-            --border-nav: #64182c; /* #64182c, #771932 */
-
-            --background-nav-selected: #6b4226;
-            --background-nav-unselected: #eac8a2;
-
-			--background-light: #f2e3d3; /* main content bg */
-			--background-inset: #dbb78f; /* inset panels; vibrant bg */
-			--background-medium: #bfa07e; /* side panels; muted bg */
-			--background-dark: #ad8e6c; /* fractionally darker interactibles bg */
-			--text-dark: #4f3a09; /* main content text */
-			--text-medium: #806d46; /* interactible text */
-			--text-light: #fdf7ea;
-
-			--border-dark: #4f3a09; /* content separation */
-			--border-medium: #75544b; /* inset panel border */
-			--border-light: #bfa07e; /* interactible textbox border */
-
-            --popout-shadow: 0 0 10px #00000038;
-
-			--layer-front: 2; /* elems that hover over content (hanging tabs, search history) */
-			--layer-nav: 3; /* nav elements are always topmost */
-			--layer-overlay: 5; /* modal overlays */
-
-            /* dynamic units calculated for mobile-first; see media queries for desktop */
-            --fluid-font-size: max(2.5vh, calc(1rem + 1.0vw));
-            /* --fluid-font-size: calc(1rem + 1.0vw); */
-            /* --fluid-font-size: 2.5vh; */
-            --nav-pad: 0.25em;
-            --content-pad: 0.6rem;
-            --title-font-size: calc(1.17 * var(--fluid-font-size)); /* unsure why 1.17, but it seems to be pixel-perfect at all sizes */
-            --nav-height: calc(1.75 * var(--fluid-font-size)); /* ref height for content anchors */
-
-			--thumbnail-position: center center / cover no-repeat;
-		}
-
-		* {
-			margin: 0px;
-			padding: 0px;
-			box-sizing: border-box;
-			font-family: 'Times New Roman';
-		}
-		body {
-			background-color: var(--background-nav);
-            font-size: var(--fluid-font-size);
-		}
-        button {
-            color: var(--text-dark);
-            background-color: transparent;
-            border: none;
-            outline: none;
+        :root {
+            --flashcard-progress: 25%; /* dynamically set by JS to style ::after */
         }
 
-        /* flexbox */
-		.flex-sep {
-			width: 0;
-			flex-grow: 1;
-		}
-		.flex-row {
-			display: flex;
-			flex-direction: row;
-			align-items: start;
-		}
-		.flex-col {
-			display: flex;
-			flex-direction: column;
-		}
-        .flex-adapt {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .flex-adapt-reverse {
-            display: flex;
-            flex-direction: row;
-            align-items: normal;
-            justify-content: center;
+        body {
+            background-color: var(--bg-inset);
         }
 
-		/**** NAV BAR ****/
-
-		#nav-bar {
-			color: var(--text-nav);
-			background-color: var(--background-nav);
-            border-bottom: 1px solid var(--border-nav);
-
-			position: sticky;
-			padding: var(--nav-pad);
-			top: 0px;
-			width: 100%;
-            font-size: var(--title-font-size);
-            text-align: center;
-
-			z-index: var(--layer-nav); /* nav elems and hanging tabs are on top of other content, but not fullscreen modals */
-		}
-        #nav-title {
-            /* unstyle <h1> */
-            font-size: var(--title-font-size);
-            line-height: var(--title-font-size);
-            font-weight: normal;
+        #panel-left {
+            /* border: thin solid yellow; */
         }
-        #nav-menu {
-            /* https://www.sliderrevolution.com/resources/css-dropdown-menu/ */
-            cursor: pointer;
-
-            display: inline-block;
-            position: absolute;
-            top: 0px;
-            left: 0px;
-            width: var(--nav-height);
-            height: var(--nav-height);
+        #panel-right {
+            background-color: var(--bg-inset);
+            /* border: thin solid blue; */
         }
-        #nav-menu ul {
-            cursor: default;
-            color: var(--text-dark);
-            background-color: var(--background-nav-unselected);
-            /* border-top: 1px solid var(--text-light); */
-            border-bottom: 1px solid var(--border-light);
-
-            visibility: hidden;
-            position: absolute;
-            top: var(--nav-height);
-            left: 0px;
-            width: 100vw;
-            padding: 0.25em;
-
-            text-align: left;
-            list-style: none;
-            flex-wrap: wrap;
-        }
-        #nav-menu div + div {
-            border-left: 1px solid var(--text-dark);
-        }
-        #nav-menu ul li {
-            cursor: pointer;
-            color: var(--text-dark);
-            /* padding: 0.15em 0.75em; */
-            font-size: 0.8em;
-        }
-        #nav-menu ul li:hover {
-            color: var(--text-nav);
-            background-color: var(--background-nav-selected);
-        }
-        #nav-menu:focus-within > ul, #nav-menu:hover ul {
-            visibility: visible;
-        }
-        #nav-menu ul li a {
-            /* border: 1px solid blue; */
-            display: inline-block;
-            width: 100%;
-            padding: 0.15em 0.75em;
-            color: inherit;
-            text-decoration: inherit;
-        }
-        .nav-greyed-out {
-            cursor: default;
-            color: var(--text-dark);
-            padding: 0.15em 0.75em;
-            font-size: 0.8em;
-            opacity: 50%;
+        
+        @media (min-aspect-ratio: 5/4) { /* desktop mode */
+            #panel-right {
+                /* remove bg color in desktop mode so shadows aren't blocked */
+                background-color: transparent;
+            }
         }
 
-        /**** SITE LAYOUT ****/
-
-        #content { /* fullscreen container so subpanels can position:sticky independently of each other */
-            background-color: var(--background-light);
-            min-height: calc(100vh - var(--nav-height));
-            /* padding: 0 var(--content-pad); */
-            gap: var(--content-pad);
+        #panel-left .panel-content {
+            padding: 0.5em;
         }
-		#selection-panel { /* left/top panel: select vocab set */
-            color: var(--text-dark);
-            background-color: var(--background-light);
-            border-radius: 0.5em;
-            filter: drop-shadow(var(--popout-shadow));
-            /* box-shadow: var(--popout-shadow); */
-            z-index: var(--layer-front); /* ensure shadow correctly overlays neighboring content */
-
-            display: inline-block;
-            margin-top: var(--content-pad);
-            max-width: calc(100vw - 2 * var(--content-pad));
-            /* max-height: 50vh; /* if added here, cannot be overridden by media query for some reason */
-            overflow-x: hidden;
-            overflow-y: scroll;
+        #panel-right .panel-content {
+            padding: 0.5em;
+            gap: 1em;
+            justify-content: space-between;
         }
-        #flashcards-panel { /* right/bottom panel: view flashcards */
-            border: 1px solid red;
-            color: var(--text-dark);
-            background-color: var(--background-light);
-
-            position: relative; /* allow children to anchor */
-            scroll-margin-top: var(--nav-height); /* adjust for navbar when auto-scrolling */
-            /* flex-grow: 1; */
-            width: calc(100% - var(--content-pad) * 2);
-            min-height: 50vh;
-
-            align-items: center;
-        }
-
-        /**** STORY SELECTION PANEL ****/
-
-        #selection-panel-title {
-            color: var(--text-nav);
-            background-color: var(--background-nav);
-            /* background-color: var(--border-nav); */
-
-            position: sticky;
-            top: 0;
-            padding: 0.25em 0.5em;
-            margin-bottom: 0.5em;
-
-            /* unstyle <h2> */
-            font-size: 1.0em;
-            line-height: 1.0em;
-            font-weight: normal;
-        }
-        .selection-panel-row {
-            cursor: pointer;
-            border-radius: 0.25em;
-            margin: 0 0.5em;
-            padding: 0.25em;
+        #panel-right .panel-content > .flex-col {
             gap: 0.5em;
-            align-items: center;
-        }
-        .selection-panel-row + .selection-panel-row {
-            margin-top: 2px;
-        }
-        .selection-greyed-out {
-            cursor: default;
-            opacity: 0.5;
-        }
-        .selected-vocab-row {
-            background-color: var(--background-inset);
         }
 
-        /**** FLASHCARDS ****/
+        #vocab-sets {
+            background-color: var(--bg-light);
+            border-radius: 0.5em;
+            filter: var(--edge-sharpness-shadow);
+            /* filter: var(--modal-shadow); */
+            padding: 0.5em;
+            min-height: 100%;
+            overflow: auto;
+        }
+        #vocab-sets > .loading-wrapper {
+            width: 100%;
+            height: 6em;
+            gap: 1em;
+        }
+        .vocab-set {
+            color: var(--text-dark);
+            color: black;
+            border-radius: 0.3em;
+            padding: 0.3em 0.5em;
+            text-decoration: none;
+            gap: 0.3em;
+        }
+        .vocab-set:hover, .vocab-set:focus-visible {
+            background-color: var(--bg-inset);
+        }
+        .vocab-set.active {
+            background-color: #fffa;
+            border-radius: 0 0.3em 0.3em 0;
+            box-shadow: inset 5px 0 0 0 var(--bg-nav);
+        }
+        .vocab-set > .vocab-number {
+            color: var(--text-medium);
+            font-size: 0.8em;
+            min-width: 1.5em;
+            text-align: center;
+        }
 
-        /* #flashcards-content {
-            margin-top: 1.0em;
+        .vocab-set-nav {
+            gap: 0.5em;
+        }
+        .vocab-set-nav:hover {
+            background-color: #fff3;
+        }
+        .vocab-set-nav:focus-visible {
+            outline: medium solid var(--text-dark);
+        }
+        .vocab-set-nav .icon-svg::after {
+            background-color: var(--bg-nav);
+            width: 70%;
+        }
+        .vocab-nav-set {
             font-size: 1.0em;
-            text-wrap: wrap;
-            text-align: center;
-
-            gap: 0.75em;
-        } */
-
-        #flashcard-set-title {            
-            /* position: absolute; */
-            /* top: 5vh; */
-            
-            font-size: 1.2em;
-            text-align: center;
-            text-decoration: underline;
         }
+        .vocab-nav-label {
+            color: var(--text-medium);
+            font-size: 0.8em;
+        }
+        #vocab-prev p {
+            text-align: left;
+        }
+        #vocab-next p {
+            text-align: right;
+        }
+        #flashcard-set-title {
+            padding: 0 1em;
+            font-size: 1.5em;
+            text-align: center;
+        }
+        #flashcard-progress {
+            background-color: var(--bg-medium);
+            border-radius: 1em;
+            height: 0.2em;
+            position: relative; /* anchor for ::after */
+        }
+        #flashcard-progress::after {
+            content: '';
+            background-color: var(--bg-nav);
+            border-radius: 1em;
+            display: inline-block;
+            width: var(--flashcard-progress);
+            height: 100%;
+            position: absolute;
+            transition: width 0.5s;
+        }
+
         #flashcard-wrapper {
-            /* border: 2px solid blue; */
-            /* position: absolute; */
-            /* top: 50%; */
+            /* border: thin solid yellow; */
+            width: 100%;
+            min-height: 12em;
+            display: grid;
+            overflow-x: clip;
+            overflow-y: visible;
+            perspective: 1000px; /* allow flashcard hover effects to render in 3d */
+        }
+        #flashcard-wrapper > .flashcard {
+            grid-area: 1 / 1;
+            place-self: center;
+            opacity: 1;
+            transition: opacity 0.5s, transform 0.5s;
+        }
+        #flashcard-wrapper > .flashcard.to-left {
+            opacity: 0;
+            transform: translate(-105%,0%);
+        }
+        #flashcard-wrapper > .flashcard.to-right {
+            opacity: 0;
+            transform: translate(105%,0%);
         }
 
         .flashcard {
-            --w: min(90vw, 16em);
-            --h: calc(0.6 * var(--w));
-            border: 0.1em solid var(--border-dark);
+            filter: var(--modal-shadow);
+
+            background-color: transparent;
+            border-radius: 0.5em;
+            width: 100%;
+            max-width: 20em;
+            /* min-height: 12em; */
+            aspect-ratio: 20 / 12;
+            perspective: 1000px;
+
+            transition: transform 0.3s;
+            transform-style: preserve-3d;
+        }
+        .flashcard-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.5s;
+            transform-style: preserve-3d;
+        }
+        .flashcard.flipped .flashcard-inner {
+            transform: rotateY(180deg);
+        }
+        .flashcard-front, .flashcard-back {
+            background-color: var(--bg-light);
+            border-radius: 0.5em;
+            padding: 1em;
+            font-size: 1.2em;
+
+            display: grid;
+            grid-template-rows: minmax(0, 1fr);
 
             position: absolute;
-            top: calc(var(--h) / -2);
-			left: calc(var(--w) / -2);
-            width: var(--w);
-            height: var(--h);
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden; /* Safari */
+            backface-visibility: hidden;
         }
-        .flashcard-inactive-left {
-            transform: translate(-5.5em,0);
-			opacity: 0.0;
+        .flashcard-back {
+            transform: rotateY(180deg);
         }
-        .flashcard-inactive-right {
-            transform: translate(5.5em,0);
-			opacity: 0.0;
+        .flashcard:focus-visible .flashcard-front, .flashcard:focus-visible .flashcard-back {
+            outline: medium solid var(--text-dark);
+        }
+        .flashcard p {
+            /* border: thin solid blue; */
+            text-align: center;
         }
 
-
-
-
-        .widget-anchor {
-			filter: drop-shadow(0 0 2px #0008);
-			position: absolute;
-			top: var(--widget-anchor-v);
-		}
-		.widget-anchor > div {
-			transition: var(--widget-transition);
-			position: absolute;
-			top: calc(var(--widget-size) / -2);
-			left: calc(var(--widget-size) / -2);
-			width: var(--widget-size);
-			height: var(--widget-size);
-		}
-		.widget-inactive-left {
-			transform: translate(-5.5em,0);
-			opacity: 0.0;
-		}
-		.widget-inactive-right {
-			transform: translate(5.5em,0);
-			opacity: 0.0;
-		}
-
-
-        /**** MEDIA QUERIES ****/
-
-        /* mobile-first styling for better load times on less-powerful devices */
-        @media (max-aspect-ratio: 5/4) { /* mobile mode */
-            #selection-panel {
-                width: 100vw;
-                max-height: 50vh;
-            }
+        /* fix firefox bug where .flashcard-back blocks scroll events to .flashcard-front even when back of card is hidden */
+        .flashcard-front, .flashcard-back {
+            pointer-events: none;
         }
-		@media (min-aspect-ratio: 5/4) { /* desktop mode */
-            :root {
-                --title-font-size: 1.0em;
-                --nav-height: calc(1.5 * var(--fluid-font-size)); /* ref height for content anchors; 1.0em text + 2*0.25em padding */
-            }
-            #content {
-                padding-left: var(--content-pad);
-            }
-			.flex-adapt {
-				flex-direction: row;
-                align-items: normal;
-				justify-content: center;
-			}
-            .flex-adapt-reverse {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-            }
-            .player-panel {
-                width: auto;
-            }
-            #selection-panel {
-                position: sticky;
-                top: calc(var(--nav-height) + var(--content-pad));
-                width: 33vw;
-                max-height: calc(100vh - var(--nav-height) - 2 * var(--content-pad));
-            }
-            #scroll-to-selection {
-                display: none;
-            }
-		}
-		
-	</style>
+        .flashcard:not(.flipped) .flashcard-front, .flashcard.flipped .flashcard-back {
+            pointer-events: auto;
+        }
+        /* partially rotate card on hover; must be applied to .flashcard instead of .flashcard-inner to preserve 3d compositing */
+        .flashcard:not(.flipped):hover {
+            transform: rotateY(10deg);
+        }
+        .flashcard.flipped:hover {
+            transform: rotateY(-10deg);
+        }
+
+        #flashcard-subtitle {
+            color: var(--text-medium);
+            max-width: 24em;
+            text-align: center;
+            align-self: center;
+        }
+
+        .flashcard-controls {
+            justify-content: center;
+        }
+        .flashcard-controls > .icon-svg {
+            border-radius: 1.5em;
+            width: 3em;
+            height: 3em;
+        }
+        .flashcard-controls > .icon-svg::after {
+            background-color: var(--bg-nav);
+            width: 70%;
+        }
+        .flashcard-controls > .icon-svg:hover {
+            background-color: #fff5;
+        }
+        .flashcard-controls > .icon-svg:focus-visible {
+            outline: medium solid var(--text-dark);
+        }
+        #flashcard-number {
+            padding: 0.2em 1em;
+            width: fit-content;
+            min-width: 8em;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
 
-<div id='nav-bar'>
-    <h1 id='nav-title'>Chukchansi Flashcards</h1>
-    <nav id='nav-menu' role='navigation'>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="24" height="24" stroke-width="1.25" style='width:100%;height:100%;pointer-events:none;'>
-            <path d="M5 8l14 0"></path>
-            <path d="M5 12l14 0"></path>
-            <path d="M5 16l14 0"></path>
-        </svg>
-        <ul id='nav-dropdown' class='flex-row'>
-            <div class='flex-col'>
-                <!-- <li><a>Home</a></li> -->
-                <p class='nav-greyed-out'>Home</p>
+<div id='main' class='flex-col'>
+    <!-- TOP NAVBAR -->
+    <nav id='navbar' class='flex-row-centered' role='navigation' aria-label='Top Level'>
+        <h1>Chukchansi Flashcards</h1>
+        <div class='flex-sep'></div>
+        <div id='nav-target' role='button' class='flex-row' title='Expand and collapse menu' aria-expanded='false'>
+            <p class='desktop-only'>Menu</p>
+            <button class='icon-svg icon-hamburger'></button>
+        </div>
+        <div id='nav-adaptive-wrapper' class='flex-adapt'>
+            <div id='nav-items' class='flex-col'>
+                <ul class='flex-col'>
+                    <li><a href='./'>Home</a></li>
+                </ul>
+                <ul class='flex-col'>
+                    <li><a href='speaking-dictionary'>Speaking Dictionary</a></li>
+                    <li><a href='pdf-dictionary'>PDF Dictionary</a></li>
+                    <li><a href='stories'>Story Reader</a></li>
+                    <li><a href='wordsearch'>Wordsearch</a></li>
+                </ul>
             </div>
-            <div class='flex-col'>
-                <li><a href='speaking-dictionary'>Speaking Dictionary</a></li>
-                <li><a href='pdf-dictionary'>PDF Dictionary</a></li>
-                <li><a href='stories'>Story Reader</a></li>
-                <li><a href='wordsearch'>Wordsearch</a></li>
-            </div>
-        </ul>
+        </div>
     </nav>
-</div>
-<div id='content' class='flex-adapt'>
-    <div> <!-- need wrapper div so position:sticky plays nice with flexbox -->
-        <div id='selection-panel' class='flex-col'>
-            <h2 id='selection-panel-title'>Pick a Vocab List</h2>
-                <div id='vocab-0' class='flex-row selection-panel-row selected-vocab-row'>
-                    How Stinkbug Became Black
-                </div>
-                <div id='vocab-1' class='flex-row selection-panel-row'>
-                    Why Coyote's Eyes are the Best
-                </div>
-                <div id='vocab-2' class='flex-row selection-panel-row'>
-                    Dove and Hummingbird Race Each Other
-                </div>
-                <div id='vocab-3' class='flex-row selection-panel-row'>
-                    A Rock to be Jumped
-                </div>
-
-                <p style='margin:1.0em;font-style:italic;'>More coming soon!</p>
+    <!-- PAGE CONTENT -->
+    <main id='content' class='flex-row flex-grow'>
+        <div id='panel-left' class='flex-col'>
+            <div class='flex-col flex-shrink flex-grow panel-content'>
+                <section id='vocab-sets' class='flex-col' tabindex='0' aria-label='Flashcard sets'>
+                    <div class='flex-col flex-centered loading-wrapper'>
+                        <p class='loading-text'>Loading Flashcard Sets...</p>
+                        <div class='loading-animation-track loading-light'>
+                            <div class='loading-icon-full'></div>
+                            <div class='loading-icon-empty'></div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+            <div class='flex-col panel-nav mobile-only'>
+                <button id='goto-right' class='btn-primary'>Colors</button>
+            </div>
         </div>
-    </div>
-        
-    <div id='flashcards-panel' class='flex-col'>
-        <!-- <div id='flashcards-content' class='flex-col'></div> -->
-        <div id='flashcard-set-title'>[Vocab Set]</div>
-        <div id='flashcard-wrapper'>
-            <div class='flashcard'></div>
+        <div id='panel-right' class='flex-col flex-grow flex-shrink'>
+            <div class='flex-col flex-shrink flex-grow panel-content'>
+                <div class='flex-col'>
+                    <section class='flex-row' tabindex='0' aria-label='Flashcard set quick navigation'>
+                        <button id='vocab-prev' class='flex-row-centered vocab-set-nav' aria-label='Previous flashcard set'>
+                            <div class='icon-svg icon-arrow-left'></div>
+                            <div class='flex-col'>
+                                <p class='vocab-nav-set'>Prev Vocab Set</p>
+                                <p class='vocab-nav-label' aria-hidden='true'>Prev</p>
+                            </div>
+                        </button>
+                        <div class='flex-sep'></div>
+                        <button id='vocab-next' class='flex-row-centered vocab-set-nav'>
+                            <div class='flex-col'>
+                                <p class='vocab-nav-set'>Next Vocab Set</p>
+                                <p class='vocab-nav-label'>Next</p>
+                            </div>
+                            <div class='icon-svg icon-arrow-right'></div>
+                        </button>
+                    </section>
+                    <h2 id='flashcard-set-title'>Loading Flashcards...</h2>
+                    <div id='flashcard-progress' aria-hidden='true'></div>
+                </div>
+                <div class='flex-col'>
+                    <div id='flashcard-wrapper' class='flex-row-centered'>
+                        <div id='flashcard-0' class='flashcard'>
+                            <div class='flashcard-inner'>
+                                <div class='flashcard-front'>
+                                    <p class='flex-centered'>Flashcard 0 Front</p>
+                                </div>
+                                <div class='flex-centered flashcard-back'>
+                                    <p class='flex-centered'>Flashcard 0 Back</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div id='flashcard-1' class='flashcard'>
+                            <div class='flashcard-inner'>
+                                <div class='flashcard-front'>
+                                    <p class='flex-centered'>Flashcard 1 Front</p>
+                                </div>
+                                <div class='flex-centered flashcard-back'>
+                                    <p class='flex-centered'>Flashcard 1 Back</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div id='flashcard-2' class='flashcard'>
+                            <div class='flashcard-inner'>
+                                <div class='flashcard-front'>
+                                    <p class='flex-centered'>Flashcard 2 Front</p>
+                                </div>
+                                <div class='flex-centered flashcard-back'>
+                                    <p class='flex-centered'>Flashcard 2 Back</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <p id='flashcard-subtitle'>Subtitle text giving some note or explanation.</p>
+                </div>
+                <div class='flex-row-centered flashcard-controls'>
+                    <button id='flashcard-prev' class='icon-svg icon-arrow-left'></button>
+                    <div id='flashcard-number' aria-live='polite'>5 of 12</div>
+                    <button id='flashcard-next' class='icon-svg icon-arrow-right'></button>
+                </div>
+            </div>
+            <div class='flex-col panel-nav mobile-only'>
+                <button id='goto-left' class='btn-primary'>Back to Vocab Lists</button>
+            </div>
         </div>
-    </div>
+    </main>
 </div>
 
-<!-- load story data -->
-<script type='text/javascript' src="source/story-0/sox-siksikaʔ-data-annotated.js"></script>
-<script type='text/javascript' src="source/story-1/kaʔyuʔun-shashaʔ-data-annotated.js"></script>
-<script type='text/javascript' src="source/story-2/ʔuplalliʔ-deemaysuʔ-data-annotated.js"></script>
-<script type='text/javascript' src="source/story-3/shelel'-shilithanaʔ-data-annotated.js"></script>
+<!-- TEMPLATES -->
 
+<template id='tpl-vocab-set'>
+    <!-- <button class='flex-row-centered vocab-set'>
+        <span class='vocab-number'>0</span>
+        <span class='vocab-title'>Vocab Set</span>
+    </button> -->
+    <a class='flex-row-centered vocab-set'>
+        <span class='vocab-number'>0</span>
+        <span class='vocab-title'>Vocab Set</span>
+    </a>
+</template>
+<template id='tpl-flashcard'>
+    <!-- <div class='flashcard' role='button' tabindex='-1'> -->
+    <button class='flashcard'>
+        <div class='flashcard-inner'>
+            <div class='flex-centered flashcard-front'>
+                <p class='flex-centered'>Flashcard Front</p>
+                <!-- <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p> -->
+            </div>
+            <div class='flex-centered flashcard-back'>
+                <p class='flex-centered'>Flashcard Back</p>
+            </div>
+        </div>
+    </button>
+    <!-- </div> -->
+</template>
 
+<!-- SCRIPTS -->
 
+<!-- cross-platform navbar behavior -->
+<script type='text/javascript' src='script/navbar.js'></script>
+<!-- <script type='module' src='assets/js/vocab.js'></script> -->
+<script type='module'>
+    import vocab from './assets/js/vocab.js';
 
+    // CSS var manipulation
+    const CSSVars = {
+        get : (k) => getComputedStyle(document.documentElement).getPropertyValue(k),
+        set : (k,v) => document.documentElement.style.setProperty(k,v)
+    };
 
+    // vocab sets (left panel)
+    const vocabSets = document.querySelector('#vocab-sets');
+    const vocabPrev = document.querySelector('#vocab-prev');
+    const vocabNext = document.querySelector('#vocab-next');
+    let vocabSetElems = [];
+    const populateVocabSets = () => {
+        // clear prev contents
+        vocabSets.textContent = '';
+        vocabSetElems = [];
+        // populate
+        vocab.forEachSet((vocabSet,i) => {
+            i = i + 1; // convert 0-indexed i to 1-indexed vocab set id
+            let e = document.querySelector('#tpl-vocab-set').content.firstElementChild.cloneNode(true);
+            if (i == vocab.activeSet) e.classList.add('active');
+            e.querySelector('.vocab-number').textContent = i;
+            e.querySelector('.vocab-title').textContent = vocabSet.title || 'Untitled';
+            e.href = `flashcards?set=${i}`; // fallback navigation if JS is disabled
+            e.onclick = (evt) => {
+                evt.preventDefault(); // if JS is enabled, block normal <a> nav in favor of fast SPA nav
+                const t0_loadVocab = performance.now();
+                console.log(`Loading vocab set ${i} "${vocabSet.title || 'Untitled'}"...`);
+                vocab.loadVocab(i, () => {
+                    console.log(`DONE in ${Math.round(performance.now()-t0_loadVocab)} ms`);
+                    renderVocabSets();
+                    populateFlashcards();
+                    renderFlashcards();
+                });
+            };
+            vocabSets.appendChild(e);
+            vocabSetElems.push(e);
+        });
+    };
+    const renderVocabSets = () => {
+        // vocab set selection menu (left panel)
+        for (let i = 0; i < vocabSetElems.length; i++) {
+            if (i+1 == vocab.activeSet) { // convert 0-indexed i to 1-indexed vocab set id
+                vocabSetElems[i].classList.add('active');
+            } else {
+                vocabSetElems[i].classList.remove('active');
+            }
+        }
+        // prev/next set nav buttons (right panel)
+        vocabPrev.querySelector('.vocab-nav-set').textContent = vocab.manifest[vocab.activeSet-1 - 1]?.title || '';
+        vocabNext.querySelector('.vocab-nav-set').textContent = vocab.manifest[vocab.activeSet-1 + 1]?.title || '';
+        if (vocab.activeSet <= 1) {
+            vocabPrev.classList.add('hidden');
+        } else {
+            vocabPrev.classList.remove('hidden');
+        }
+        if (vocab.activeSet >= vocab.manifest.length) {
+            vocabNext.classList.add('hidden');
+        } else {
+            vocabNext.classList.remove('hidden');
+        }
+    };
+    const prevVocabSet = () => {
+        if (vocab.activeSet <= 1) return;
+        vocab.loadVocab(vocab.activeSet - 1, () => { // loadVocab() performs input validation on set id
+            renderVocabSets();
+            populateFlashcards();
+            renderFlashcards();
+        });
+    };
+    const nextVocabSet = () => {
+        if (vocab.activeSet >= vocab.manifest.length) return;
+        vocab.loadVocab(vocab.activeSet + 1, () => { // loadVocab() performs input validation on set id
+            renderVocabSets();
+            populateFlashcards();
+            renderFlashcards();
+        });
+    };
 
+    vocabPrev.onclick = prevVocabSet;
+    vocabNext.onclick = nextVocabSet;
 
-<script type='text/javascript'>
+    // active vocab cards (right panel)
+    const flashcardSetTitle = document.querySelector('#flashcard-set-title');
+    const flashcardProgress = document.querySelector('#flashcard-progress');
+    const flashcardWrapper = document.querySelector('#flashcard-wrapper');
+    const flashcardSubtitle = document.querySelector('#flashcard-subtitle');
+    const flashcardNumber = document.querySelector('#flashcard-number');
+    let activeFlashcard = -1;
+    let vocabFlashcardElems = [];
+    const populateFlashcards = () => {
+        // reset
+        flashcardWrapper.textContent = '';
+        activeFlashcard = 0;
+        vocabFlashcardElems = [];
+        // set title
+        flashcardSetTitle.textContent = vocab.activeSetData.title || 'Untitled';
+        // populate flashcards
+        vocab.forEachFlashcard((card,i) => {
+            let e = document.querySelector('#tpl-flashcard').content.firstElementChild.cloneNode(true);
+            e.onclick = () => {
+                if (e.classList.contains('flipped')) {
+                    e.classList.remove('flipped');
+                } else {
+                    e.classList.add('flipped');
+                }
+            };
+            e.querySelector('.flashcard-front > p').textContent = card.L1;
+            e.querySelector('.flashcard-back > p').textContent = card.L2;
+            flashcardWrapper.appendChild(e);
+            vocabFlashcardElems.push(e);
+        });
+    };
+    const renderFlashcards = () => {
+        CSSVars.set('--flashcard-progress', `${100 * activeFlashcard/(vocabFlashcardElems.length-1)}%`);
+        flashcardSubtitle.textContent = vocab.activeSetData.words[activeFlashcard].note || '';
+        flashcardNumber.textContent = `${activeFlashcard + 1} of ${vocabFlashcardElems.length}`;
+        for (let i = 0; i < vocabFlashcardElems.length; i++) {
+            if (i < activeFlashcard) {
+                vocabFlashcardElems[i].classList.add('to-left');
+                vocabFlashcardElems[i].classList.remove('to-right');
+                vocabFlashcardElems[i].inert = true;
+            } else if (i > activeFlashcard) {
+                vocabFlashcardElems[i].classList.remove('to-left');
+                vocabFlashcardElems[i].classList.add('to-right');
+                vocabFlashcardElems[i].inert = true;
+            } else {
+                vocabFlashcardElems[i].classList.remove('to-left');
+                vocabFlashcardElems[i].classList.remove('to-right');
+                vocabFlashcardElems[i].inert = false;
+            }
+        }
+    };
+    const prevFlashcard = () => {
+        activeFlashcard = Math.max(0, activeFlashcard-1);
+        renderFlashcards();
+    };
+    const nextFlashcard = () => {
+        activeFlashcard = Math.min(vocabFlashcardElems.length-1, activeFlashcard+1);
+        renderFlashcards();
+    };
 
+    document.querySelector('#flashcard-prev').onclick = prevFlashcard;
+    document.querySelector('#flashcard-next').onclick = nextFlashcard;
 
-    //// WAVE 3 ////
+    // TODO: convert next/prev set buttons to nav links?
+    // TODO: right panel loading screen before vocab loaded
+    // TODO: focus-visible UI; test out screen reader and keyboard nav
+    // TODO: keyboard shortcuts (j/k/l for flashcard nav, Alt + j/l for set nav)
 
-    // 2.5 hrs: set up basic page layout
-
-
+    // long term stuff...
+        // TODO: scrollable overflow
+        // TODO: images and audio, link to dictionary entry
+        // TODO: display error message on failure to load resource
     
-    // DOM anchors
-    // const navTitle = document.getElementById('nav-title');
-    // const navButton = document.getElementById('nav-menu');
-    // const navDropdown = document.getElementById('nav-dropdown');
-    // const selectionPanel = document.getElementById('selection-panel');
-    // const storyReaderPanel = document.getElementById('flashcards-panel');
-    // const readerContent = document.getElementById('flashcards-content');
 
-
-    
-    //////////////////////
-
-    let stories = [
-        story_sox_siksikaʔ,
-        story_kaʔyuʔun_shashaʔ,
-        story_ʔuplalliʔ_deemaysuʔ,
-        story_shelel_shilithanaʔ
-    ];
-    
-
+    // init
+    vocab.loadManifest(() => {
+        populateVocabSets(); // populate vocab lists in left panel
+        vocab.loadVocab(vocab.activeSet, () => {
+            console.log(`Initial vocab loaded.`);
+            renderVocabSets();
+            populateFlashcards();
+            renderFlashcards();
+        }); // load default vocab set
+    });
 </script>
 
 </body>
