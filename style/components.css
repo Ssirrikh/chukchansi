@@ -39,6 +39,8 @@
     /**** navbar ****/
 
     --nav-height: calc(2.2 * var(--fluid-font-size)); /* anchor for hanging elems */
+    --panel-left-width: clamp(10em, 33vw, 18em);
+    --footer-height: 0px; /* set by navbar.js if floating footer is present */
 }
 
 body {
@@ -55,6 +57,16 @@ body {
 
 /**** COMPONENTS ****/
 
+.btn-primary {
+    color: var(--text-nav);
+    background-color: var(--bg-nav);
+    border-radius: 4px;
+    padding: 0.5em 1em;
+}
+.btn-primary:hover {
+    background-color: var(--bg-nav-focus);
+}
+
 
 
 /**** NAV BAR ****/
@@ -63,37 +75,47 @@ body {
     color: var(--text-nav);
     background-color: var(--bg-nav);
     background: var(--bg-nav-gradient);
-    /* border-bottom: thin solid var(--tint-darken); */
-        /* border-bottom renders 1px beneath dropdown and makes it look misaligned */
-        /* rely on gradient for edge-emphasis */
     z-index: var(--layer-nav);
 
-    position: sticky;
-    top: 0;
+    position: fixed;
+	top: 0;
+	left: 0;
     width: 100%;
+	max-width: 100vw;
     height: var(--nav-height);
+    
+	font-size: 1em;
 }
 #navbar > * {
     height: 100%;
-    /* flex-centered */
     display: flex;
     align-items: center;
 }
 #navbar > h1 {
     padding-left: 0.5em;
-    font-size: 1.5em;
+    font-size: 1.3em;
 }
 #nav-target {
     color: var(--text-nav);
+    /* border: thin solid yellow; */
     padding: 0 0.5em;
     gap: 0.3em;
 }
 #nav-target:hover {
     background-color: var(--tint-nav);
 }
-#nav-target > svg {
-    width: 2em;
-    height: 2em;
+#nav-target > * {
+    /* height: 100%; */
+}
+#nav-target > .icon-svg {
+    /* height: 100%; */
+    /* aspect-ratio: 1; */
+}
+#nav-target > .icon-svg::after {
+    background-color: var(--text-nav);
+    height: 70%;
+    /* width: 60%; */
+    aspect-ratio: 1;
 }
 
 #nav-adaptive-wrapper {
@@ -177,11 +199,214 @@ body {
 
 
 
+/**** MOBILE-FRIENDLY PANELS ****/
+
+#main {
+    min-height: 100dvh;
+    min-height: 100vh;
+}
+#content {
+    /* border: thin solid blue; */
+    margin-top: var(--nav-height);
+    margin-bottom: var(--footer-height);
+    width: 100vw;
+    width: 100dvw;
+    overflow-x: hidden;
+}
+#panel-left {
+    overflow: auto;
+    position: fixed;
+    top: var(--nav-height);
+    left: 0;
+    width: 100%;
+    min-width: 10em;
+    height: calc(100vh - var(--nav-height) - var(--footer-height));
+    height: calc(100dvh - var(--nav-height) - var(--footer-height));
+    /* height: calc(100dvh - var(--nav-height)); */
+
+    /* (mobile) panel effect relies on left panel position:fixed and height:calc(100vw - navHeight) */
+    /* but this will cause left panel to extend below fixed footer and hide end of content */
+    /* can use JS to set CSS var to account for height of footer */
+    /* but is there a way to create panel effect w/o position:fixed and/or w/o JS? */
+}
+#panel-right {
+    flex-grow: 1;
+    flex-shrink: 1;
+
+    overflow: auto;
+    margin-top: var(--navbar-height);
+    position: relative;
+    left: 100%;
+    width: 100%;
+    min-width: 10em;
+    height: calc(100vh - var(--nav-height) - var(--footer-height));
+    height: calc(100dvh - var(--nav-height) - var(--footer-height));
+    /* height: calc(100dvh - var(--nav-height)); */
+    
+    transition: left 0.25s;
+}
+#panel-right.focus {
+    left: 0;
+}
+.panel-nav {
+    border-top: thin solid var(--border-light);
+    padding: 0.5em;
+}
+.panel-content {
+    overflow: auto;
+}
+#floating-footer {
+    background-color: var(--bg-nav);
+    z-index: var(--layer-front);
+}
+
+
+
+/**** LOADING SCREEN ****/
+
+.loading-text {
+    width: 100%;
+    font-size: 1.2em;
+    text-decoration: underline;
+    text-align: center;
+}
+.loading-animation-track {
+    position: relative;
+    width: 2em;
+    height: 2em;
+    /* flex-centered */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.loading-icon-full, .loading-icon-empty {
+    display: inline-block;
+    width: 1.0em;
+    height: 1.0em;
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%,-50%) rotate(45deg);
+}
+.loading-icon-full {
+    /* background-color: var(--bg-nav); */
+    background-color: var(--text-nav);
+    left: 0%;
+    animation: loading-left 1.5s ease infinite;
+}
+.loading-icon-empty {
+    /*background-color: var(--bg-inset); /* each page needs to set bg as needed */
+    /* border: 0.1em solid var(--bg-nav); */
+    background-color: var(--bg-nav);
+    border: 0.1em solid var(--text-nav);
+    left: 100%;
+    animation: loading-right 1.5s ease infinite;
+}
+.loading-animation-track.loading-light .loading-icon-full {
+    background-color: var(--bg-nav);
+}
+.loading-animation-track.loading-light .loading-icon-empty {
+    background-color: var(--bg-light);
+    border: 0.1em solid var(--bg-nav);
+}
+.loading-animation-track.loading-inset .loading-icon-full {
+    background-color: var(--bg-nav);
+}
+.loading-animation-track.loading-inset .loading-icon-empty {
+    background-color: var(--bg-inset);
+    border: 0.1em solid var(--bg-nav);
+}
+/* loading animation: 2 diamonds slide past each other, changing which one is on top */
+/* z-index changes at midpoint between keyframes, use fractional keyframes to set midpoint where diamonds don't overlap */
+/* cannot optimize fully due to z-index change, but this is only anim, and it's very lightweight */
+@keyframes loading-left {
+    0%   { left:0%;   z-index:1; }
+    49%  { left:100%; z-index:1; }
+    50%  { left:100%; z-index:2; }
+    99%  { left:0%;   z-index:2; }
+    100% { left:0%;   z-index:1; }
+}
+@keyframes loading-right {
+    0%   { left:100%; z-index:2; }
+    49%  { left:0%;   z-index:2; }
+    50%  { left:0%;   z-index:1; }
+    99%  { left:100%; z-index:1; }
+    100% { left:100%; z-index:2; }
+}
+
+
+
+/**** ICONOGRAPHY ****/
+
+/* button containing icon acts as flexbox to center it */
+/* using img or svg as color mask creates crisp monocolor icons */
+/* button's bg color set by background-color:___ of button */
+/* button's icon color set by background-color:___ of button::after */
+
+.icon-svg {
+    /* border: thin solid red; */
+    width: 2em;
+    height: 2em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.icon-svg::after {
+    content: '';
+    border: thin solid yellow;
+    width: 100%;
+    height: 100%;
+}
+
+.icon-hamburger::after {
+    --svg: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="black" stroke="none"><path d="M 4 5 a 1 1 0 0 0 0 2 l 16 0 a 1 1 0 0 0 0 -2 z M 4 11 a 1 1 0 0 0 0 2 l 16 0 a 1 1 0 0 0 0 -2 z M 4 17 a 1 1 0 0 0 0 2 l 16 0 a 1 1 0 0 0 0 -2 z" /></svg>');
+    mask: var(--svg) center / contain no-repeat;
+}
+
+.icon-play::after {
+    --svg: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="black" stroke="none"><path d="M 6 4 v 16 a 1 1 0 0 0 1.524 0.852 l 13 -8 a 1 1 0 0 0 0 -1.704 l -13 -8 a 1 1 0 0 0 -1.524 0.852 z" /></svg>');
+    mask: var(--svg) center / contain no-repeat;
+}
+.icon-pause::after {
+    --svg: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="black" stroke="none"><path d="M 9 4 h -2 a 1.5 1.5 0 0 0 -1.5 1.5 v 13 a 1.5 1.5 0 0 0 1.5 1.5 h 2 a 1.5 1.5 0 0 0 1.5 -1.5 v -13 a 1.5 1.5 0 0 0 -1.5 -1.5 z M 17 4 h -2 a 1.5 1.5 0 0 0 -1.5 1.5 v 13 a 1.5 1.5 0 0 0 1.5 1.5 h 2 a 1.5 1.5 0 0 0 1.5 -1.5 v -13 a 1.5 1.5 0 0 0 -1.5 -1.5 z" /></svg>');
+    mask: var(--svg) center / contain no-repeat;
+}
+.icon-repeat::after {
+    --svg: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="black" stroke="none"><path d="M 13 1 l 0 7 l -4 -3 c -0.33 -0.25 -0.33 -0.75 0 -1 z M 6 12 a 6 6 0 0 0 12 0 a 6 6 0 0 0 -6 -6 l 0 -3 a 9 9 0 0 1 9 9 a 9 9 0 0 1 -18 0 a 1.5 1.5 0 0 1 3 0 z" /></svg>');
+    mask: var(--svg) center / contain no-repeat;
+}
+
+.icon-prev::after {
+    --svg: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="black" stroke="none"><path d="M 20.341 4.247 l -8 7 a 1 1 0 0 0 0 1.506 l 8 7 c 0.647 0.565 1.659 0.106 1.659 -0.753 v -14 c 0 -0.86 -1.012 -1.318 -1.659 -0.753 z M 9.341 4.247 l -8 7 a 1 1 0 0 0 0 1.506 l 8 7 c 0.647 0.565 1.659 0.106 1.659 -0.753 v -14 c 0 -0.86 -1.012 -1.318 -1.659 -0.753 z" /></svg>');
+    mask: var(--svg) center / contain no-repeat;
+}
+.icon-next::after {
+    --svg: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="black" stroke="none"><path d="M 2 5 v 14 c 0 0.86 1.012 1.318 1.659 0.753 l 8 -7 a 1 1 0 0 0 0 -1.506 l -8 -7 c -0.647 -0.565 -1.659 -0.106 -1.659 0.753 z M 13 5 v 14 c 0 0.86 1.012 1.318 1.659 0.753 l 8 -7 a 1 1 0 0 0 0 -1.506 l -8 -7 c -0.647 -0.565 -1.659 -0.106 -1.659 0.753 z" /></svg>');
+    mask: var(--svg) center / contain no-repeat;
+}
+
+.icon-arrow-left::after {
+    --svg: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="black" stroke="none"><path d="M 15 3 l -9 9 l 9 9 l 2 -2 l -7 -7 l 7 -7 z" /></svg>');
+    mask: var(--svg) center / contain no-repeat;
+}
+.icon-arrow-right::after {
+    --svg: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="black" stroke="none"><path d="M 9 3 l 9 9 l -9 9 l -2 -2 l 7 -7 l -7 -7 z" /></svg>');
+    mask: var(--svg) center / contain no-repeat;
+}
+
+
+
 /**** MEDIA QUERIES ****/
 
 @media (min-aspect-ratio: 5/4) { /* desktop mode */
     #nav-items {
         width: auto;
         height: calc(100vh - var(--nav-height));
+    }
+    #panel-left {
+        width: var(--panel-left-width);
+    }
+    #panel-right {
+        margin-left: var(--panel-left-width);
+        left: 0;
     }
 }

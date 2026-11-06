@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang='en' xml:lang='en'>
+<head>
+	<meta charset = 'utf-8'>
+	<title>Untitled Page</title>
+    <meta name='robots' content='index, follow'>
+    <meta name='description' content='New web page description.'>
+	<meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' href='style/common-min.css'>
+    <link rel='stylesheet' href='style/components.css'>
+    <style>
+        #panel-left {
+            background-color: var(--bg-inset);
+            border: thin solid yellow;
+        }
+        #panel-right {
+            background-color: var(--bg-light);
+            border: thin solid blue;
+        }
+
+        #icon-tests > .icon-svg {
+            border: thin solid yellow;
+        }
+        #icon-tests > .icon-svg::after {
+            background-color: yellow;
+            width: 60%;
+            height: 60%;
+        }
+
+        #footer {
+            position: sticky;
+            bottom: 0;
+            left: 0;
+        }
+    </style>
+</head>
+<body>
+
+<div id='main' class='flex-col'>
+    <!-- TOP NAVBAR -->
+    <nav id='navbar' class='flex-row-centered' role='navigation' aria-label='Top Level'>
+        <h1>Chukchansi Dictionary</h1>
+        <div class='flex-sep'></div>
+        <div id='nav-target' role='button' class='flex-row' title='Expand and collapse menu' aria-expanded='false'>
+            <p class='desktop-only'>Menu</p>
+            <button class='icon-svg icon-hamburger'></button>
+        </div>
+        <div id='nav-adaptive-wrapper' class='flex-adapt'>
+            <div id='nav-items' class='flex-col'>
+                <ul class='flex-col'>
+                    <li><a href='./'>Home</a></li>
+                </ul>
+                <ul class='flex-col'>
+                    <li><a href='speaking-dictionary'>Speaking Dictionary</a></li>
+                    <li><a href='pdf-dictionary'>PDF Dictionary</a></li>
+                    <li><a href='stories'>Story Reader</a></li>
+                    <li><a href='wordsearch'>Wordsearch</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <!-- PAGE CONTENT -->
+    <main id='content' class='flex-row flex-grow'>
+        <div id='panel-left' class='flex-col'>
+            <p>[left panel]</p>
+            <div class='flex-col flex-shrink flex-grow panel-content'>[no items]</div>
+            <div class='flex-col panel-nav mobile-only'>
+                <button id='goto-right' class='btn-primary'>Go To Right Panel</button>
+            </div>
+        </div>
+        <div id='panel-right' class='flex-col flex-grow flex-shrink'>
+            <p>[right panel]</p>
+            <div id='icon-tests' class='flex-row'>
+                <button class='icon-svg icon-prev'></button>
+                <button class='icon-svg icon-play'></button>
+                <button class='icon-svg icon-next'></button>
+                <button class='icon-svg icon-pause'></button>
+                <button class='icon-svg icon-repeat'></button>
+                <button class='icon-svg icon-hamburger'></button>
+                <button class='icon-svg icon-arrow-left'></button>
+                <button class='icon-svg icon-arrow-right'></button>
+            </div>
+            <div class='flex-col flex-shrink flex-grow panel-content'>[no items]</div>
+            <div class='flex-col panel-nav mobile-only'>
+                <button id='goto-left' class='btn-primary'>Go To Left Panel</button>
+            </div>
+        </div>
+    </main>
+    <!-- BOTTOM FOOTER -->
+    <!-- <div id='floating-footer' class='flex-col'>
+        <p>Footer</p>
+        <p>test</p>
+        <p>test</p>
+    </div> -->
+</div>
+
+<!-- WIKCHAMNI NAVBAR -->
+
+<!-- <nav id='navbar' class='flex-row-centered' role='navigation' aria-label='Top Level'>
+    <h1>Wikchamni Dictionary</h1>
+    <div class='flex-sep'></div>
+    <button id='nav-menu-target' class='mobile-only' title='Expand and collapse menu' aria-expanded='false'>
+        <svg id='nav-hamburger' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' width='24' height='24' stroke-width='1.5' aria-hidden='true'>
+            <path d='M5 8l14 0'></path>
+            <path d='M5 12l14 0'></path>
+            <path d='M5 16l14 0'></path>
+        </svg>
+    </button>
+    <div id='nav-adaptive-wrapper' class='flex-adapt'>
+        <ul class='flex-adapt'>
+            <li><a href='/'>Home</a></li>
+            <li><a href='/about'>About</a></li>
+            <li><a href='/language'>Language</a></li>
+            <li class='active' aria-label='Current page is'><p>Lexicon</p></li>
+        </ul>
+    </div>
+</nav> -->
+
+
+
+<!-- CHUKCHANSI NAVBAR -->
+
+<!-- <nav id='navbar' class='flex-row-centered' role='navigation' aria-label='Top Level'>
+    <h1 class='flex-grow' aria-label='Chukchansi Story Reader'>Story Reader</h1>
+    <button id='nav-target' class='flex-row-centered' title='Expand and collapse menu' aria-expanded='false'>
+        <p class='desktop-only' aria-hidden='true'>Menu</p>
+        <svg id='nav-icon' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' width='24' height='24' stroke-width='1.25' aria-hidden='true'>
+            <path d='M5 8l14 0'></path>
+            <path d='M5 12l14 0'></path>
+            <path d='M5 16l14 0'></path>
+        </svg>
+    </button>
+    <div id='nav-adaptive-wrapper'>
+        <div id='nav-items' class='flex-col'>
+            <ul class='flex-col'>
+                <li><a href='./'>Home</a></li>
+            </ul>
+            <ul class='flex-col'>
+                <li><a href='speaking-dictionary'>Speaking Dictionary</a></li>
+                <li><a href='pdf-dictionary'>PDF Dictionary</a></li>
+                <li><a href='stories'>Story Reader</a></li>
+                <li><a href='wordsearch'>Wordsearch</a></li>
+            </ul>
+        </div>
+    </div>
+</nav> -->
+
+<!-- TEMPLATES -->
+
+<template id='tpl-component'>
+    <div></div>
+</template>
+
+<!-- SCRIPTS -->
+
+<!-- cross-platform navbar behavior -->
+<script type='text/javascript' src='script/navbar.js'></script>
+<script>
+    const itemsLeft = document.querySelector('#panel-left .panel-content');
+    const itemsRight = document.querySelector('#panel-right .panel-content');
+
+    itemsLeft.textContent = '';
+    itemsRight.textContent = '';
+    for (let i = 0; i <= 32; i++) {
+        let eLeft = Object.assign(document.createElement('p'), {
+            textContent : `Item ${i}`,
+        });
+        itemsLeft.appendChild(eLeft);
+        let eRight = Object.assign(document.createElement('p'), {
+            textContent : `Item ${i}`,
+        });
+        itemsRight.appendChild(eRight);
+    }
+</script>
+
+</body>
+</html>
