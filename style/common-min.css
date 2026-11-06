@@ -12,7 +12,7 @@
 
     --edge-sharpness-shadow: drop-shadow(0 0 4px #0004);
     --modal-shadow: drop-shadow(0 0 10px #0002);
-    --popout-shadow: (0 0 10px #0004);
+    --popout-shadow: drop-shadow(0 0 10px #0004);
 
     /**** positioning ****/
 
@@ -90,7 +90,7 @@ input, textarea, select {
     /* column on mobile, row on desktop */
     display: flex;
     flex-direction: column !important;
-    align-items: center;
+    /* align-items: center; */
 }
 .flex-adapt-reverse {
     /* row on mobile, column on desktop */
