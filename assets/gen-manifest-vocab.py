@@ -31,8 +31,10 @@ for (root,dirs,files) in os.walk(DIR_VOCAB,topdown=True):
         fullpath = f'{root}\\{file}'
         with open(fullpath, 'r') as f:
             file_vocab = json.load(f)
+            if 'words' not in file_vocab or type(file_vocab['words']) is not list:
+                continue # check that json is actually a vocab list
             title = str(file_vocab['title'] or '')
-            count = int(len(file_vocab['words']) if 'words' in file_vocab and type(file_vocab['words']) is list else 0)
+            count = int(len(file_vocab['words']) or 0)
             path = fullpath.replace(DIR_VOCAB,'')
             manifest.append({ "title":title, "count":count, "path":filepath2url(path) })
 
