@@ -1,0 +1,13 @@
+{
+    "title" : "Days of the Week",
+    "thumbnail" : "thumbnail.jpg",
+    "words" : [
+        { "L1": "Sunday", "L2": "Dominganaw", "image": "", "audio": "", "note": "from Spanish Domingo" },
+        { "L1": "Monday", "L2": "Luunasiw", "image": "", "audio": "", "note": "from Spanish Lunes" },
+        { "L1": "Tuesday", "L2": "Boneeyanaw", "image": "", "audio": "", "note": "" },
+        { "L1": "Wednesday", "L2": "Shopeeyanaw", "image": "", "audio": "", "note": "" },
+        { "L1": "Thursday", "L2": "Hadeebanaw", "image": "", "audio": "", "note": "" },
+        { "L1": "Friday", "L2": "Yet'eeshanaw", "image": "", "audio": "", "note": "" },
+        { "L1": "Saturday", "L2": "Sawaadanaw", "image": "", "audio": "", "note": "from Spanish Sábado" }
+    ]
+}

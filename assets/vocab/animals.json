@@ -1,0 +1,22 @@
+{
+    "title" : "Animals",
+    "thumbnail" : "thumbnail.jpg",
+    "words" : [
+        { "L1": "skunk", "L2": "sox", "image": "", "audio": "", "note": "" },
+        { "L1": "stinkbug", "L2": "siksikaʔ", "image": "", "audio": "", "note": "" },
+        { "L1": "coyote", "L2": "kaʔyuʔ", "image": "", "audio": "", "note": "" },
+        { "L1": "fish", "L2": "lopis", "image": "", "audio": "", "note": "" },
+        { "L1": "dove", "L2": "ʔuplalliʔ", "image": "", "audio": "", "note": "" },
+        { "L1": "hummingbird", "L2": "deemay'suʔ", "image": "", "audio": "", "note": "" },
+        { "L1": "bear", "L2": "nohʔoʔ", "image": "", "audio": "", "note": "" },
+        { "L1": "deer", "L2": "xooyi", "image": "", "audio": "", "note": "" },
+        { "L1": "meadowlark", "L2": "ʔolooch'oʔ", "image": "", "audio": "", "note": "NOTE still needs to be added to dictionary" },
+        { "L1": "rattlesnake", "L2": "nasis", "image": "", "audio": "", "note": "" },
+        { "L1": "cow", "L2": "ganaaduʔ", "image": "", "audio": "", "note": "" },
+        { "L1": "quail", "L2": "humnul'", "image": "", "audio": "", "note": "" },
+        { "L1": "salamander", "L2": "ʔalajaanaʔ", "image": "", "audio": "", "note": "lit. water dog" },
+        { "L1": "rabbit", "L2": "tew'", "image": "", "audio": "", "note": "" },
+        { "L1": "eagle", "L2": "wuʔshul'", "image": "", "audio": "", "note": "" },
+        { "L1": "condor", "L2": "yelilk'in", "image": "", "audio": "", "note": "" }
+    ]
+}

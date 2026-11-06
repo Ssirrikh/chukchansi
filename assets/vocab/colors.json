@@ -1,0 +1,16 @@
+{
+    "title" : "Colors",
+    "thumbnail" : "thumbnail.jpg",
+    "words" : [
+        { "L1": "red", "L2": "habilk'ay', hablik'ya", "image": "red.jpg", "audio": "", "note": "" },
+        { "L1": "orange", "L2": "shakaakaʔ, shakaakaʔan", "image": "orange.jpg", "audio": "", "note": "" },
+        { "L1": "yellow", "L2": "ʔalk'ik'in, ʔalk'ik'na", "image": "yellow.jpg", "audio": "", "note": "" },
+        { "L1": "green/blue", "L2": "ch'iwk'ay', ch'iwik'ya", "image": "greenblue.jpg", "audio": "", "note": "Chukchansi has one word for 'natural colors', which includes both green and blue" },
+        { "L1": "purple", "L2": "mukaaniʔ, mukaaniʔin", "image": "purple.jpg", "audio": "", "note": "" },
+        { "L1": "pink", "L2": "saliik'in, saliik'ina", "image": "pink.jpg", "audio": "", "note": "" },
+        { "L1": "white", "L2": "shik'win, shik'wina", "image": "white.jpg", "audio": "", "note": "" },
+        { "L1": "black", "L2": "limik', limk'a", "image": "black.jpg", "audio": "", "note": "" },
+        { "L1": "brown", "L2": "kapew'neʔ, kapew'neʔen", "image": "brown.jpg", "audio": "", "note": "" },
+        { "L1": "grey", "L2": "humk'uk'un, humk'uk'na", "image": "grey.jpg", "audio": "", "note": "" }
+    ]
+}
