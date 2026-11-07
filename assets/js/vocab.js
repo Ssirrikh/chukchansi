@@ -5,6 +5,7 @@
 
 //// program state
 
+let loading = true;
 let vocabManifest = []; // collection of valid vocab lists
 let activeVocab = -1; // 
 let activeVocabData = {}; // loaded vocab list JSON
@@ -73,6 +74,7 @@ const activateInitialVocabSet = () => {
 
 // content loaders
 const loadManifest = async (onLoad = ()=>{}) => {
+    loading = true;
     try {
         // load vocab manifest
         const url = `./assets/manifests/manifest-vocab.json`;
@@ -80,10 +82,12 @@ const loadManifest = async (onLoad = ()=>{}) => {
         if (!res.ok) throw new Error(`Vocab manifest failed to load with response: ${res.status}`);
         vocabManifest = Object.freeze(await res.json());
         console.log('Vocab manifest:', vocabManifest);
+        loading = false;
         activateInitialVocabSet();
         onLoad();
         return true;
     } catch (err) {
+        loading = false;
         console.error(err.message);
         return false;
     }
@@ -100,6 +104,7 @@ const loadVocab = async (i, onLoad=(vocabData)=>{}) => {
     }
     i = Math.min(Math.max(1, i), vocabManifest.length); // vocab set id is 1-indexed, not 0-indexed
     if (activeVocab !== i) setActive(i);
+    loading = true;
     try {
         const url = `./assets/vocab/${vocabManifest[i-1].path}`; // 1-indexed vocab set id -> 0-indexed manifest entry
         console.log(`Loading vocab set ${i} at ${url}`);
@@ -107,9 +112,11 @@ const loadVocab = async (i, onLoad=(vocabData)=>{}) => {
         if (!res.ok) throw new Error(`Vocab set ${i} failed to load with response: ${res.status}`);
         activeVocabData = Object.freeze(await res.json());
         console.log('Vocab set data:', activeVocabData);
+        loading = false;
         onLoad(activeVocabData);
         return true;
     } catch (err) {
+        loading = false;
         console.error(err.message);
         return false;
     }
@@ -120,6 +127,7 @@ const loadVocab = async (i, onLoad=(vocabData)=>{}) => {
 ///////////////////////////////////////
 
 export default {
+    get loading () { return loading },
     // manifest of vocab lists
     get manifest () { return vocabManifest ?? [] },
     loadManifest,

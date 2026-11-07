@@ -81,6 +81,9 @@
             text-align: center;
         }
 
+        #vocab-quick-nav {
+            min-height: 2em;
+        }
         .vocab-set-nav {
             gap: 0.5em;
         }
@@ -298,8 +301,8 @@
         <div id='panel-right' class='flex-col flex-grow flex-shrink'>
             <div class='flex-col flex-shrink flex-grow panel-content'>
                 <div class='flex-col'>
-                    <section class='flex-row' tabindex='0' aria-label='Flashcard set quick navigation'>
-                        <button id='vocab-prev' class='flex-row-centered vocab-set-nav' aria-label='Previous flashcard set'>
+                    <section id='vocab-quick-nav' class='flex-row' tabindex='0' aria-label='Flashcard set quick navigation'>
+                        <button id='vocab-prev' class='flex-row-centered vocab-set-nav hidden' aria-label='Previous flashcard set'>
                             <div class='icon-svg icon-arrow-left'></div>
                             <div class='flex-col'>
                                 <p class='vocab-nav-set'>Prev Vocab Set</p>
@@ -307,10 +310,10 @@
                             </div>
                         </button>
                         <div class='flex-sep'></div>
-                        <button id='vocab-next' class='flex-row-centered vocab-set-nav'>
+                        <button id='vocab-next' class='flex-row-centered vocab-set-nav hidden' aria-label='Previous flashcard set'>
                             <div class='flex-col'>
                                 <p class='vocab-nav-set'>Next Vocab Set</p>
-                                <p class='vocab-nav-label'>Next</p>
+                                <p class='vocab-nav-label' aria-hidden='true'>Next</p>
                             </div>
                             <div class='icon-svg icon-arrow-right'></div>
                         </button>
@@ -320,7 +323,7 @@
                 </div>
                 <div class='flex-col'>
                     <div id='flashcard-wrapper' class='flex-row-centered'>
-                        <div id='flashcard-0' class='flashcard'>
+                        <!-- <div id='flashcard-0' class='flashcard'>
                             <div class='flashcard-inner'>
                                 <div class='flashcard-front'>
                                     <p class='flex-centered'>Flashcard 0 Front</p>
@@ -329,33 +332,19 @@
                                     <p class='flex-centered'>Flashcard 0 Back</p>
                                 </div>
                             </div>
-                        </div>
-                        <div id='flashcard-1' class='flashcard'>
-                            <div class='flashcard-inner'>
-                                <div class='flashcard-front'>
-                                    <p class='flex-centered'>Flashcard 1 Front</p>
-                                </div>
-                                <div class='flex-centered flashcard-back'>
-                                    <p class='flex-centered'>Flashcard 1 Back</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div id='flashcard-2' class='flashcard'>
-                            <div class='flashcard-inner'>
-                                <div class='flashcard-front'>
-                                    <p class='flex-centered'>Flashcard 2 Front</p>
-                                </div>
-                                <div class='flex-centered flashcard-back'>
-                                    <p class='flex-centered'>Flashcard 2 Back</p>
-                                </div>
+                        </div> -->
+                        <div class='flex-col flex-centered loading-wrapper'>
+                            <div class='loading-animation-track loading-inset'>
+                                <div class='loading-icon-full'></div>
+                                <div class='loading-icon-empty'></div>
                             </div>
                         </div>
                     </div>
-                    <p id='flashcard-subtitle'>Subtitle text giving some note or explanation.</p>
+                    <p id='flashcard-subtitle'></p>
                 </div>
                 <div class='flex-row-centered flashcard-controls'>
                     <button id='flashcard-prev' class='icon-svg icon-arrow-left'></button>
-                    <div id='flashcard-number' aria-live='polite'>5 of 12</div>
+                    <div id='flashcard-number' aria-live='polite'>0 of 0</div>
                     <button id='flashcard-next' class='icon-svg icon-arrow-right'></button>
                 </div>
             </div>
@@ -402,6 +391,9 @@
 <script type='module'>
     import vocab from './assets/js/vocab.js';
 
+    const isVocabManifestLoaded = () => !vocab.loading && Array.isArray(vocab.manifest) && vocab.manifest.length > 0; // doesn't handle actually-empty manifest
+    const isVocabLoaded = () => !vocab.loading && vocab.activeSetData && Array.isArray(vocab.activeSetData.words);
+
     // CSS var manipulation
     const CSSVars = {
         get : (k) => getComputedStyle(document.documentElement).getPropertyValue(k),
@@ -417,6 +409,12 @@
         // clear prev contents
         vocabSets.textContent = '';
         vocabSetElems = [];
+        if (!isVocabManifestLoaded()) {
+            console.error('No manifest loaded. Cannot populate vocab sets.');
+            return false;
+        } else {
+            console.log('Manifest is loaded. Populating vocab sets...');
+        }
         // populate
         vocab.forEachSet((vocabSet,i) => {
             i = i + 1; // convert 0-indexed i to 1-indexed vocab set id
@@ -439,8 +437,13 @@
             vocabSets.appendChild(e);
             vocabSetElems.push(e);
         });
+        return true;
     };
     const renderVocabSets = () => {
+        if (!isVocabManifestLoaded()) {
+            console.error('No manifest loaded. Cannot render vocab sets.');
+            return false;
+        }
         // vocab set selection menu (left panel)
         for (let i = 0; i < vocabSetElems.length; i++) {
             if (i+1 == vocab.activeSet) { // convert 0-indexed i to 1-indexed vocab set id
@@ -462,22 +465,33 @@
         } else {
             vocabNext.classList.remove('hidden');
         }
+        return true;
     };
     const prevVocabSet = () => {
-        if (vocab.activeSet <= 1) return;
+        if (!isVocabManifestLoaded()) {
+            console.error('No manifest loaded. Cannot select vocab sets.');
+            return false;
+        }
+        if (vocab.activeSet <= 1) return true;
         vocab.loadVocab(vocab.activeSet - 1, () => { // loadVocab() performs input validation on set id
             renderVocabSets();
             populateFlashcards();
             renderFlashcards();
         });
+        return true;
     };
     const nextVocabSet = () => {
-        if (vocab.activeSet >= vocab.manifest.length) return;
+        if (!isVocabManifestLoaded()) {
+            console.error('No manifest loaded. Cannot select vocab sets.');
+            return false;
+        }
+        if (vocab.activeSet >= vocab.manifest.length) return true;
         vocab.loadVocab(vocab.activeSet + 1, () => { // loadVocab() performs input validation on set id
             renderVocabSets();
             populateFlashcards();
             renderFlashcards();
         });
+        return true;
     };
 
     vocabPrev.onclick = prevVocabSet;
@@ -496,6 +510,10 @@
         flashcardWrapper.textContent = '';
         activeFlashcard = 0;
         vocabFlashcardElems = [];
+        if (!isVocabLoaded()) {
+            console.error('No vocab set loaded. Cannot populate flashcards.');
+            return false;
+        }
         // set title
         flashcardSetTitle.textContent = vocab.activeSetData.title || 'Untitled';
         // populate flashcards
@@ -515,6 +533,10 @@
         });
     };
     const renderFlashcards = () => {
+        if (!isVocabLoaded()) {
+            console.error('No vocab set loaded. Cannot render flashcards.');
+            return false;
+        }
         CSSVars.set('--flashcard-progress', `${100 * activeFlashcard/(vocabFlashcardElems.length-1)}%`);
         flashcardSubtitle.textContent = vocab.activeSetData.words[activeFlashcard].note || '';
         flashcardNumber.textContent = `${activeFlashcard + 1} of ${vocabFlashcardElems.length}`;
@@ -547,7 +569,6 @@
     document.querySelector('#flashcard-next').onclick = nextFlashcard;
 
     // TODO: convert next/prev set buttons to nav links?
-    // TODO: right panel loading screen before vocab loaded
     // TODO: focus-visible UI; test out screen reader and keyboard nav
     // TODO: keyboard shortcuts (j/k/l for flashcard nav, Alt + j/l for set nav)
 
@@ -567,6 +588,35 @@
             renderFlashcards();
         }); // load default vocab set
     });
+
+    // window.addEventListener('keydown', evt => {
+    //     if (evt.key == 'm') {
+    //         vocab.loadManifest(() => {
+    //             console.log('Manifest loaded.');
+    //         });
+    //     } else if (evt.key == 'f') {
+    //         vocab.loadVocab(vocab.activeSet, () => {
+    //             console.log(`Initial vocab loaded.`);
+    //             renderVocabSets();
+    //             populateFlashcards();
+    //             renderFlashcards();
+    //         }); // load default vocab set
+    //     } else if (evt.key == 'p') {
+    //         populateVocabSets(); // populate vocab lists in left panel
+    //     } else if (evt.key == 'r') {
+    //         renderVocabSets();
+    //     }
+    //     // if (evt.key != 'x') return;
+    //     // vocab.loadManifest(() => {
+    //     //     populateVocabSets(); // populate vocab lists in left panel
+    //     //     vocab.loadVocab(vocab.activeSet, () => {
+    //     //         console.log(`Initial vocab loaded.`);
+    //     //         renderVocabSets();
+    //     //         populateFlashcards();
+    //     //         renderFlashcards();
+    //     //     }); // load default vocab set
+    //     // });
+    // });
 </script>
 
 </body>
