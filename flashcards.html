@@ -568,9 +568,40 @@
     document.querySelector('#flashcard-prev').onclick = prevFlashcard;
     document.querySelector('#flashcard-next').onclick = nextFlashcard;
 
+    // track modifier keys
+    let altDown = false;
+    window.addEventListener('keydown', evt => {
+        if (evt.key === 'Alt') altDown = true;
+    });
+    window.addEventListener('keyup', evt => {
+        if (evt.key === 'Alt') altDown = false;
+    });
+    // keyboard shortcuts
+    window.addEventListener('keydown', evt => {
+        if (altDown) {
+            // vocab set nav
+            if (evt.key === 'j' || evt.key === 'J') {
+                prevVocabSet();
+            } else if (evt.key === 'l' || evt.key === 'L') {
+                nextVocabSet();
+            }
+        } else {
+            // flashcard controls
+            if (evt.key === 'j' || evt.key === 'J') {
+                prevFlashcard();
+            } else if (evt.key == 'l' || evt.key === 'L') {
+                nextFlashcard();
+            } else if (evt.key === 'k' || evt.key === 'K') {
+                vocabFlashcardElems[activeFlashcard].click();
+            }
+        }
+    });
+
     // TODO: convert next/prev set buttons to nav links?
-    // TODO: focus-visible UI; test out screen reader and keyboard nav
-    // TODO: keyboard shortcuts (j/k/l for flashcard nav, Alt + j/l for set nav)
+    // TODO: accessibility
+        // focus-visible UI
+        // test out screen reader and keyboard nav (once windows fixes narrator)
+        // prevent screen reader from reading backs of cards when not visible
 
     // long term stuff...
         // TODO: scrollable overflow
