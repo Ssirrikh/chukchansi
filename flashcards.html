@@ -262,10 +262,11 @@
     <nav id='navbar' class='flex-row-centered' role='navigation' aria-label='Top Level'>
         <h1>Chukchansi Flashcards</h1>
         <div class='flex-sep'></div>
-        <div id='nav-target' role='button' class='flex-row' title='Expand and collapse menu' aria-expanded='false'>
+        <button id='nav-target' role='button' class='flex-row' title='Expand and collapse menu' aria-expanded='false'>
             <p class='desktop-only'>Menu</p>
-            <button class='icon-svg icon-hamburger'></button>
-        </div>
+            <!-- <button class='icon-svg icon-hamburger'></button> -->
+            <div class='icon-svg icon-hamburger'></div>
+        </button>
         <div id='nav-adaptive-wrapper' class='flex-adapt'>
             <div id='nav-items' class='flex-col'>
                 <ul class='flex-col'>
@@ -301,7 +302,7 @@
         <div id='panel-right' class='flex-col flex-grow flex-shrink'>
             <div class='flex-col flex-shrink flex-grow panel-content'>
                 <div class='flex-col'>
-                    <section id='vocab-quick-nav' class='flex-row' tabindex='0' aria-label='Flashcard set quick navigation'>
+                    <section id='vocab-quick-nav' class='flex-row' aria-label='Flashcard set quick navigation'>
                         <button id='vocab-prev' class='flex-row-centered vocab-set-nav hidden' aria-label='Previous flashcard set'>
                             <div class='icon-svg icon-arrow-left'></div>
                             <div class='flex-col'>
@@ -310,7 +311,7 @@
                             </div>
                         </button>
                         <div class='flex-sep'></div>
-                        <button id='vocab-next' class='flex-row-centered vocab-set-nav hidden' aria-label='Previous flashcard set'>
+                        <button id='vocab-next' class='flex-row-centered vocab-set-nav hidden' aria-label='Next flashcard set'>
                             <div class='flex-col'>
                                 <p class='vocab-nav-set'>Next Vocab Set</p>
                                 <p class='vocab-nav-label' aria-hidden='true'>Next</p>
@@ -321,7 +322,8 @@
                     <h2 id='flashcard-set-title'>Loading Flashcards...</h2>
                     <div id='flashcard-progress' aria-hidden='true'></div>
                 </div>
-                <div class='flex-col'>
+                <section class='flex-col' aria-label='Flashcard'>
+                    <p class='sr-only'>Keyboard shortcut k to flip</p>
                     <div id='flashcard-wrapper' class='flex-row-centered'>
                         <!-- <div id='flashcard-0' class='flashcard'>
                             <div class='flashcard-inner'>
@@ -333,7 +335,7 @@
                                 </div>
                             </div>
                         </div> -->
-                        <div class='flex-col flex-centered loading-wrapper'>
+                        <div class='flex-col flex-centered loading-wrapper' aria-hidden='true'>
                             <div class='loading-animation-track loading-inset'>
                                 <div class='loading-icon-full'></div>
                                 <div class='loading-icon-empty'></div>
@@ -341,11 +343,11 @@
                         </div>
                     </div>
                     <p id='flashcard-subtitle'></p>
-                </div>
+                </section>
                 <div class='flex-row-centered flashcard-controls'>
-                    <button id='flashcard-prev' class='icon-svg icon-arrow-left'></button>
+                    <button id='flashcard-prev' class='icon-svg icon-arrow-left' aria-keyshortcuts='j' aria-label='Previous flashcard keyboard shortcut j'></button>
                     <div id='flashcard-number' aria-live='polite'>0 of 0</div>
-                    <button id='flashcard-next' class='icon-svg icon-arrow-right'></button>
+                    <button id='flashcard-next' class='icon-svg icon-arrow-right' aria-keyshortcuts='l' aria-label='Next flashcard keyboard shortcut l'></button>
                 </div>
             </div>
             <div class='flex-col panel-nav mobile-only'>
@@ -368,16 +370,19 @@
     </a>
 </template>
 <template id='tpl-flashcard'>
-    <!-- <div class='flashcard' role='button' tabindex='-1'> -->
+    <!-- <div class='flashcard' role='button' tabindex='0'> -->
+        <!--  aria-keyshortcuts='k' aria-label='Flashcard keyboard shortcut k to flip' -->
     <button class='flashcard'>
         <div class='flashcard-inner'>
             <div class='flex-centered flashcard-front'>
-                <p class='flex-centered'>Flashcard Front</p>
+                <p class='sr-only'>Flashcard Front</p>
+                <p class='flex-centered flashcard-text'>Flashcard Front Text</p>
                 <!-- <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p> -->
             </div>
-            <div class='flex-centered flashcard-back'>
-                <p class='flex-centered'>Flashcard Back</p>
-            </div>
+            <section inert='true' class='flex-centered flashcard-back'>
+                <p class='sr-only'>Flashcard Back</p>
+                <p class='flex-centered flashcard-text'>Flashcard Back Text</p>
+            </section>
         </div>
     </button>
     <!-- </div> -->
@@ -522,12 +527,16 @@
             e.onclick = () => {
                 if (e.classList.contains('flipped')) {
                     e.classList.remove('flipped');
+                    e.querySelector('.flashcard-front').inert = false;
+                    e.querySelector('.flashcard-back').inert = true;
                 } else {
                     e.classList.add('flipped');
+                    e.querySelector('.flashcard-front').inert = true;
+                    e.querySelector('.flashcard-back').inert = false;
                 }
             };
-            e.querySelector('.flashcard-front > p').textContent = card.L1;
-            e.querySelector('.flashcard-back > p').textContent = card.L2;
+            e.querySelector('.flashcard-front > .flashcard-text').textContent = card.L1;
+            e.querySelector('.flashcard-back > .flashcard-text').textContent = card.L2;
             flashcardWrapper.appendChild(e);
             vocabFlashcardElems.push(e);
         });
@@ -599,9 +608,8 @@
 
     // TODO: convert next/prev set buttons to nav links?
     // TODO: accessibility
-        // focus-visible UI
-        // test out screen reader and keyboard nav (once windows fixes narrator)
-        // prevent screen reader from reading backs of cards when not visible
+        // "close menu" button after nav menu
+        // nav menu focus trap
 
     // long term stuff...
         // TODO: scrollable overflow
