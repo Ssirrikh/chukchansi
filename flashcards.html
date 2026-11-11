@@ -276,16 +276,18 @@
                     <li><a href='speaking-dictionary'>Speaking Dictionary</a></li>
                     <li><a href='pdf-dictionary'>PDF Dictionary</a></li>
                     <li><a href='stories'>Story Reader</a></li>
+                    <li><a href='flashcards'>Flashcards</a></li>
                     <li><a href='wordsearch'>Wordsearch</a></li>
                 </ul>
             </div>
+            <button id='nav-close' class='flex-grow' aria-label='Close menu'></button>
         </div>
     </nav>
     <!-- PAGE CONTENT -->
     <main id='content' class='flex-row flex-grow'>
         <div id='panel-left' class='flex-col'>
             <div class='flex-col flex-shrink flex-grow panel-content'>
-                <section id='vocab-sets' class='flex-col' tabindex='0' aria-label='Flashcard sets'>
+                <section id='vocab-sets' class='flex-col' aria-label='Flashcard sets'>
                     <div class='flex-col flex-centered loading-wrapper'>
                         <p class='loading-text'>Loading Flashcard Sets...</p>
                         <div class='loading-animation-track loading-light'>
@@ -607,9 +609,7 @@
     });
 
     // TODO: convert next/prev set buttons to nav links?
-    // TODO: accessibility
-        // "close menu" button after nav menu
-        // nav menu focus trap
+    // TODO: nav menu focus trap
 
     // long term stuff...
         // TODO: scrollable overflow

@@ -131,6 +131,9 @@ body {
     top: 100%;
     left: 0;
 
+    /* override "navbar > * { align-items:center }", which causes flex-grow to have no effect on children */
+    align-items: normal;
+
     /* initially hidden, revealed on hover/tap */
     visibility: hidden;
 }
@@ -173,6 +176,9 @@ body {
     padding: 0.15em 0.75em;
     font-size: 0.8em;
     opacity: 50%;
+}
+#nav-close:focus-visible {
+    outline: auto;
 }
 
 .nav-arrow {

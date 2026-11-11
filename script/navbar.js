@@ -38,6 +38,9 @@
         console.warn('Unable to find navbar. Event listeners not attached.');
     } else {
         window.addEventListener('click', toggleNav);
+        window.addEventListener('keydown', evt => {
+            if (evt.key === 'Escape') navWrapper.style.visibility = 'hidden';
+        });
         // window.addEventListener('pointerdown', toggleNav); // TODO: handles swipe events on mobile, but clicks go through modal
     }
     // TODO: re-impl hover==tap touchscreen behavior in Safari browser
