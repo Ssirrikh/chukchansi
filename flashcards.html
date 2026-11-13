@@ -70,7 +70,7 @@
             background-color: var(--bg-inset);
         }
         .vocab-set.active {
-            background-color: #fffa;
+            background-color: var(--bg-hover-white);
             border-radius: 0 0.3em 0.3em 0;
             box-shadow: inset 5px 0 0 0 var(--bg-nav);
         }
@@ -85,10 +85,14 @@
             min-height: 2em;
         }
         .vocab-set-nav {
+            color: inherit;
+            border-radius: 0.25em;
+            padding: 0.2em;
             gap: 0.5em;
+            text-decoration: none;
         }
         .vocab-set-nav:hover {
-            background-color: #fff3;
+            background-color: var(--bg-hover-light);
         }
         .vocab-set-nav:focus-visible {
             outline: medium solid var(--text-dark);
@@ -104,8 +108,14 @@
             color: var(--text-medium);
             font-size: 0.8em;
         }
+        #vocab-prev {
+            padding-right: 0.5em;
+        }
         #vocab-prev p {
             text-align: left;
+        }
+        #vocab-next {
+            padding-left: 0.5em;
         }
         #vocab-next p {
             text-align: right;
@@ -145,7 +155,7 @@
             grid-area: 1 / 1;
             place-self: center;
             opacity: 1;
-            transition: opacity 0.5s, transform 0.5s;
+            transition: opacity 0.5s, transform 0.2s;
         }
         #flashcard-wrapper > .flashcard.to-left {
             opacity: 0;
@@ -166,8 +176,6 @@
             /* min-height: 12em; */
             aspect-ratio: 20 / 12;
             perspective: 1000px;
-
-            transition: transform 0.3s;
             transform-style: preserve-3d;
         }
         .flashcard-inner {
@@ -242,7 +250,7 @@
             width: 70%;
         }
         .flashcard-controls > .icon-svg:hover {
-            background-color: #fff5;
+            background-color: var(--bg-hover-light);
         }
         .flashcard-controls > .icon-svg:focus-visible {
             outline: medium solid var(--text-dark);
@@ -261,10 +269,10 @@
     <!-- TOP NAVBAR -->
     <nav id='navbar' class='flex-row-centered' role='navigation' aria-label='Top Level'>
         <h1>Chukchansi Flashcards</h1>
+        <!-- <a id='nav-skip' class='show-on-focus' href='flashcards#main-content'>Skip to content</a> -->
         <div class='flex-sep'></div>
-        <button id='nav-target' role='button' class='flex-row' title='Expand and collapse menu' aria-expanded='false'>
+        <button id='nav-target' class='flex-row' title='Expand and collapse menu' aria-expanded='false'>
             <p class='desktop-only'>Menu</p>
-            <!-- <button class='icon-svg icon-hamburger'></button> -->
             <div class='icon-svg icon-hamburger'></div>
         </button>
         <div id='nav-adaptive-wrapper' class='flex-adapt'>
@@ -284,7 +292,7 @@
         </div>
     </nav>
     <!-- PAGE CONTENT -->
-    <main id='content' class='flex-row flex-grow'>
+    <main id='main-content' class='flex-row flex-grow'>
         <div id='panel-left' class='flex-col'>
             <div class='flex-col flex-shrink flex-grow panel-content'>
                 <section id='vocab-sets' class='flex-col' aria-label='Flashcard sets'>
@@ -298,28 +306,28 @@
                 </section>
             </div>
             <div class='flex-col panel-nav mobile-only'>
-                <button id='goto-right' class='btn-primary'>Colors</button>
+                <button id='goto-right' class='btn-primary'>View Flashcards</button>
             </div>
         </div>
         <div id='panel-right' class='flex-col flex-grow flex-shrink'>
             <div class='flex-col flex-shrink flex-grow panel-content'>
                 <div class='flex-col'>
-                    <section id='vocab-quick-nav' class='flex-row' aria-label='Flashcard set quick navigation'>
-                        <button id='vocab-prev' class='flex-row-centered vocab-set-nav hidden' aria-label='Previous flashcard set'>
+                    <section id='vocab-quick-nav' class='flex-row' aria-label='Quick navigation'>
+                        <a id='vocab-prev' class='flex-row-centered vocab-set-nav hidden' href='' aria-label='Previous flashcard set'>
                             <div class='icon-svg icon-arrow-left'></div>
                             <div class='flex-col'>
                                 <p class='vocab-nav-set'>Prev Vocab Set</p>
                                 <p class='vocab-nav-label' aria-hidden='true'>Prev</p>
                             </div>
-                        </button>
+                        </a>
                         <div class='flex-sep'></div>
-                        <button id='vocab-next' class='flex-row-centered vocab-set-nav hidden' aria-label='Next flashcard set'>
+                        <a id='vocab-next' class='flex-row-centered vocab-set-nav hidden' href='' aria-label='Next flashcard set'>
                             <div class='flex-col'>
                                 <p class='vocab-nav-set'>Next Vocab Set</p>
                                 <p class='vocab-nav-label' aria-hidden='true'>Next</p>
                             </div>
                             <div class='icon-svg icon-arrow-right'></div>
-                        </button>
+                        </a>
                     </section>
                     <h2 id='flashcard-set-title'>Loading Flashcards...</h2>
                     <div id='flashcard-progress' aria-hidden='true'></div>
@@ -459,18 +467,22 @@
                 vocabSetElems[i].classList.remove('active');
             }
         }
-        // prev/next set nav buttons (right panel)
+        // prev/next set nav buttons (right panel), with fallback href navigation if JS is disabled
         vocabPrev.querySelector('.vocab-nav-set').textContent = vocab.manifest[vocab.activeSet-1 - 1]?.title || '';
         vocabNext.querySelector('.vocab-nav-set').textContent = vocab.manifest[vocab.activeSet-1 + 1]?.title || '';
         if (vocab.activeSet <= 1) {
             vocabPrev.classList.add('hidden');
+            vocabPrev.href = '';
         } else {
             vocabPrev.classList.remove('hidden');
+            vocabPrev.href = `flashcards?set=${vocab.activeSet-1}`;
         }
         if (vocab.activeSet >= vocab.manifest.length) {
             vocabNext.classList.add('hidden');
+            vocabNext.href = '';
         } else {
             vocabNext.classList.remove('hidden');
+            vocabNext.href = `flashcards?set=${vocab.activeSet+1}`;
         }
         return true;
     };
@@ -505,6 +517,7 @@
     vocabNext.onclick = nextVocabSet;
 
     // active vocab cards (right panel)
+    const gotoRight = document.querySelector('#goto-right');
     const flashcardSetTitle = document.querySelector('#flashcard-set-title');
     const flashcardProgress = document.querySelector('#flashcard-progress');
     const flashcardWrapper = document.querySelector('#flashcard-wrapper');
@@ -523,6 +536,7 @@
         }
         // set title
         flashcardSetTitle.textContent = vocab.activeSetData.title || 'Untitled';
+        gotoRight.textContent = vocab.activeSetData.title || 'Untitled';
         // populate flashcards
         vocab.forEachFlashcard((card,i) => {
             let e = document.querySelector('#tpl-flashcard').content.firstElementChild.cloneNode(true);
@@ -608,12 +622,15 @@
         }
     });
 
-    // TODO: convert next/prev set buttons to nav links?
-    // TODO: nav menu focus trap
+    // TODO: convert navbar.js to proper module
+    // TODO: FIX clicking skip-to-content link does nothing (href='#main-content')
+        // #main-content selector prob getting overridden by vocab.js url param handling?
 
     // long term stuff...
         // TODO: scrollable overflow
         // TODO: images and audio, link to dictionary entry
+        // TODO: touch swiping between flashcards, and between left/right panel
+        // TODO: nav menu focus trap
         // TODO: display error message on failure to load resource
     
 

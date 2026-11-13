@@ -22,6 +22,8 @@
     --bg-inset: #dbb78f; /* vibrant */
     --bg-medium: #bfa07e; /* muted */
     --bg-dark: #ad8e6c; /* fractionally darker than medium */
+    --bg-hover-light: #fff5;
+    --bg-hover-white: #fffa;
     --text-dark: #4f3a09;
     --text-medium: #806d46;
     --text-light: #fdf7ea;
@@ -177,6 +179,11 @@ body {
     font-size: 0.8em;
     opacity: 50%;
 }
+#nav-skip {
+    color: white;
+    background-color: dodgerblue;
+    padding: 1em 0.2em;
+}
 #nav-close:focus-visible {
     outline: auto;
 }
@@ -210,7 +217,7 @@ body {
     min-height: 100dvh;
     min-height: 100vh;
 }
-#content {
+#main-content {
     /* border: thin solid blue; */
     margin-top: var(--nav-height);
     margin-bottom: var(--footer-height);
