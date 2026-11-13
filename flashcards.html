@@ -444,6 +444,7 @@
                 console.log(`Loading vocab set ${i} "${vocabSet.title || 'Untitled'}"...`);
                 vocab.loadVocab(i, () => {
                     console.log(`DONE in ${Math.round(performance.now()-t0_loadVocab)} ms`);
+                    nav.focusRight();
                     renderVocabSets();
                     populateFlashcards();
                     renderFlashcards();
@@ -486,26 +487,30 @@
         }
         return true;
     };
-    const prevVocabSet = () => {
+    const prevVocabSet = evt => {
         if (!isVocabManifestLoaded()) {
             console.error('No manifest loaded. Cannot select vocab sets.');
             return false;
         }
         if (vocab.activeSet <= 1) return true;
+        evt.preventDefault(); // if JS is enabled, block normal <a> nav in favor of fast SPA nav
         vocab.loadVocab(vocab.activeSet - 1, () => { // loadVocab() performs input validation on set id
+            nav.focusRight();
             renderVocabSets();
             populateFlashcards();
             renderFlashcards();
         });
         return true;
     };
-    const nextVocabSet = () => {
+    const nextVocabSet = evt => {
         if (!isVocabManifestLoaded()) {
             console.error('No manifest loaded. Cannot select vocab sets.');
             return false;
         }
         if (vocab.activeSet >= vocab.manifest.length) return true;
+        evt.preventDefault(); // if JS is enabled, block normal <a> nav in favor of fast SPA nav
         vocab.loadVocab(vocab.activeSet + 1, () => { // loadVocab() performs input validation on set id
+            nav.focusRight();
             renderVocabSets();
             populateFlashcards();
             renderFlashcards();
@@ -622,7 +627,7 @@
         }
     });
 
-    // TODO: convert navbar.js to proper module
+    // TODO: clicking vocab set or next/prev set buttons should run nav.focusRight()
     // TODO: FIX clicking skip-to-content link does nothing (href='#main-content')
         // #main-content selector prob getting overridden by vocab.js url param handling?
 
