@@ -400,10 +400,10 @@
 
 <!-- SCRIPTS -->
 
-<!-- cross-platform navbar behavior -->
-<script type='text/javascript' src='script/navbar.js'></script>
+<!-- <script type='text/javascript' src='script/navbar.js'></script> -->
 <!-- <script type='module' src='assets/js/vocab.js'></script> -->
 <script type='module'>
+    import nav from './assets/js/nav.js';
     import vocab from './assets/js/vocab.js';
 
     const isVocabManifestLoaded = () => !vocab.loading && Array.isArray(vocab.manifest) && vocab.manifest.length > 0; // doesn't handle actually-empty manifest
