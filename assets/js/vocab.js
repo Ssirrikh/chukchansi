@@ -56,11 +56,10 @@ const setParamsFrom = (vocabSet) => {
         return false;
     }
     vocabSet = Math.min(Math.max(0, vocabSet), vocabManifest.length-1);
-    // preserve existing params to ensure only target param(s) modified
-    const params = new URLSearchParams(window.location.search);
-    params.set('set', vocabSet);
-    // construct url param string
-    history.pushState({}, '', `?${params.toString()}`);
+    // set single param while preserving other params/frags/etc
+    let url = new URL(window.location.href);
+    url.searchParams.set('set',vocabSet);
+    history.pushState({}, '', url);
     return true;
 };
 const activateInitialVocabSet = () => {

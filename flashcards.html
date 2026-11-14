@@ -269,7 +269,7 @@
     <!-- TOP NAVBAR -->
     <nav id='navbar' class='flex-row-centered' role='navigation' aria-label='Top Level'>
         <h1>Chukchansi Flashcards</h1>
-        <!-- <a id='nav-skip' class='show-on-focus' href='flashcards#main-content'>Skip to content</a> -->
+        <a id='nav-skip' class='show-on-focus' href='#main-content'>Skip to content</a>
         <div class='flex-sep'></div>
         <button id='nav-target' class='flex-row' title='Expand and collapse menu' aria-expanded='false'>
             <p class='desktop-only'>Menu</p>
@@ -444,7 +444,7 @@
                 console.log(`Loading vocab set ${i} "${vocabSet.title || 'Untitled'}"...`);
                 vocab.loadVocab(i, () => {
                     console.log(`DONE in ${Math.round(performance.now()-t0_loadVocab)} ms`);
-                    nav.focusRight();
+                    nav.focusPanelRight();
                     renderVocabSets();
                     populateFlashcards();
                     renderFlashcards();
@@ -493,9 +493,9 @@
             return false;
         }
         if (vocab.activeSet <= 1) return true;
-        evt.preventDefault(); // if JS is enabled, block normal <a> nav in favor of fast SPA nav
+        evt?.preventDefault(); // if JS is enabled, block normal <a> nav in favor of fast SPA nav
         vocab.loadVocab(vocab.activeSet - 1, () => { // loadVocab() performs input validation on set id
-            nav.focusRight();
+            nav.focusPanelRight();
             renderVocabSets();
             populateFlashcards();
             renderFlashcards();
@@ -508,9 +508,9 @@
             return false;
         }
         if (vocab.activeSet >= vocab.manifest.length) return true;
-        evt.preventDefault(); // if JS is enabled, block normal <a> nav in favor of fast SPA nav
+        evt?.preventDefault(); // if JS is enabled, block normal <a> nav in favor of fast SPA nav
         vocab.loadVocab(vocab.activeSet + 1, () => { // loadVocab() performs input validation on set id
-            nav.focusRight();
+            nav.focusPanelRight();
             renderVocabSets();
             populateFlashcards();
             renderFlashcards();
@@ -626,10 +626,6 @@
             }
         }
     });
-
-    // TODO: clicking vocab set or next/prev set buttons should run nav.focusRight()
-    // TODO: FIX clicking skip-to-content link does nothing (href='#main-content')
-        // #main-content selector prob getting overridden by vocab.js url param handling?
 
     // long term stuff...
         // TODO: scrollable overflow
