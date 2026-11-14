@@ -36,23 +36,17 @@ const navItems = document.getElementById('nav-items'); // inner container holdin
 const EMBEDDED_CTX_SELECTOR = 'iframe, object[type="application/pdf"], embed[type="application/pdf"]';
 // events
 const toggleNav = evt => {
-    // evt.preventDefault();
-    // if (navWrapper.style.visibility === 'visible') {
-    //     // nav menu already open => close if we click outside it, or explicitly click the toggle button
-    //     if (!navItems.contains(evt.target)) navWrapper.style.visibility = 'hidden';
-    // } else {
-    //     // nav menu is closed => open it if we clicked the toggle button
-    //     if (navTarget.contains(evt.target)) navWrapper.style.visibility = 'visible';
-    // }
     // nav menu already open => close if we click outside it, or explicitly click the toggle button
     if (navWrapper.style.visibility === 'visible' && !navItems.contains(evt.target)) {
         evt.preventDefault();
         navWrapper.style.visibility = 'hidden';
+        navTarget.ariaExpanded = 'false';
     }
     // nav menu is closed => open it if we clicked the toggle button
     else if (navWrapper.style.visibility !== 'visible' && navTarget.contains(evt.target)) {
         evt.preventDefault();
         navWrapper.style.visibility = 'visible';
+        navTarget.ariaExpanded = 'true';
     }
 }
 const openNav = evt => {
@@ -123,17 +117,17 @@ if (!footer) {
 
 // DOM anchors
 const panelRight = document.getElementById('panel-right');
-const btnGotoRight = document.getElementById('goto-right');
-const btnGotoLeft = document.getElementById('goto-left');
+const gotoRight = document.getElementById('goto-right');
+const gotoLeft = document.getElementById('goto-left');
 // events
-const focusRight = () => {
+const focusPanelRight = () => {
     if (!panelRight) {
         console.warn('Unable to find 2-panel layout. Nothing to focus.');
     } else {
         panelRight.classList.add('focus');
     }
 };
-const focusLeft = () => {
+const focusPanelLeft = () => {
     if (!panelRight) {
         console.warn('Unable to find 2-panel layout. Nothing to focus.');
     } else {
@@ -141,12 +135,12 @@ const focusLeft = () => {
     }
 };
 
-if (!panelRight || !btnGotoRight || !btnGotoLeft) {
+if (!panelRight || !gotoRight || !gotoLeft) {
     console.warn('Unable to find 2-panel nav buttons. Event listeners not attached.');
 } else {
     // add panel-switching to panel nav buttons, if found
-    btnGotoRight.onclick = focusRight;
-    btnGotoLeft.onclick = focusLeft;
+    gotoRight.onclick = focusPanelRight;
+    gotoLeft.onclick = focusPanelLeft;
 }
 
 
@@ -155,5 +149,5 @@ if (!panelRight || !btnGotoRight || !btnGotoLeft) {
     
 export default {
     openNav, closeNav,
-    focusLeft, focusRight
+    focusPanelLeft, focusPanelRight
 }
