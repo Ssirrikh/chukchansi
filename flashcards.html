@@ -370,18 +370,13 @@
 <!-- TEMPLATES -->
 
 <template id='tpl-vocab-set'>
-    <!-- <button class='flex-row-centered vocab-set'>
-        <span class='vocab-number'>0</span>
-        <span class='vocab-title'>Vocab Set</span>
-    </button> -->
     <a class='flex-row-centered vocab-set'>
         <span class='vocab-number'>0</span>
         <span class='vocab-title'>Vocab Set</span>
     </a>
 </template>
 <template id='tpl-flashcard'>
-    <!-- <div class='flashcard' role='button' tabindex='0'> -->
-        <!--  aria-keyshortcuts='k' aria-label='Flashcard keyboard shortcut k to flip' -->
+    <!--  aria-keyshortcuts='k' aria-label='Flashcard keyboard shortcut k to flip' -->
     <button class='flashcard'>
         <div class='flashcard-inner'>
             <div class='flex-centered flashcard-front'>
@@ -395,7 +390,6 @@
             </section>
         </div>
     </button>
-    <!-- </div> -->
 </template>
 
 <!-- SCRIPTS -->
@@ -633,7 +627,6 @@
         // TODO: touch swiping between flashcards, and between left/right panel
         // TODO: nav menu focus trap
         // TODO: display error message on failure to load resource
-    
 
     // init
     vocab.loadManifest(() => {
