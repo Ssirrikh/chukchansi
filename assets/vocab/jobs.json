@@ -1,0 +1,39 @@
+{
+    "title" : "Jobs and Professions",
+    "thumbnail" : "thumbnail.jpg",
+    "words" : [
+        { "L1": "basket maker", "L2": "t'eewisha diʔsham'", "image": "", "audio": "", "note": "lit. one who knows how to make baskets well" },
+        { "L1": "hunter", "L2": "yuhach'", "image": "", "audio": "", "note": "" },
+        { "L1": "house builder", "L2": "xoʔo diʔsham'", "image": "", "audio": "", "note": "" },
+        { "L1": "spirit doctor / medicine man", "L2": "chipneʔ", "image": "", "audio": "", "note": "" },
+
+        { "L1": "storyteller", "L2": "washach'", "image": "", "audio": "", "note": "" },
+        { "L1": "dancer", "L2": "wodyiyin", "image": "", "audio": "", "note": "lit. one who dances a lot" },
+        { "L1": "singer", "L2": "hataamich'", "image": "", "audio": "", "note": "lit. one who knows how to sing well" },
+        { "L1": "funeral ceremony singer", "L2": "ʔahnaayich'", "image": "", "audio": "", "note": "" },
+
+        { "L1": "boss", "L2": "ʔaamuʔ", "image": "", "audio": "", "note": "generic term" },
+        { "L1": "employee / worker", "L2": "dawhalich'", "image": "", "audio": "", "note": "generic term" },
+        { "L1": "receptionist", "L2": "gaabinich' / geewich'", "image": "", "audio": "", "note": "" },
+        { "L1": "caretaker", "L2": "goyeeyich'", "image": "", "audio": "", "note": "" },
+
+        { "L1": "cowboy", "L2": "wokeelaʔ", "image": "", "audio": "", "note": "" },
+        { "L1": "babysitter / shepherd", "L2": "deyeelich'", "image": "", "audio": "", "note": "literal translation is closer to 'person who watches over' or 'guardian'" },
+        { "L1": "police / sheriff / security guard", "L2": "galdiʔ", "image": "", "audio": "", "note": "from Spanish 'garda'" },
+        { "L1": "firefighter", "L2": "ʔoshto shaapach'", "image": "", "audio": "", "note": "" },
+
+        { "L1": "doctor", "L2": "dokton'", "image": "", "audio": "", "note": "from Spanish doctor/doctora" },
+        { "L1": "lawyer", "L2": "ʔepeesich'", "image": "", "audio": "", "note": "" },
+        { "L1": "pilot", "L2": "huwsheyich' hoy'noʔon", "image": "", "audio": "", "note": "lit. driver of plane" },
+
+        { "L1": "chef", "L2": "gosneenoʔ", "image": "", "audio": "", "note": "" },
+        { "L1": "farmer", "L2": "woyʔich'", "image": "", "audio": "", "note": "" },
+        { "L1": "fisherman", "L2": "lopsilich'", "image": "", "audio": "", "note": "" },
+
+        { "L1": "preacher", "L2": "badleʔ", "image": "", "audio": "", "note": "from Spanish Padre" },
+        { "L1": "money counter", "L2": "k'eexaʔan pich'ach'", "image": "", "audio": "", "note": "" },
+        { "L1": "card dealer (at a casino)", "L2": "xilach'", "image": "", "audio": "", "note": "" },
+        { "L1": "ball player", "L2": "ʔap'ooma hik'eeyich'", "image": "", "audio": "", "note": "" },
+        { "L1": "runner", "L2": "lihmimin", "image": "", "audio": "", "note": "lit. one who runs a lot" }
+    ]
+}
