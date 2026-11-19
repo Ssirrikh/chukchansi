@@ -1,0 +1,28 @@
+{
+    "title" : "Animals Pt. 3 (Insects and Crawlies)",
+    "thumbnail" : "thumbnail.jpg",
+    "words" : [
+        { "L1": "stinkbug", "L2": "siksikaʔ", "image": "", "audio": "", "note": "" },
+        { "L1": "ant", "L2": "k'eenich'", "image": "", "audio": "", "note": "generic term for any kind of ant" },
+        { "L1": "black ant", "L2": "pat'aakaʔ", "image": "", "audio": "", "note": "" },
+        { "L1": "bee / yellow-jacket", "L2": "bawnay'", "image": "", "audio": "", "note": "" },
+        { "L1": "caterpillar", "L2": "huuyaʔ", "image": "", "audio": "", "note": "" },
+        { "L1": "butterfly", "L2": "waalapsuʔ", "image": "", "audio": "", "note": "" },
+        { "L1": "cricket", "L2": "jul'julnaʔ", "image": "", "audio": "", "note": "" },
+        { "L1": "grasshopper", "L2": "ch'aaniwish", "image": "", "audio": "", "note": "" },
+        { "L1": "mosquito", "L2": "k'oolapiʔ", "image": "", "audio": "", "note": "" },
+        { "L1": "head lice", "L2": "patis", "image": "", "audio": "", "note": "head lice and body lice have different names" },
+        { "L1": "body louse", "L2": "badach'", "image": "", "audio": "", "note": "head lice and body lice have different names" },
+        { "L1": "fly", "L2": "k'amaasiʔ", "image": "", "audio": "", "note": "" },
+        { "L1": "doodlebug", "L2": "howiinaʔ", "image": "", "audio": "", "note": "[what species does this refer to?]" },
+        { "L1": "spider (fuzzy)", "L2": "shoy'shoyich'", "image": "", "audio": "", "note": "lit. the fuzzy one" },
+        { "L1": "spider (weaver)", "L2": "sheleewich'", "image": "", "audio": "", "note": "lit. one who weaves" },
+        { "L1": "tarantula", "L2": "shaʔlalluʔ", "image": "", "audio": "", "note": "" },
+        { "L1": "daddy long legs", "L2": "t'alwash", "image": "", "audio": "", "note": "" },
+        { "L1": "black widow", "L2": "meech'aʔ", "image": "", "audio": "", "note": "" },
+        { "L1": "worm", "L2": "wik'wik'", "image": "", "audio": "", "note": "" },
+        { "L1": "inchworm", "L2": "honok'honok'", "image": "", "audio": "", "note": "" },
+        { "L1": "earthworm", "L2": "k'ew'", "image": "", "audio": "", "note": "" },
+        { "L1": "millipede", "L2": "ʔitwayuʔ", "image": "", "audio": "", "note": "" }
+    ]
+}
