@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html lang='en' xml:lang='en'>
+<head>
+	<meta charset = 'utf-8'>
+	<title>Chukchansi Story Reader</title>
+    <meta name='robots' content='index, follow'>
+    <meta name='description' content='Traditional Chukchansi stories and legends told by a native speaker in an interactive read-along web app.'>
+	<meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' href='style/common-min.css'>
+    <link rel='stylesheet' href='style/components.css'>
+    <style>
+        /**** SITE LAYOUT ****/
+
+        #content { /* fullscreen container so subpanels can position:sticky independently of each other */
+            background-color: var(--bg-light);
+            min-height: calc(100vh - var(--nav-height));
+            gap: var(--content-pad);
+        }
+
+
+
+
+		#selection-panel { /* left/top panel: select story */
+            border: thin solid red;
+            color: var(--text-dark);
+            background-color: var(--bg-light);
+            background-color: var(--bg-inset);
+            /* border-radius: 0.5em; */
+            /* filter: drop-shadow(var(--popout-shadow)); */
+            /* box-shadow: var(--popout-shadow); */
+            z-index: var(--layer-front); /* ensure shadow correctly overlays neighboring content */
+
+            display: inline-block;
+            margin-top: var(--content-pad);
+            max-width: calc(100vw - 2 * var(--content-pad));
+            /* max-height: 50vh; /* if added here, cannot be overridden by media query for some reason */
+            overflow-x: hidden;
+            overflow-y: scroll;
+        }
+        #reader-panel { /* right/bottom panel: view story */
+            border: thin solid blue;
+            color: var(--text-dark);
+            background-color: var(--bg-light);
+
+            position: relative; /* allow children to anchor */
+            scroll-margin-top: var(--nav-height); /* adjust for navbar when auto-scrolling */
+            flex-grow: 1;
+        }
+
+        /**** STORY SELECTION PANEL ****/
+
+        #selection-panel-title {
+            color: var(--text-nav);
+            background-color: var(--bg-nav);
+            /* background-color: var(--border-nav); */
+
+            position: sticky;
+            top: 0;
+            padding: 0.25em 0.5em;
+            margin-bottom: 0.5em;
+
+            /* unstyle <h2> */
+            font-size: 1.0em;
+            line-height: 1.0em;
+            font-weight: normal;
+        }
+        .selection-panel-row {
+            cursor: pointer;
+            border-radius: 0.25em;
+            margin: 0 0.5em;
+            padding: 0.25em;
+            gap: 0.5em;
+            align-items: center;
+        }
+        .selection-panel-row + .selection-panel-row {
+            margin-top: 2px;
+        }
+        .selection-greyed-out {
+            cursor: default;
+            opacity: 0.5;
+        }
+        .selection-panel-story-thumbnail {
+            --w: 2.0em;
+            background-color: var(--bg-nav);
+            border: 1px solid transparent;
+
+            width: var(--w);
+            height: var(--w);
+            flex-shrink: 0;
+        }
+        .selection-panel-story-title {
+            font-size: 0.8em;
+        }
+        .selection-panel-story-subtitle {
+            color: var(--text-medium);
+            font-size: 0.6em;
+            /* opacity: 0.7; */
+        }
+        .selected-story-row {
+            background-color: var(--bg-inset);
+        }
+
+        /**** MAIN STORY READER ****/
+
+        #reader-subtitle {
+            /*margin-top: -0.5em; /* negate flexbox gap between title/subtitle */
+            font-size: 0.8em;
+            text-align: center;
+        }
+        #reader-content {
+            margin-top: 1.0em;
+            font-size: 1.0em;
+            text-wrap: wrap;
+            text-align: center;
+
+            gap: 0.75em;
+        }
+        .reader-section + .reader-section {
+            margin-top: 0.5em;
+        }
+        .reader-section {
+            display: inline;
+        }
+        .reader-section-translation {
+            display: inline;
+            font-size: 0.8em;
+            font-style: italic;
+        }
+        .reader-highlight {
+            background-color: var(--bg-inset);
+        }
+        
+        #reader-end {
+            background-color: var(--bg-inset);
+
+            margin-top: 1.0em;
+            padding: var(--content-pad);
+            gap: var(--content-pad);
+        }
+        #reader-downloads {
+            /* border: 1px solid blue; */
+            width: 100%;
+            padding: 0 0.5em;
+            font-size: 0.8em;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5em;
+        }
+        #reader-downloads > p {
+            /* font-size: 0.8em; */
+        }
+        #reader-downloads > div {
+            gap: 0.5em;
+        }
+        #reader-downloads > div > a {
+            cursor: pointer;
+            color: var(--text-nav);
+            background-color: var(--bg-nav-selected);
+            border-radius: 1em;
+            filter: drop-shadow(var(--popout-shadow));
+            padding: 0.25em 0.75em;
+            text-decoration: none;
+        }
+        #reader-downloads > div > a:hover {
+            text-decoration: underline;
+        }
+        #reader-nav {
+            /* border: 1px solid red; */
+            width: 100%;
+            align-items: center;
+            justify-content: space-around;
+            gap: var(--content-pad);
+        }
+        #reader-nav > button {
+            cursor: pointer;
+            background-color: var(--bg-light);
+            /* border-radius: 1.0em; */
+            /* filter: drop-shadow(0 0 4px #0004); */
+            filter: drop-shadow(var(--popout-shadow));
+            padding: 0.25em 1.0em;
+
+            /* width: 100%; /* temp turned off cuz it overflows window */
+            font-size: 1.0em; /* need to explicitly set font-size on buttons to avoid "readability adjustment" that makes text tiny */
+        }
+        #reader-nav > button:hover {
+            /* color: var(--text-nav); */
+            /* background-color: var(--bg-nav-selected); */
+            text-decoration: underline;
+        }
+
+        /**** AUDIO PLAYER UI ****/
+
+        .player-panel {
+            color: var(--text-dark);
+            background-color: var(--bg-inset);
+            filter: drop-shadow(var(--popout-shadow));
+
+            position: sticky;
+            padding: 0.5em;
+            /* top: var(--nav-height); */
+            
+            border: 0.2em solid var(--border-dark);
+            border-radius: 1em;
+            margin: var(--content-pad);
+            top: calc(var(--content-pad) + var(--nav-height));
+            width: calc(100vw - 2 * var(--content-pad)); /* prevent panel from shrinking horizontally on mobile if content is skinny */
+
+            justify-content: center;
+            align-items: center;
+        }
+        .player-controls {
+            margin-top: 0.5em;
+            gap: 1.5em;
+            justify-content: center;
+            align-items: center;
+        }
+        .player-button-small {
+            /* mobile browsers mess w/ buttons to "make them big enought to click" but fail epically; need to set both height and font-size to override */
+            --button-size-small: 1.1em;
+            cursor: pointer;
+            width: var(--button-size-small);
+            height: var(--button-size-small);
+            font-size: var(--button-size-small);
+        }
+        .player-button-large {
+            /* mobile browsers mess w/ buttons to "make them big enought to click" but fail epically; need to set both height and font-size to override */
+            --button-size-large: 1.2em;
+            cursor: pointer;
+            width: var(--button-size-large);
+            height: var(--button-size-large);
+            font-size: var(--button-size-large);
+        }
+        .player-progress-text {
+            width: 12em;
+            font-size: 0.8em;
+        }
+        #player-progress {
+            cursor: pointer;
+            background-color: transparent;
+
+            display: inline-block;
+            position: relative;
+            width: 12em;
+            height: 0.4em;
+            font-size: 0.8em;
+        }
+        #player-progress-background {
+            background-color: var(--bg-medium);
+
+            display: block;
+            position: absolute;
+            width: 100%;
+            height: 0.2em;
+            top: 50%;
+            transform: translate(0,-50%);
+        }
+        #player-progress-bar {
+            background-color: var(--text-dark);
+
+            display: block; /* if not set to display:block, element will appear outside of parent, offset down by 3x its height; no clue why; google/gpt says flexbox doesn't play nice with display:inline-block and I should just avoid using them together */
+            position: relative;
+            width: 50%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+        #player-progress-slider {
+            cursor: pointer;
+            background-color: var(--bg-nav);
+
+            display: inline-block;
+            position: absolute;
+            width: 0.5em;
+            height: 0.5em;
+            top: 50%;
+            right: 0;
+            transform: translate(50%,-50%) rotate(45deg);
+        }
+
+
+
+        /**** PLAYER LOADING SCREEN ****/
+
+        #player-loading-screen {
+            background-color: var(--bg-inset);
+
+            position: absolute;
+            padding: 0.25em;
+            width: calc(100% - 0.25em - 0.25em);
+            height: calc(100% - 0.25em - 0.25em);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%,-50%);
+
+            gap: 2.0em;
+            align-items: center;
+        }
+
+
+
+        /**** MEDIA PLAYER ****/
+
+        #media-bar {
+            color: var(--text-nav);
+            background-color: var(--bg-nav);
+            background: var(--bg-nav-gradient);
+            z-index: var(--layer-front);
+
+            position: sticky;
+            bottom: 0;
+            width: 100%;
+            padding: 0.3em;
+            
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        #media-bar button {
+            border-radius: 0.3em;
+            width: 2em;
+            height: 2em;
+        }
+        #media-bar button:hover {
+            background-color: var(--tint-nav);
+        }
+        #media-bar button::after {
+            background-color: var(--text-nav);
+        }
+
+        /* mobile-only UI */
+
+        #media-controls-mobile {
+            width: 100%;
+        }
+        #media-controls-mobile > p {
+            font-size: 0.8em;
+            text-decoration: underline;
+        }
+
+        /* now-playing title and thumbnail */
+
+        #media-titles {
+            gap: 0.3em;
+        }
+        #media-thumbnail-mobile {
+            width: 2.5em;
+            aspect-ratio: 1;
+        }
+        #media-thumbnail-desktop {
+            width: 4em;
+            aspect-ratio: 1;
+        }
+
+        #media-title-CHK, #media-title-ENG {
+            width: 100%;
+            text-align: center;
+            flex-shrink: 1;
+        }
+        #media-title-CHK {
+            font-size: 1.2em;
+        }
+        #media-title-ENG {
+            color: var(--bg-inset);
+            font-size: 0.8em;
+        }
+
+        /* media player */
+
+        #media-player {
+            width: 100%;
+            max-width: 20em;
+
+            gap: 0.3em;
+        }
+
+        #media-buttons {
+            align-items: end;
+        }
+        #media-play-pause::after {
+            width: 80%;
+            height: 80%;
+        }
+        #media-jump-prev::after, #media-jump-next::after {
+            width: 60%;
+            height: 60%;
+        }
+        #media-progress {
+            /* border: thin solid yellow; */
+            height: 1em;
+            position: relative; /* pos anchor for pseudo-elems */
+        }
+        #media-progress::after {
+            content: '';
+            background-color: var(--text-nav);
+            transform: translate(0, -50%);
+            display: inline-block;
+            width: 100%;
+            height: 0.15em;
+            position: absolute;
+            top: 50%;
+        }
+
+
+
+        /**** ICONOGRAPHY ****/
+
+        .icon-svg {
+            /* icon will contain <svg>, so act as flexbox to center it */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .icon-svg::after {
+            content: '';
+            width: 100%;
+            height: 100%;
+        }
+
+        .icon-play::after {
+            /* <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                <path d='M 6 4 v 16 a 1 1 0 0 0 1.524 0.852 l 13 -8 a 1 1 0 0 0 0 -1.704 l -13 -8 a 1 1 0 0 0 -1.524 0.852 z' />
+            </svg> */
+            --svg: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="black" stroke="none"><path d="M 6 4 v 16 a 1 1 0 0 0 1.524 0.852 l 13 -8 a 1 1 0 0 0 0 -1.704 l -13 -8 a 1 1 0 0 0 -1.524 0.852 z" /></svg>');
+            mask: var(--svg) center / contain no-repeat;
+            background-color: var(--text-nav);
+        }
+        .icon-pause::after {
+            /* <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                <path d='' />
+            </svg> */
+            --svg: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="black" stroke="none"><path d="" /></svg>');
+            mask: var(--svg) center / contain no-repeat;
+            background-color: var(--text-nav);
+        }
+        .icon-repeat::after {
+            /* <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                <path d='' />
+            </svg> */
+            --svg: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="black" stroke="none"><path d="" /></svg>');
+            mask: var(--svg) center / contain no-repeat;
+            background-color: var(--text-nav);
+        }
+        .icon-prev::after {
+            /* <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                <path d='M 20.341 4.247 l -8 7 a 1 1 0 0 0 0 1.506 l 8 7 c 0.647 0.565 1.659 0.106 1.659 -0.753 v -14 c 0 -0.86 -1.012 -1.318 -1.659 -0.753 z M 9.341 4.247 l -8 7 a 1 1 0 0 0 0 1.506 l 8 7 c 0.647 0.565 1.659 0.106 1.659 -0.753 v -14 c 0 -0.86 -1.012 -1.318 -1.659 -0.753 z' />
+            </svg> */
+            --svg: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="black" stroke="none"><path d="M 20.341 4.247 l -8 7 a 1 1 0 0 0 0 1.506 l 8 7 c 0.647 0.565 1.659 0.106 1.659 -0.753 v -14 c 0 -0.86 -1.012 -1.318 -1.659 -0.753 z M 9.341 4.247 l -8 7 a 1 1 0 0 0 0 1.506 l 8 7 c 0.647 0.565 1.659 0.106 1.659 -0.753 v -14 c 0 -0.86 -1.012 -1.318 -1.659 -0.753 z" /></svg>');
+            mask: var(--svg) center / contain no-repeat;
+            background-color: var(--text-nav);
+        }
+        .icon-next::after {
+            /* <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                <path d='M 2 5 v 14 c 0 0.86 1.012 1.318 1.659 0.753 l 8 -7 a 1 1 0 0 0 0 -1.506 l -8 -7 c -0.647 -0.565 -1.659 -0.106 -1.659 0.753 z M 13 5 v 14 c 0 0.86 1.012 1.318 1.659 0.753 l 8 -7 a 1 1 0 0 0 0 -1.506 l -8 -7 c -0.647 -0.565 -1.659 -0.106 -1.659 0.753 z' />
+            </svg> */
+            --svg: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="black" stroke="none"><path d="M 2 5 v 14 c 0 0.86 1.012 1.318 1.659 0.753 l 8 -7 a 1 1 0 0 0 0 -1.506 l -8 -7 c -0.647 -0.565 -1.659 -0.106 -1.659 0.753 z M 13 5 v 14 c 0 0.86 1.012 1.318 1.659 0.753 l 8 -7 a 1 1 0 0 0 0 -1.506 l -8 -7 c -0.647 -0.565 -1.659 -0.106 -1.659 0.753 z" /></svg>');
+            mask: var(--svg) center / contain no-repeat;
+            background-color: var(--text-nav);
+        }
+
+
+        
+
+        /* /////////////////////////////// */
+        
+        /* thumbnail assets; hardcoded into html/css since there's a finite/limited number of stories */
+
+        /* batch 1: stories 0-4 */
+        .thumbnail-0 {
+            background: url('source/story-0/sox-siksikaʔ-thumbnail-small.jpg') var(--thumbnail-position);
+        }
+        .thumbnail-1 {
+            background: url('source/story-1/kaʔyuʔun-shashaʔ-thumbnail-small.jpg') var(--thumbnail-position);
+        }
+        .thumbnail-2 {
+            background: url('source/story-2/ʔuplalliʔ-deemaysuʔ-thumbnail-small.jpg') var(--thumbnail-position);
+        }
+        .thumbnail-3 {
+            background: url('source/story-3/shelel\'-shilithanaʔ-thumbnail-small.jpg') var(--thumbnail-position);
+        }
+        .thumbnail-4 {
+            background: url('source/story-4/bonoy\'-ʔipishanaʔ-nooch\'oʔ-thumbnail-small.jpg') var(--thumbnail-position);
+        }
+        /* batch 2: stories 5-8 */
+        .thumbnail-5 {
+            background: url('source/story-5/ʔamaʔ-dawhalch\'ich\'in-nasis-thumbnail.jpg') var(--thumbnail-position);
+        }
+        .thumbnail-6 {
+            background: url('source/story-6/ʔamak\'-noch\'eeʔi-hoyeenataʔ-hidyaw-helew-thumbnail.jpg') var(--thumbnail-position);
+        }
+        .thumbnail-7 {
+            background: url('source/story-7/kaʔyuʔ-ʔamaʔ-yoʔ-nohʔoʔ-thumbnail.jpg') var(--thumbnail-position);
+        }
+        .thumbnail-8 {
+            background: url('source/story-8/kaʔyuʔ-wanhantaʔ-p\'umaʔhiyan-thumbnail.jpg') var(--thumbnail-position);
+        }
+        /* batch 3: stories 9-13 */
+        .thumbnail-9 {
+            background: transparent;
+        }
+        .thumbnail-10 {
+            background: transparent;
+        }
+        .thumbnail-11 {
+            background: url('source/story-11/kaʔyuʔ-halaʔletaʔ-waʔlaʔan-thumbnail.jpg') var(--thumbnail-position);
+        }
+        .thumbnail-12 {
+            background: url('source/story-12/dullun-humnul\'-ʔamaʔ-yoʔ-namix-thumbnail.jpg') var(--thumbnail-position);
+        }
+        .thumbnail-13 {
+            background: transparent;
+        }
+        /* batch 4: story 14 */
+        .thumbnail-14 {
+            background: transparent;
+        }
+
+
+
+        /**** MEDIA QUERIES ****/
+
+        /* mobile-first styling for better load times on less-powerful devices */
+        @media (max-aspect-ratio: 5/4) { /* mobile mode */
+            /* #selection-panel {
+                width: 100vw;
+                max-height: 50vh;
+            } */
+        }
+		@media (min-aspect-ratio: 5/4) { /* desktop mode */
+            #media-bar {
+                padding: 0;
+            }
+            #media-title-CHK, #media-title-ENG {
+                text-align: left;
+            }
+            /* #media-controls {
+                padding: 0.5em;
+            } */
+		}
+		
+	</style>
+</head>
+<body>
+
+<nav id='navbar' class='flex-row-centered' role='navigation' aria-label='Top Level'>
+    <h1 class='flex-grow' aria-label='Chukchansi Story Reader'>Story Reader</h1>
+    <button id='nav-target' class='flex-row-centered' title='Expand and collapse menu' aria-expanded='false'>
+        <p class='desktop-only' aria-hidden='true'>Menu</p>
+        <svg id='nav-icon' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' width='24' height='24' stroke-width='1.25' aria-hidden='true'>
+            <path d='M5 8l14 0'></path>
+            <path d='M5 12l14 0'></path>
+            <path d='M5 16l14 0'></path>
+        </svg>
+    </button>
+    <div id='nav-adaptive-wrapper'>
+        <div id='nav-items' class='flex-col'>
+            <ul class='flex-col'>
+                <li><a href='./'>Home</a></li>
+            </ul>
+            <ul class='flex-col'>
+                <li><a href='speaking-dictionary'>Speaking Dictionary</a></li>
+                <li><a href='pdf-dictionary'>PDF Dictionary</a></li>
+                <li><a href='stories'>Story Reader</a></li>
+                <li><a href='wordsearch'>Wordsearch</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div id='content' class='flex-adapt'>
+    <div> <!-- need wrapper div so position:sticky plays nice with flexbox -->
+        <div id='selection-panel' class='flex-col'>
+
+            <div class='flex-row selection-panel-row' onclick='console.log("boop")'>
+                <p>1</p>
+                <div class='story-thumbnail'></div>
+                <div class='flex-col'>
+                    <p class='story-title'>Kaʔyuʔun Shashaʔ</p>
+                    <p class='story-subtitle'>Why Coyote's Eyes are the Best</p>
+                </div>
+            </div>
+
+            <!-- <h2 id='selection-panel-title'>Story Selection</h2>
+                <div id='story-0' class='flex-row selection-panel-row selected-story-row' onclick='loadStory(0)'>
+                    <div id='thumbnail-0' class='selection-panel-story-thumbnail'></div>
+                    <div class='flex-col'>
+                        <p class='selection-panel-story-title'>Siksikaʔ Limeek’ataʔ</p>
+                        <p class='selection-panel-story-subtitle'>How Stinkbug Became Black</p>
+                    </div>
+                </div>
+                <div id='story-1' class='flex-row selection-panel-row' onclick='loadStory(1)'>
+                    <div id='thumbnail-1' class='selection-panel-story-thumbnail'></div>
+                    <div class='flex-col'>
+                        <p class='selection-panel-story-title'>Kaʔyuʔun Shashaʔ</p>
+                        <p class='selection-panel-story-subtitle'>Why Coyote's Eyes are the Best</p>
+                    </div>
+                </div>
+                <div id='story-2' class='flex-row selection-panel-row' onclick='loadStory(2)'>
+                    <div id='thumbnail-2' class='selection-panel-story-thumbnail'></div>
+                    <div class='flex-col'>
+                        <p class='selection-panel-story-title'>ʔuplalliʔ ʔamaʔ yoʔ Deemay’suʔ</p>
+                        <p class='selection-panel-story-subtitle'>Dove and Hummingbird Race Each Other</p>
+                    </div>
+                </div>
+                <div id='story-3' class='flex-row selection-panel-row' onclick='loadStory(3)'>
+                    <div id='thumbnail-3' class='selection-panel-story-thumbnail'></div>
+                    <div class='flex-col'>
+                        <p class='selection-panel-story-title'>Shelel’ Shilithanaʔ</p>
+                        <p class='selection-panel-story-subtitle'>A Rock to be Jumped</p>
+                    </div>
+                </div>
+                <div id='story-4' class='flex-row selection-panel-row' onclick='loadStory(4)'>
+                    <div id='thumbnail-4' class='selection-panel-story-thumbnail'></div>
+                    <div class='flex-col'>
+                        <p class='selection-panel-story-title'>Bonoy’ ʔipishanaʔ Nooch’oʔ</p>
+                        <p class='selection-panel-story-subtitle'>Two Orphan Boys</p>
+                    </div>
+                </div>
+
+                <div id='story-5' class='flex-row selection-panel-row' onclick='loadStory(5)'>
+                    <div id='thumbnail-5' class='selection-panel-story-thumbnail'></div>
+                    <div class='flex-col'>
+                        <p class='selection-panel-story-title'>ʔamaʔ Dawhalch’ich’in Nasis</p>
+                        <p class='selection-panel-story-subtitle'>The Ambitious Snake</p>
+                    </div>
+                </div>
+                <div id='story-6' class='flex-row selection-panel-row' onclick='loadStory(6)'>
+                    <div id='thumbnail-6' class='selection-panel-story-thumbnail'></div>
+                    <div class='flex-col'>
+                        <p class='selection-panel-story-title'>ʔamak’ Noch’eeʔi Hoyeenataʔ Hidyaw Helew</p>
+                        <p class='selection-panel-story-subtitle'>The Boys Who Became Quail and Flew Away</p>
+                    </div>
+                </div>
+                <div id='story-7' class='flex-row selection-panel-row' onclick='loadStory(7)'>
+                    <div id='thumbnail-7' class='selection-panel-story-thumbnail'></div>
+                    <div class='flex-col'>
+                        <p class='selection-panel-story-title'>Kaʔyuʔ ʔamaʔ yoʔ Nohʔoʔ</p>
+                        <p class='selection-panel-story-subtitle'>Coyote and Bear Swing</p>
+                    </div>
+                </div>
+                <div id='story-8' class='flex-row selection-panel-row' onclick='loadStory(8)'>
+                    <div id='thumbnail-8' class='selection-panel-story-thumbnail'></div>
+                    <div class='flex-col'>
+                        <p class='selection-panel-story-title'>Kaʔyuʔ Wanhantaʔ P’umaʔhiyan</p>
+                        <p class='selection-panel-story-subtitle'>Coyote Is Given a Beak</p>
+                    </div>
+                </div>
+
+                <div id='story-9' class='flex-row selection-panel-row' onclick='loadStory(9)'>
+                    <div id='thumbnail-9' class='selection-panel-story-thumbnail'></div>
+                    <div class='flex-col'>
+                        <p class='selection-panel-story-title'>Kaʔyuʔ Potʔiʔxon’ Hol’giʔin</p>
+                        <p class='selection-panel-story-subtitle'>Coyote Holds Up the World</p>
+                    </div>
+                </div>
+                <div id='story-10' class='flex-row selection-panel-row' onclick='loadStory(10)'>
+                    <div id='thumbnail-10' class='selection-panel-story-thumbnail'></div>
+                    <div class='flex-col'>
+                        <p class='selection-panel-story-title'>Poyoʔhiyin Deneela ʔam yoʔ Seeya</p>
+                        <p class='selection-panel-story-subtitle'>Coyote Makes Mortar Holes and Pestles</p>
+                    </div>
+                </div>
+                <div id='story-11' class='flex-row selection-panel-row' onclick='loadStory(11)'>
+                    <div id='thumbnail-11' class='selection-panel-story-thumbnail'></div>
+                    <div class='flex-col'>
+                        <p class='selection-panel-story-title'>Kaʔyuʔ Halaʔletaʔ Waʔlaʔan</p>
+                        <p class='selection-panel-story-subtitle'>Coyote Lifts Up the Sky (Trickster Tricked)</p>
+                    </div>
+                </div>
+                <div id='story-12' class='flex-row selection-panel-row' onclick='loadStory(12)'>
+                    <div id='thumbnail-12' class='selection-panel-story-thumbnail'></div>
+                    <div class='flex-col'>
+                        <p class='selection-panel-story-title'>Dullun Humnul’ ʔamaʔ yoʔ Namix</p>
+                        <p class='selection-panel-story-subtitle'>Mountain Quail, Valley Quail, and Salamander</p>
+                    </div>
+                </div>
+                <div id='story-13' class='flex-row selection-panel-row' onclick='loadStory(13)'>
+                    <div id='thumbnail-13' class='selection-panel-story-thumbnail'></div>
+                    <div class='flex-col'>
+                        <p class='selection-panel-story-title'>Tew’ T’uytaʔ ʔoopo</p>
+                        <p class='selection-panel-story-subtitle'>Rabbit Shoots the Sun</p>
+                    </div>
+                </div>
+
+                <p style='margin:1.0em;font-style:italic;'>More coming soon!</p> -->
+        </div>
+    </div>
+        
+    <div id='reader-panel'>
+        <div class='flex-col player-panel'>
+            <div id='reader-title'>Chukchansi Title</div>
+            <div id='reader-subtitle'>English Subtitle</div>
+            <div class='flex-row player-controls'>
+                <!-- SVG icons from Tabler: https://tablericons.com/ -->
+                <button class='player-button-small' role='button' onclick='storyReader.prevClause()' aria-keyshortcuts="j" title="Jump to previous section (j)" aria-label="Jump to previous section keyboard shortcut j">
+                    <svg id='prev-section' xmlns="http://www.w3.org/2000/svg" x-bind:width="size" x-bind:height="size" viewBox="0 0 24 24" fill="currentColor" width="100%" height="100%">
+                        <path d="M20.341 4.247l-8 7a1 1 0 0 0 0 1.506l8 7c.647 .565 1.659 .106 1.659 -.753v-14c0 -.86 -1.012 -1.318 -1.659 -.753z"></path>
+                        <path d="M9.341 4.247l-8 7a1 1 0 0 0 0 1.506l8 7c.647 .565 1.659 .106 1.659 -.753v-14c0 -.86 -1.012 -1.318 -1.659 -.753z"></path>
+                    </svg>
+                </button>
+                <button class='player-button-large' role='button' onclick='storyReader.togglePlayPause()' aria-keyshortcuts="k" title="Play/Pause (k)" aria-label="Play or pause story keyboard shortcut k">
+                    <svg id='play-pause' xmlns="http://www.w3.org/2000/svg" x-bind:width="size" x-bind:height="size" viewBox="0 0 24 24" fill="currentColor" width="100%" height="100%">
+                        <path d="M6 4v16a1 1 0 0 0 1.524 .852l13 -8a1 1 0 0 0 0 -1.704l-13 -8a1 1 0 0 0 -1.524 .852z"></path>
+                    </svg>
+                </button>
+                <button class='player-button-small' role='button' onclick='storyReader.nextSection()' aria-keyshortcuts="l" title="Jump to next section (l)" aria-label="Jump to next section keyboard shortcut l">
+                    <svg id='next-section' xmlns="http://www.w3.org/2000/svg" x-bind:width="size" x-bind:height="size" viewBox="0 0 24 24" fill="currentColor" width="100%" height="100%">
+                        <path d="M2 5v14c0 .86 1.012 1.318 1.659 .753l8 -7a1 1 0 0 0 0 -1.506l-8 -7c-.647 -.565 -1.659 -.106 -1.659 .753z"></path>
+                        <path d="M13 5v14c0 .86 1.012 1.318 1.659 .753l8 -7a1 1 0 0 0 0 -1.506l-8 -7c-.647 -.565 -1.659 -.106 -1.659 .753z"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class='flex-row player-progress-text' aria-hidden='true'>
+                <div id='player-time'>0:00</div>
+                <div class='flex-sep'></div>
+                <div id='player-duration'>0:00</div>
+            </div>
+            <div id='player-progress'>
+                <div id='player-progress-background'>
+                    <div id='player-progress-bar'>
+                        <div id='player-progress-slider'></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id='player-loading-screen' class='flex-col'>
+                <p class='loading-text'>Loading Story...</p>
+                <div class='loading-animation-track'>
+                    <div class='loading-icon-full'></div>
+                    <div class='loading-icon-empty'></div>
+                </div>
+            </div>
+        </div>
+        <div id='reader-content' class='flex-col' aria-hidden='true'></div>
+        <div id='reader-end' class='flex-col'>
+            <div id='reader-downloads' class='flex-row'>
+                <p>Want to download the story?</p>
+                <div class='flex-row'>
+                    <a id='reader-download-audio'>MP3</a>
+                </div>
+            </div>
+            <!-- <div id='reader-nav' class='flex-row'>
+                <button id='scroll-to-story' onclick='scrollToStory()'>Top of Story</button>
+                <button id='scroll-to-selection' onclick='scrollToSelection()'>Story Selection</button>
+            </div> -->
+        </div>
+    </div>
+</div>
+
+
+
+<div id='media-bar' class='flex-adapt'>
+    <div class='flex-col flex-centered'>
+        <p class='loading-text'>Loading Story...</p>
+        <div class='loading-animation-track'>
+            <div class='loading-icon-full'></div>
+            <div class='loading-icon-empty'></div>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- TEMPLATES -->
+
+<template id='tpl-story-selection'>
+    <div role='button' class='flex-row story-selection'>
+        <p class='story-id'>1</p>
+        <div class='story-thumbnail thumbnail-12'></div>
+        <div class='flex-col'>
+            <p class='story-title'>Kaʔyuʔun Shashaʔ</p>
+            <p class='story-subtitle'>Why Coyote's Eyes are the Best</p>
+        </div>
+    </div>
+</template>
+
+<template id='tpl-media-loading'>
+    <div id='media-bar' class='flex-adapt'>
+        <div class='flex-col flex-centered'>
+            <p class='loading-text'>Loading Story...</p>
+            <div class='loading-animation-track'>
+                <div class='loading-icon-full'></div>
+                <div class='loading-icon-empty'></div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<template id='tpl-media-player'>
+    <div id='media-bar' class='flex-adapt'>
+        <div id='media-controls-mobile' class='flex-row-centered flex-separated-row mobile-only'>
+            <div id='media-thumbnail-mobile' class='mobile-only thumbnail-12'></div>
+            <p>Now Playing</p>
+            <button id='media-switch-panels' class='icon-svg icon-prev'></button>
+        </div>
+        <div id='media-titles' class='flex-row flex-centered flex-shrink'>
+            <div id='media-thumbnail-desktop' class='desktop-only thumbnail-12'></div>
+            <div class='flex-col flex-centered flex-shrink no-scrollbar'>
+                <p id='media-title-CHK'>Dullun Humnul’ ʔamaʔ yoʔ Namix</p>
+                <p id='media-title-ENG'>Mountain Quail, Valley Quail, and Salamander</p>
+            </div>
+        </div>
+        <div id='media-controls' class='flex-col flex-fill'>
+            <div id='media-buttons' class='flex-row'>
+                <p class='media-time'>0:00</p>
+                <div class='flex-sep'></div>
+                <button id='media-jump-prev' class='icon-svg icon-prev'></button>
+                <button id='media-play-pause' class='icon-svg icon-play'></button>
+                <button id='media-jump-next' class='icon-svg icon-next'></button>
+                <div class='flex-sep'></div>
+                <p class='media-duration'>0:59</p>
+            </div>
+            <div id='media-progress'></div>
+        </div>
+    </div>
+</template>
+
+<template id='tpl-media-player-mobile-thumbnail'>
+    <div id='media-bar' class='flex-adapt'>
+        <div id='media-controls-mobile' class='flex-row-centered flex-separated-row mobile-only'>
+            <div id='media-thumbnail-mobile' class='mobile-only thumbnail-12'></div>
+            <p>Now Playing</p>
+            <button id='media-switch-panels' class='icon-svg icon-prev'></button>
+        </div>
+        <div id='media-titles' class='flex-row flex-centered flex-shrink'>
+            <div id='media-thumbnail-desktop' class='desktop-only thumbnail-12'></div>
+            <div class='flex-col flex-centered flex-shrink no-scrollbar'>
+                <p id='media-title-CHK'>Dullun Humnul’ ʔamaʔ yoʔ Namix</p>
+                <p id='media-title-ENG'>Mountain Quail, Valley Quail, and Salamander</p>
+            </div>
+        </div>
+        <!-- <div id='media-player' class='flex-row flex-centered flex-shrink flex-fill'>
+            <div id='media-controls' class='flex-col flex-fill'> -->
+            <div id='media-player' class='flex-col flex-fill'>
+                <div id='media-buttons' class='flex-row'>
+                    <p class='media-time'>0:00</p>
+                    <div class='flex-sep'></div>
+                    <button id='media-jump-prev' class='icon-svg icon-prev'></button>
+                    <button id='media-play-pause' class='icon-svg icon-play'></button>
+                    <button id='media-jump-next' class='icon-svg icon-next'></button>
+                    <div class='flex-sep'></div>
+                    <p class='media-duration'>0:59</p>
+                </div>
+                <div id='media-progress'></div>
+            </div>
+            <!-- </div>
+        </div> -->
+    </div>
+</template>
+
+<!-- load story data -->
+
+<!-- batch 1: stories 0-4 -->
+<script type='text/javascript' src="source/story-0/sox-siksikaʔ-data-annotated.js"></script>
+<script type='text/javascript' src="source/story-1/kaʔyuʔun-shashaʔ-data-annotated.js"></script>
+<script type='text/javascript' src="source/story-2/ʔuplalliʔ-deemaysuʔ-data-annotated.js"></script>
+<script type='text/javascript' src="source/story-3/shelel'-shilithanaʔ-data-annotated.js"></script>
+<script type='text/javascript' src="source/story-4/bonoy'-ʔipishanaʔ-nooch'oʔ-data-annotated.js"></script>
+<!-- batch 2: stories 5-8 -->
+<script type='text/javascript' src="source/story-5/ʔamaʔ-dawhalch'ich'in-nasis-data-annotated.js"></script>
+<script type='text/javascript' src="source/story-6/ʔamak'-noch'eeʔi-hoyeenataʔ-hidyaw-helew-data-annotated.js"></script>
+<script type='text/javascript' src="source/story-7/kaʔyuʔ-ʔamaʔ-yoʔ-nohʔoʔ-data-annotated.js"></script>
+<script type='text/javascript' src="source/story-8/kaʔyuʔ-wanhantaʔ-p'umaʔhiyan-data-annotated.js"></script>
+<!-- batch 3: stories 9-13 -->
+<script type='text/javascript' src="source/story-9/kaʔyuʔ-potʔiʔxon'-hol'giʔin-data-annotated.js"></script>
+<script type='text/javascript' src="source/story-10/poyoʔhiyin-deneela-ʔam-yoʔ-seeya-data-annotated.js"></script>
+<script type='text/javascript' src="source/story-11/kaʔyuʔ-halaʔletaʔ-waʔlaʔan-data-annotated.js"></script>
+<script type='text/javascript' src="source/story-12/dullun-humnul'-ʔamaʔ-yoʔ-namix-data-annotated.js"></script>
+<script type='text/javascript' src="source/story-13/tew'-t'uytaʔ-ʔoopo-data-annotated.js"></script>
+<!-- batch 4: story 14 -->
+<!-- <script type='text/javascript' src="source/story-14/tawaanish-data-annotated.js"></script> -->
+
+
+
+
+<!-- init navbar hover behavior -->
+<script type='text/javascript' src='script/navbar.js'></script>
+
+<script type='text/javascript'>
+    // DOM anchors
+    const navTitle = document.querySelector('#navbar > h1');
+    const mediaBar = document.querySelector('#media-bar');
+
+    const loadingBar = document.querySelector('#tpl-media-loading').content.firstElementChild.cloneNode(true);
+    // document.querySelector('#media-bar').replaceWith(loadingBar);
+    const mediaPlayer = document.querySelector('#tpl-media-player-mobile-thumbnail').content.firstElementChild.cloneNode(true);
+    document.querySelector('#media-bar').replaceWith(mediaPlayer);
+
+    const storySelectionPanel = document.getElementById('selection-panel');
+    const storyReaderPanel = document.getElementById('reader-panel');
+    const playPauseButton = document.getElementById('play-pause');
+    const readerTitle = document.getElementById('reader-title');
+    const readerSubtitle = document.getElementById('reader-subtitle');
+    const readerContent = document.getElementById('reader-content');
+    const readerFooter = document.getElementById('reader-end');
+    const readerDownloadsSection = document.getElementById('reader-downloads');
+    const readerDownloadAudio = document.getElementById('reader-download-audio')
+    const playerTime = document.getElementById('player-time');
+    const playerDuration = document.getElementById('player-duration');
+    const playerProgressContiner = document.getElementById('player-progress');
+    const playerProgressBar = document.getElementById('player-progress-bar');
+    const playerLoadingScreen = document.getElementById('player-loading-screen');
+
+    // SVG icons from Tabler: https://tablericons.com/
+    const SVG_PLAY = `<path d="M6 4v16a1 1 0 0 0 1.524 .852l13 -8a1 1 0 0 0 0 -1.704l-13 -8a1 1 0 0 0 -1.524 .852z"></path>`;
+    const SVG_PAUSE = `<path d="M9 4h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h2a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2z"></path><path d="M17 4h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h2a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2z"></path>`;
+    // const SVG_REPEAT = `<path d="M19.933 13.041a8 8 0 1 1 -9.925 -8.788c3.899 -1 7.935 1.007 9.425 4.747"></path><path d="M20 4v5h-5"></path>`;
+    const SVG_REPEAT = `<g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="calc(0.1vh + 0.1vw)"><path d="M19.933 13.041a8 8 0 1 1 -9.925 -8.788c3.899 -1 7.935 1.007 9.425 4.747"></path><path d="M20 4v5h-5"></path></g>`;
+
+    const READ_BY_SENTENCE = 'timestampsBySentence';
+    const READ_BY_CLAUSE = 'timestampsByClause';
+
+    let storyReader = {
+        currentStoryId   : -1,
+        currentStoryData : undefined,
+        currentSectionId : 0,
+        player : document.createElement('audio'),
+        readMode : READ_BY_CLAUSE,
+        id2lineSection : [],
+        lineSection2id : [],
+
+        loadingComplete : false,
+        loadStart : performance.now(),
+
+        getCurrentTime : () => {
+            const time =  storyReader.player.currentTime - storyReader.currentStoryData[storyReader.readMode][0][0];
+            const m = Math.floor(time / 60);
+            const ss = Math.floor(time % 60).toString().padStart(2,'0');
+            return `${m}:${ss}`;
+        },
+        getDuration : () => {
+            const time = storyReader.player.duration - storyReader.currentStoryData[storyReader.readMode][0][0];
+            const m = Math.floor(time / 60);
+            const ss = Math.floor(time % 60).toString().padStart(2,'0');
+            return `${m}:${ss}`;
+        },
+        setSrc : (src) => {
+            storyReader.player.pause();
+            storyReader.player.src = src;
+            storyReader.player.currentTime = 0;
+            storyReader.currentSectionId = 0;
+        },
+        togglePlayPause : () => {
+            if (storyReader.player.paused && storyReader.player.currentTime >= storyReader.player.duration-0.5) {
+                // if finished playing, reset to earliest timestamp
+                storyReader.setSectionId(0,0);
+                scrollToStory();
+                
+            }
+            (storyReader.player.paused) ? storyReader.player.play() : storyReader.player.pause();
+            playPauseButton.innerHTML = (storyReader.player.paused) ? SVG_PLAY : SVG_PAUSE;
+        },
+        playFrom : (t) => {
+            if (storyReader.player.readyState < 2) {
+                console.warn('Cannot play audio, file still loading.');
+                return false;
+            } else {
+                storyReader.player.pause();
+                storyReader.player.currentTime = t;
+                storyReader.player.play();
+                return true;
+            }
+            console.log(`Playing audio from ${storyReader.currentStoryData[storyReader.readMode][3*i]}`);
+        },
+
+        highlightSection : (id) => {
+            if (!storyReader.currentStoryData || id < 0 || id >= storyReader.id2lineSection.length) {
+                console.error(`Section ${id} does not exist in current story, which has ${storyReader.id2lineSection.length} sections (zero-indexed).`);
+                return false;
+            }
+            document.getElementById(`reader-section-${storyReader.currentSectionId}`).classList.remove('reader-highlight');
+            document.getElementById(`reader-section-${id}`).classList.add('reader-highlight');
+            return true;
+        },
+        setSectionId : (id) => {
+            // console.log(`>> setting section from ${storyReader.currentSectionId} to ${id}`);
+            if (!storyReader.highlightSection(id)) return false; // performs input validation
+            storyReader.currentSectionId = id;
+            const start = storyReader.currentStoryData[storyReader.readMode][0][0];
+            const [line,section] = storyReader.id2lineSection[id];
+            storyReader.player.currentTime = storyReader.currentStoryData[storyReader.readMode][line][section*3];
+            // console.log(`Jumping to section ${id}: apparent time ${storyReader.player.currentTime-start}, actual time ${storyReader.player.currentTime}`);
+            playPauseButton.innerHTML = (storyReader.player.paused) ? SVG_PLAY : SVG_PAUSE; // reset media player icon when user changes sections, to clear replay icon if previously ended
+            return true;
+        },
+        nextSection : () => {
+            // storyReader.setSectionId((storyReader.currentSectionId + 1) % (storyReader.currentStoryData[storyReader.readMode].length/3));
+            if (storyReader.currentSectionId < storyReader.id2lineSection.length - 1) {
+                storyReader.setSectionId(storyReader.currentSectionId + 1);
+            } else if (storyReader.currentSectionId == storyReader.id2lineSection.length - 1) {
+                storyReader.player.currentTime = storyReader.player.duration; // triggers player.onended()
+                console.log('last section');
+            }
+        },
+        prevClause : () => {
+            // storyReader.setSectionId((storyReader.currentSectionId == 0) ? (storyReader.id2lineSection.length - 1) : (storyReader.currentSectionId-1));
+            if (storyReader.currentSectionId > 0) {
+                storyReader.setSectionId(storyReader.currentSectionId - 1);
+            } else {
+                console.log('first section');
+            }
+        }
+    };
+    storyReader.player.ontimeupdate = () => {
+        // update highlighting if we started a new clause
+        const nextSectionId = storyReader.currentSectionId + 1;
+        console.log(`Next section ${nextSectionId}`);
+        console.log(`id2lineSection`, storyReader.id2lineSection);
+        if (nextSectionId < storyReader.id2lineSection.length) {
+            const [nextLine,nextSection] = storyReader.id2lineSection[nextSectionId];
+            if (storyReader.readMode === READ_BY_CLAUSE && storyReader.player.currentTime > storyReader.currentStoryData[storyReader.readMode][nextLine][3*nextSection]) {
+                storyReader.highlightSection(nextSectionId);
+                storyReader.currentSectionId = nextSectionId;
+            } else if (storyReader.readMode === READ_BY_SENTENCE && storyReader.player.currentTime > storyReader.currentStoryData[storyReader.readMode][nextLine][3*nextSection]) {
+                storyReader.highlightSection(nextSectionId);
+                storyReader.currentSectionId = nextSectionId;
+            }
+        } else if (nextSectionId == storyReader.id2lineSection.length) {
+            console.log(`in last section, don't scan for later sections`);
+        } else {
+            storyReader.player.currentTime = storyReader.player.duration; // triggers player.onended()
+        }
+
+        // adjust player display
+        playerTime.innerHTML = storyReader.getCurrentTime();
+        playerDuration.innerHTML = storyReader.getDuration();
+        const time = storyReader.player.currentTime - storyReader.currentStoryData[storyReader.readMode][0][0];
+        const duration = storyReader.player.duration - storyReader.currentStoryData[storyReader.readMode][0][0];
+        playerProgressBar.style.width = `${100 * Math.min(Math.max(0, time/duration), 1)}%`;
+    };
+    storyReader.player.onended = () => {
+        playPauseButton.innerHTML = SVG_REPEAT;
+    };
+
+    function loadStory (storyId) {
+        if (storyId < 0 || storyId >= stories.length) {
+            console.error(`ERR Story id ${storyId} not found in catalogue.`);
+            return false;
+        } else if (storyId == storyReader.currentStoryId) {
+            console.warn(`Story id ${storyId} is already loaded.`);
+            return false;
+        }
+        const storyData = stories[storyId];
+        
+        // update selection menu
+        for (let i = 0; i < stories.length; i++) {
+            if (i == storyId) {
+                document.getElementById(`story-${i}`).classList.add('selected-story-row');
+            } else {
+                document.getElementById(`story-${i}`).classList.remove('selected-story-row');
+            }
+        }
+
+        // reset loading cycle
+        storyReader.loadStart = performance.now();
+        storyReader.loadingComplete = false;
+        readerContent.innerHTML = '';
+        playerLoadingScreen.style.visibility = 'visible';
+        readerFooter.style.display = 'none';
+        readerDownloadsSection.style.display = 'none';
+
+        // begin fetching audio
+        storyReader.setSrc(storyData.audio);
+        storyReader.currentStoryId = storyId;
+        storyReader.currentStoryData = storyData;
+        
+        // index reader sections
+        let id = 0;
+        storyReader.id2lineSection = [];
+        storyReader.lineSection2id = [];
+        if (storyReader.readMode === READ_BY_CLAUSE) {
+            for (let line = 0; line < storyData[storyReader.readMode].length; line++) {
+                storyReader.lineSection2id[line] = [];
+                for (let i = 0; i < storyData[storyReader.readMode][line].length; i+=3) {
+                    const section = i / 3;
+                    storyReader.id2lineSection.push([line,section]);
+                    storyReader.lineSection2id[line].push(id);
+                    id++;
+                }
+            }
+        } else if (storyReader.readMode === READ_BY_SENTENCE) {
+            // for (let line = 0; line < storyData[storyReader.readMode].length; line++) {
+            //     storyReader.lineSection2id[line] = [];
+            //     for (let i = 0; i < storyData[storyReader.readMode][line].length; i+=3) {
+            //         const section = i / 3;
+            //         storyReader.id2lineSection.push([line,section]);
+            //         storyReader.lineSection2id[line].push(id);
+            //         id++;
+            //     }
+            // }
+        }
+        
+        console.log(`LOAD Story data indexed after ${(performance.now()-storyReader.loadStart).toFixed(0)} ms.`);
+
+        // construct dynamic content (is independent of audio, but don't render until audio playable)
+        let contentStr = '';
+        if (storyReader.readMode === READ_BY_CLAUSE) {
+            for (let line = 0; line < storyData[storyReader.readMode].length; line++) {
+                contentStr += `<div>`;
+                for (let i = 0; i < storyData[storyReader.readMode][line].length; i+=3) {
+                    const section = i / 3;
+                    const id = storyReader.lineSection2id[line][section];
+                    const timestamp = storyData[storyReader.readMode][line][i];
+                    const textCHK = storyData[storyReader.readMode][line][i+1];
+                    const textENG = storyData[storyReader.readMode][line][i+2];
+                    contentStr += `<p><span id='reader-section-${id}' class='reader-section' onClick='storyReader.setSectionId(${id})'>${textCHK}</span></p>`;
+                    contentStr += '\n';
+                    contentStr += `<p><span id='reader-section-translation-${id}' class='reader-section-translation' onClick='storyReader.setSectionId(${id})'>${textENG}</span></p>`;
+                }
+                contentStr += `</div>`;
+            }
+        } else if (storyReader.readMode === READ_BY_SENTENCE) {
+            contentStr += `<div>`;
+            for (let i = 0; i < storyData[storyReader.readMode].length; i+=3) {
+                const id = i / 3;
+                const timestamp = storyData[storyReader.readMode][i];
+                const textCHK = storyData[storyReader.readMode][i+1];
+                const textENG = storyData[storyReader.readMode][i+2];
+                contentStr += `<p><span id='reader-section-${id}' class='reader-section' onClick='storyReader.setSectionId(${id})'>${textCHK}</span></p>`;
+                contentStr += '\n';
+                contentStr += `<p><span id='reader-section-translation-${id}' class='reader-section-translation' onClick='storyReader.setSectionId(${id})'>${textENG}</span></p>`;
+            }
+            contentStr += `</div>`;
+        }
+        
+        console.log(`LOAD Dynamic content generated after ${(performance.now()-storyReader.loadStart).toFixed(0)} ms.`);
+
+        // render content to screen only after audio is playable
+        function trySetInitialTime (t0) {
+            if (storyReader.player.currentTime == t0) {
+                // render story content
+                console.log(`LOAD First section seekable after ${(performance.now()-storyReader.loadStart).toFixed(0)} ms.`);
+                readerContent.innerHTML = contentStr;
+                storyReader.setSectionId(0);
+                // render content footer
+                if (storyReader.currentStoryData.audio) {
+                    readerDownloadAudio.href = storyReader.currentStoryData.audio;
+                    readerDownloadAudio.download = storyReader.currentStoryData.titleCHK;
+                    readerFooter.style.display = ''; // display:'' removes element-level value and resets to class/id value
+                    readerDownloadsSection.style.display = '';
+                } else {
+                    console.error('Audio download unreachable.');
+                }
+                // remove loading screen
+                playerLoadingScreen.style.visibility = 'hidden';
+                console.log(`LOAD Dynamic content rendered after ${(performance.now()-storyReader.loadStart).toFixed(0)} ms.`);
+            } else if (storyReader.player.readyState >= 2) {
+                console.log(`LOAD Set audio currentTime to ${t0}`);
+                storyReader.player.currentTime = t0;
+                // console.log(`LOAD Set audio currentTime to ${storyReader.player.currentTime}`);
+                setTimeout(()=>trySetInitialTime(t0), 50);
+            } else {
+                setTimeout(()=>trySetInitialTime(t0), 50);
+            }
+        }
+        storyReader.player.onloadedmetadata = () => {
+            console.log(`LOAD Audio metadata available after ${(performance.now()-storyReader.loadStart).toFixed(0)} ms.`);
+        };
+        storyReader.player.oncanplay = () => {
+            if (!storyReader.loadingComplete) {
+                storyReader.loadingComplete = true;
+                readerTitle.innerHTML = storyData.titleCHK;
+                readerSubtitle.innerHTML = storyData.titleENG;
+                console.log(`LOAD Audio first frame playable after ${(performance.now()-storyReader.loadStart).toFixed(0)} ms.`);
+                if (storyReader.readMode === READ_BY_CLAUSE) trySetInitialTime(storyReader.currentStoryData[storyReader.readMode][0][0]);
+                if (storyReader.readMode === READ_BY_SENTENCE) trySetInitialTime(storyReader.currentStoryData[storyReader.readMode][0]);
+            }
+        };
+
+        return true;
+    }
+
+    /////////////////////
+
+    function scrollToStory () {
+        storyReaderPanel.scrollIntoView({ block: 'start', behavior: 'smooth' }); // has scroll-margin-top to account for navbar
+    }
+    function scrollToSelection () {
+        window.scrollTo({ top: 0, left: 0, behavior: 'smooth' }); // has scroll-margin-top to account for navbar
+    }
+
+    function seekTo (p = 0.0) {
+        p = Math.min(Math.max(0,p),1);
+        
+        const start = storyReader.currentStoryData[storyReader.readMode][0][0];
+        const duration = storyReader.player.duration;
+        const t = start + p*(duration-start);
+        for (let sectionId = 0; sectionId < storyReader.id2lineSection.length; sectionId++) {
+            const [line,section] = storyReader.id2lineSection[sectionId];
+            const [nextLine,nextSection] = storyReader.id2lineSection[sectionId+1] ?? [];
+            const t0 = storyReader.currentStoryData[storyReader.readMode][line][3*section];
+            const t1 = (nextLine!=undefined) ? storyReader.currentStoryData[storyReader.readMode][nextLine][3*nextSection] : duration;
+            // console.log(`checking t=${t} against (t0,t1)=(${t0},${t1})`);
+            if (t > t0 && t < t1) {
+                storyReader.highlightSection(sectionId);
+                storyReader.currentSectionId = sectionId;
+                storyReader.player.currentTime = t;
+                console.log(`${(100*p).toFixed(2)}% - section ${sectionId} at time ${t}`);
+                return;
+            }
+        }
+        console.log(`ERR Unable to seek to ${(100*p).toFixed(2)}% (time ${t})`);
+    }
+
+    let dragPlayer = false;
+    playerProgressContiner.addEventListener('mousedown', e => {
+        dragPlayer = true;
+        const b = playerProgressContiner.getBoundingClientRect();
+        seekTo( (e.clientX - b.left) / b.width );
+    });
+    playerProgressContiner.addEventListener('mousemove', e => {
+        if (dragPlayer) {
+            const b = playerProgressContiner.getBoundingClientRect();
+            seekTo( (e.clientX - b.left) / b.width );
+        }
+    });
+    playerProgressContiner.addEventListener('mouseup', e => {
+        dragPlayer = false;
+    });
+
+    window.addEventListener('keydown', e => {
+        // console.log(e.key);
+        // e.preventDefault();
+        switch (e.key) {
+            case ' ': // [Spacebar]
+            case 'k':
+                storyReader.togglePlayPause();
+                break;
+            case 'ArrowLeft':
+            case 'j':
+                storyReader.prevClause();
+                break;
+            case 'ArrowRight':
+            case 'l':
+                storyReader.nextSection();
+                break;
+
+            // case '`':
+            //     playerLoadingScreen.style.visibility = (playerLoadingScreen.style.visibility == 'hidden') ? 'visible' : 'hidden';
+            //     break;
+        }
+    });
+
+    const setTitle = () => navTitle.innerHTML = (window.innerWidth < window.innerHeight) ? 'Story Reader' : 'Chukchansi Story Reader';
+    window.addEventListener('resize', setTitle);
+    setTitle();
+
+    //////////////////////
+
+    let stories = [
+        // batch 1: stories 0-4
+        story_sox_siksikaʔ, // how stinkbug became black
+        story_kaʔyuʔun_shashaʔ, // coyote's eyes
+        story_ʔuplalliʔ_deemaysuʔ, // dove and hummingbird
+        story_shelel_shilithanaʔ, // rock to be jumped
+        story_bonoy_ʔipishanaʔ_noochoʔ, // orphan boys
+        // batch 2: stories 5-8
+        story_ʔamaʔ_dawhalchichin_nasis, // ambitious snake
+        story_ʔamak_nocheeʔi_hoyeenataʔ_hidyaw_helew, // boys who became quail
+        story_kaʔyuʔ_ʔamaʔ_yoʔ_nohʔoʔ, // coyote and bear swing
+        story_kaʔyuʔ_wanhantaʔ_pumaʔhiyan, // coyote's beak
+        // batch 3: stories 9-13
+        story_kaʔyuʔ_potʔiʔxon_holgiʔin, // trickster tricked
+        story_poyoʔhiyin_deneela_ʔam_yoʔ_seeya, // mortar holes
+        story_kaʔyuʔ_halaʔletaʔ_waʔlaʔan, // coyote props up the sky
+        story_dullun_humnul_ʔamaʔ_yoʔ_namix, // mountain quail and friends
+        story_tew_tuytaʔ_ʔoopo, // rabbit shoots sun
+        // batch 4: story 14
+            // morning star
+    ];
+    
+    // loadStory(0);
+
+</script>
+
+</body>
+</html>
