@@ -1,0 +1,29 @@
+{
+    "title" : "Clothing and Jewelry",
+    "thumbnail" : "thumbnail.jpg",
+    "words" : [
+        { "L1": "shirt", "L2": "gamiishaʔ", "image": "", "audio": "", "note": "from Spanish camisa" },
+        { "L1": "coat / jacket", "L2": "jageedaʔ", "image": "", "audio": "", "note": "from Spanish chaqueta" },
+        { "L1": "dress", "L2": "naawash", "image": "", "audio": "", "note": "" },
+        { "L1": "bra", "L2": "heley'hiy'", "image": "", "audio": "", "note": "" },
+
+        { "L1": "belt", "L2": "woshok'", "image": "", "audio": "", "note": "" },
+        { "L1": "girdle", "L2": "hech'ey'hiy'", "image": "", "audio": "", "note": "lit. thing that tightens; a cloth band worn around the waist beneath other clothing, mostly by women" },
+        { "L1": "pants", "L2": "galshuy'", "image": "", "audio": "", "note": "" },
+        { "L1": "shorts", "L2": "galshumsiyaʔ", "image": "", "audio": "", "note": "traditionally only worn by men" },
+
+        { "L1": "socks", "L2": "galseedaʔ", "image": "", "audio": "", "note": "from Spanish calcetines" },
+        { "L1": "shoe", "L2": "sabaaduʔ", "image": "", "audio": "", "note": "" },
+        { "L1": "moccasin", "L2": "shuyun", "image": "", "audio": "", "note": "" },
+
+        { "L1": "clothes", "L2": "haʔeeʔi", "image": "", "audio": "", "note": "general term for any clothing" },
+
+        { "L1": "cap", "L2": "gajuujeʔ", "image": "", "audio": "", "note": "" },
+        { "L1": "hat", "L2": "somleelaʔ", "image": "", "audio": "", "note": "from Spanish sombrero" },
+        { "L1": "scarf", "L2": "mik'shin banyuʔ", "image": "", "audio": "", "note": "" },
+
+        { "L1": "earrings", "L2": "liʔwaʔ", "image": "", "audio": "", "note": "" },
+        { "L1": "ring", "L2": "ʔaniiyaʔ", "image": "", "audio": "", "note": "" },
+        { "L1": "glasses", "L2": "shashiʔnawishhiy'", "image": "", "audio": "", "note": "" }
+    ]
+}

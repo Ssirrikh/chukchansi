@@ -1,0 +1,19 @@
+{
+    "title" : "Animals Pt. 2 (Water Creatures and Reptiles)",
+    "thumbnail" : "thumbnail.jpg",
+    "words" : [
+        { "L1": "fish", "L2": "lopis", "image": "", "audio": "", "note": "generic term for any kind of fish" },
+        { "L1": "salmon", "L2": "k'ayaxit", "image": "", "audio": "", "note": "" },
+        { "L1": "salamander", "L2": "ʔalajaanaʔ", "image": "", "audio": "", "note": "lit. water dog" },
+        { "L1": "turtle", "L2": "ʔow'", "image": "", "audio": "", "note": "" },
+        { "L1": "alligator", "L2": "k'at'yayaʔ", "image": "", "audio": "", "note": "" },
+        { "L1": "frog", "L2": "wadakshay'", "image": "", "audio": "", "note": "generic term for any kind of frog" },
+        { "L1": "bullfrog", "L2": "ʔugugguʔ", "image": "", "audio": "", "note": "" },
+        { "L1": "horned toad", "L2": "soppopoʔ", "image": "", "audio": "", "note": "" },
+        { "L1": "water snake", "L2": "gewt'ayich'", "image": "", "audio": "", "note": "" },
+        { "L1": "king snake", "L2": "golangiʔ", "image": "", "audio": "", "note": "" },
+        { "L1": "rattlesnake", "L2": "nasis", "image": "", "audio": "", "note": "" },
+        { "L1": "small lizard", "L2": "teesaʔhiʔ", "image": "", "audio": "", "note": "" },
+        { "L1": "big lizard", "L2": "honch'oʔ", "image": "", "audio": "", "note": "" }
+    ]
+}

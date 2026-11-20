@@ -1,0 +1,26 @@
+{
+    "title" : "Animals Pt. 4 (Birds)",
+    "thumbnail" : "thumbnail.jpg",
+    "words" : [
+        { "L1": "hawk / chicken hawk", "L2": "diwdiw", "image": "", "audio": "", "note": "generic term for any kind of hawk" },
+        { "L1": "red-tailed hawk", "L2": "buʔ", "image": "", "audio": "", "note": "" },
+        { "L1": "eagle", "L2": "wuʔshul'", "image": "", "audio": "", "note": "" },
+        { "L1": "vulture", "L2": "gidwiyayich'", "image": "", "audio": "", "note": "lit. one that circles" },
+        { "L1": "buzzard", "L2": "k'aʔatwiyaʔ", "image": "", "audio": "", "note": "" },
+        { "L1": "owl", "L2": "hihiinaʔ", "image": "", "audio": "", "note": "" },
+        { "L1": "crow", "L2": "ch'axlal / gagnay'", "image": "", "audio": "", "note": "" },
+        { "L1": "duck", "L2": "wat'wat'", "image": "", "audio": "", "note": "" },
+        { "L1": "bird", "L2": "ch'enbay'", "image": "", "audio": "", "note": "generic term for any kind of bird" },
+        { "L1": "yellowhammer", "L2": "ch'iw'shaʔ", "image": "", "audio": "", "note": "a grey and black bird with orange wings whose feathers are used for ceremonies" },
+        { "L1": "bluejay", "L2": "ch'aych'ay'", "image": "", "audio": "", "note": "" },
+        { "L1": "chicken", "L2": "gayiinaʔ", "image": "", "audio": "", "note": "" },
+        { "L1": "chick", "L2": "boyiidaʔ", "image": "", "audio": "", "note": "" },
+        { "L1": "pigeon", "L2": "shoowin'", "image": "", "audio": "", "note": "" },
+        { "L1": "quail", "L2": "humnul'", "image": "", "audio": "", "note": "" },
+        { "L1": "hummingbird", "L2": "deemay'suʔ", "image": "", "audio": "", "note": "" },
+        { "L1": "dove", "L2": "ʔuplalliʔ", "image": "", "audio": "", "note": "" },
+        { "L1": "roadrunner", "L2": "ʔuy'ʔuy'", "image": "", "audio": "", "note": "" },
+        { "L1": "woodpecker", "L2": "palaat'at'", "image": "", "audio": "", "note": "" },
+        { "L1": "meadowlark", "L2": "ʔolooch'oʔ", "image": "", "audio": "", "note": "from Chunut language" }
+    ]
+}
