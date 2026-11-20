@@ -408,6 +408,9 @@
         get : (k) => getComputedStyle(document.documentElement).getPropertyValue(k),
         set : (k,v) => document.documentElement.style.setProperty(k,v)
     };
+    // text processing
+    const TRIM_LENGTH = 20;
+    const trim = (n,s='') => (s?.length < n) ? s : `${s.slice(0,Math.max(0,n-3))}...`;
 
     // vocab sets (left panel)
     const vocabSets = document.querySelector('#vocab-sets');
@@ -463,8 +466,12 @@
             }
         }
         // prev/next set nav buttons (right panel), with fallback href navigation if JS is disabled
-        vocabPrev.querySelector('.vocab-nav-set').textContent = vocab.manifest[vocab.activeSet-1 - 1]?.title || '';
-        vocabNext.querySelector('.vocab-nav-set').textContent = vocab.manifest[vocab.activeSet-1 + 1]?.title || '';
+        vocabPrev.querySelector('.vocab-nav-set').textContent = trim(TRIM_LENGTH, vocab.manifest[vocab.activeSet-1 - 1]?.title || '');
+        vocabPrev.querySelector('.vocab-nav-set').title = vocab.manifest[vocab.activeSet-1 - 1]?.title || '';
+        vocabPrev.querySelector('.vocab-nav-set').ariaLabel = vocab.manifest[vocab.activeSet-1 - 1]?.title || '';
+        vocabNext.querySelector('.vocab-nav-set').textContent = trim(TRIM_LENGTH, vocab.manifest[vocab.activeSet-1 + 1]?.title || '');
+        vocabNext.querySelector('.vocab-nav-set').title = vocab.manifest[vocab.activeSet-1 + 1]?.title || '';
+        vocabNext.querySelector('.vocab-nav-set').ariaLabel = vocab.manifest[vocab.activeSet-1 + 1]?.title || '';
         if (vocab.activeSet <= 1) {
             vocabPrev.classList.add('hidden');
             vocabPrev.href = '';
@@ -625,6 +632,7 @@
         // TODO: scrollable overflow
         // TODO: images and audio, link to dictionary entry
         // TODO: touch swiping between flashcards, and between left/right panel
+        // TODO: 2-panel focus management in mobile mode (block interaction w/ hidden panel)
         // TODO: nav menu focus trap
         // TODO: display error message on failure to load resource
 
