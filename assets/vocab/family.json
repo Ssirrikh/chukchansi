@@ -1,0 +1,52 @@
+{
+    "title" : "Family Members",
+    "thumbnail" : "thumbnail.jpg",
+    "words" : [
+        { "L1": "older sister", "L2": "naʔat", "image": "", "audio": "", "note": "" },
+        { "L1": "older sister (diminutive)", "L2": "naʔtay'", "image": "", "audio": "", "note": "used as a term of endearment" },
+        { "L1": "younger sister", "L2": "ʔot'ay'", "image": "", "audio": "", "note": "" },
+
+        { "L1": "older brother", "L2": "nebech'", "image": "", "audio": "", "note": "" },
+        { "L1": "younger brother", "L2": "neʔesh", "image": "", "audio": "", "note": "" },
+        { "L1": "younger brother (diminutive)", "L2": "neʔshay'", "image": "", "audio": "", "note": "used as a term of endearment (or teasingly), like calling someone 'sweetie' in English" },
+
+        { "L1": "daughter / niece", "L2": "gach'ab", "image": "", "audio": "", "note": "" },
+        { "L1": "daughter / niece (diminutive)", "L2": "gach'bay'", "image": "", "audio": "", "note": "used as a term of endearment, like calling someone 'sweetie' in English" },
+        { "L1": "nephew", "L2": "naʔway'", "image": "", "audio": "", "note": "" },
+        { "L1": "son", "L2": "boch'on'", "image": "", "audio": "", "note": "" },
+        { "L1": "son (diminutive)", "L2": "boch'noy'", "image": "", "audio": "", "note": "used as a term of endearment, like calling someone 'sweetie' in English" },
+
+        { "L1": "infant", "L2": "p'as", "image": "", "audio": "", "note": "" },
+        { "L1": "baby / child", "L2": "p'ay'", "image": "", "audio": "", "note": "" },
+
+        { "L1": "mommy", "L2": "ʔoomiʔ", "image": "", "audio": "", "note": "what a young child would call their mother" },
+        { "L1": "father", "L2": "nopop", "image": "", "audio": "", "note": "" },
+        { "L1": "dad", "L2": "noppoy'", "image": "", "audio": "", "note": "less formal than 'father'" },
+
+        { "L1": "wife", "L2": "mokiy", "image": "", "audio": "", "note": "" },
+        { "L1": "husband", "L2": "loowit", "image": "", "audio": "", "note": "" },
+
+        { "L1": "aunt (on father's side)", "L2": "noshosh", "image": "", "audio": "", "note": "" },
+        { "L1": "aunt (on mother's side)", "L2": "neket", "image": "", "audio": "", "note": "" },
+        { "L1": "uncle", "L2": "noxox", "image": "", "audio": "", "note": "" },
+        { "L1": "cousin / relative", "L2": "heedin'", "image": "", "audio": "", "note": "generic word for any relative or family member" },
+
+        { "L1": "grandmother", "L2": "mugush", "image": "", "audio": "", "note": "" },
+        { "L1": "grandmother (diminutive)", "L2": "mugshay'", "image": "", "audio": "", "note": "less formal, like calling someone 'grandma'" },
+        { "L1": "grandfather", "L2": "ʔeenesh / ʔendaʔ", "image": "", "audio": "", "note": "" },
+        { "L1": "grandfather (diminutive)", "L2": "ʔen'shay'", "image": "", "audio": "", "note": "less formal, like calling someone 'grandpa'" },
+
+        { "L1": "grandchild", "L2": "napash", "image": "", "audio": "", "note": "" },
+        { "L1": "grandchild (diminutive)", "L2": "napshay'", "image": "", "audio": "", "note": "a term of endearment, like calling someone 'sweetie' in English" },
+
+        { "L1": "sister-in-law / brother-in-law", "L2": "ʔenbay'", "image": "", "audio": "", "note": "" },
+        { "L1": "daughter-in-law", "L2": "ʔonmil'", "image": "", "audio": "", "note": "" },
+        { "L1": "son-in-law", "L2": "napaatim", "image": "", "audio": "", "note": "" },
+        { "L1": "mother-in-law", "L2": "ʔontip", "image": "", "audio": "", "note": "" },
+        { "L1": "father-in-law", "L2": "naxaamish", "image": "", "audio": "", "note": "" },
+
+        { "L1": "stepchild", "L2": "p'aayeʔhanaʔ", "image": "", "audio": "", "note": "" },
+        { "L1": "stepmother", "L2": "noʔom nanan", "image": "", "audio": "", "note": "" },
+        { "L1": "stepfather", "L2": "nopop nanan", "image": "", "audio": "", "note": "" }
+    ]
+}

@@ -1,0 +1,12 @@
+{
+    "title" : "Names of Places",
+    "thumbnail" : "thumbnail.jpg",
+    "words" : [
+        { "L1": "Coarsegold", "L2": "Koluunow", "image": "", "audio": "", "note": "" },
+        { "L1": "Oakhurst", "L2": "ʔapaashaw", "image": "", "audio": "", "note": "" },
+        { "L1": "Fresno", "L2": "Pelesnow", "image": "", "audio": "", "note": "" },
+        { "L1": "San Joaquin River", "L2": "San Wagniw", "image": "", "audio": "", "note": "lit. to the river" },
+        { "L1": "Bald Mountain", "L2": "P'al'shanaw", "image": "", "audio": "", "note": "" },
+        { "L1": "Quartz Mountain", "L2": "Gochmoodenaw", "image": "", "audio": "", "note": "" }
+    ]
+}

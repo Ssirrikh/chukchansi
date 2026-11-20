@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang='en' xml:lang='en'>
+<head>
+	<meta charset = 'utf-8'>
+	<title>Chukchansi Flashcards</title>
+    <meta name='robots' content='index, follow'>
+    <meta name='description' content='New Chukchansi flashcards help you practice the language, no matter your skill level. Quiz yourself, study vocab, and memorize new words to build fundamental Chukchansi language skills with this handy educational tool.'>
+	<meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' href='assets/css/common.css'>
+    <link rel='stylesheet' href='assets/css/components.css'>
+    <style>
+        :root {
+            --flashcard-progress: 25%; /* dynamically set by JS to style ::after */
+        }
+
+        body {
+            background-color: var(--bg-inset);
+        }
+
+        #panel-left {
+            /* border: thin solid yellow; */
+        }
+        #panel-right {
+            background-color: var(--bg-inset);
+            /* border: thin solid blue; */
+        }
+        
+        @media (min-aspect-ratio: 5/4) { /* desktop mode */
+            #panel-right {
+                /* remove bg color in desktop mode so shadows aren't blocked */
+                background-color: transparent;
+            }
+        }
+
+        #panel-left .panel-content {
+            padding: 0.5em;
+        }
+        #panel-right .panel-content {
+            padding: 0.5em;
+            gap: 1em;
+            justify-content: space-between;
+        }
+        #panel-right .panel-content > .flex-col {
+            gap: 0.5em;
+        }
+
+        #vocab-sets {
+            background-color: var(--bg-light);
+            border-radius: 0.5em;
+            filter: var(--edge-sharpness-shadow);
+            /* filter: var(--modal-shadow); */
+            padding: 0.5em;
+            min-height: 100%;
+            overflow: auto;
+        }
+        #vocab-sets > .loading-wrapper {
+            width: 100%;
+            height: 6em;
+            gap: 1em;
+        }
+        .vocab-set {
+            color: var(--text-dark);
+            color: black;
+            border-radius: 0.3em;
+            padding: 0.3em 0.5em;
+            text-decoration: none;
+            gap: 0.3em;
+        }
+        .vocab-set:hover, .vocab-set:focus-visible {
+            background-color: var(--bg-inset);
+        }
+        .vocab-set.active {
+            background-color: var(--bg-hover-white);
+            border-radius: 0 0.3em 0.3em 0;
+            box-shadow: inset 5px 0 0 0 var(--bg-nav);
+        }
+        .vocab-set > .vocab-number {
+            color: var(--text-medium);
+            font-size: 0.8em;
+            min-width: 1.5em;
+            text-align: center;
+        }
+
+        #vocab-quick-nav {
+            min-height: 2em;
+        }
+        .vocab-set-nav {
+            color: inherit;
+            border-radius: 0.25em;
+            padding: 0.2em;
+            gap: 0.5em;
+            text-decoration: none;
+        }
+        .vocab-set-nav:hover {
+            background-color: var(--bg-hover-light);
+        }
+        .vocab-set-nav:focus-visible {
+            outline: medium solid var(--text-dark);
+        }
+        .vocab-set-nav .icon-svg::after {
+            background-color: var(--bg-nav);
+            width: 70%;
+        }
+        .vocab-nav-set {
+            font-size: 1.0em;
+        }
+        .vocab-nav-label {
+            color: var(--text-medium);
+            font-size: 0.8em;
+        }
+        #vocab-prev {
+            padding-right: 0.5em;
+        }
+        #vocab-prev p {
+            text-align: left;
+        }
+        #vocab-next {
+            padding-left: 0.5em;
+        }
+        #vocab-next p {
+            text-align: right;
+        }
+        #flashcard-set-title {
+            padding: 0 1em;
+            font-size: 1.5em;
+            text-align: center;
+        }
+        #flashcard-progress {
+            background-color: var(--bg-medium);
+            border-radius: 1em;
+            height: 0.2em;
+            position: relative; /* anchor for ::after */
+        }
+        #flashcard-progress::after {
+            content: '';
+            background-color: var(--bg-nav);
+            border-radius: 1em;
+            display: inline-block;
+            width: var(--flashcard-progress);
+            height: 100%;
+            position: absolute;
+            transition: width 0.5s;
+        }
+
+        #flashcard-wrapper {
+            /* border: thin solid yellow; */
+            width: 100%;
+            min-height: 12em;
+            display: grid;
+            overflow-x: clip;
+            overflow-y: visible;
+            perspective: 1000px; /* allow flashcard hover effects to render in 3d */
+        }
+        #flashcard-wrapper > .flashcard {
+            grid-area: 1 / 1;
+            place-self: center;
+            opacity: 1;
+            transition: opacity 0.5s, transform 0.2s;
+        }
+        #flashcard-wrapper > .flashcard.to-left {
+            opacity: 0;
+            transform: translate(-105%,0%);
+        }
+        #flashcard-wrapper > .flashcard.to-right {
+            opacity: 0;
+            transform: translate(105%,0%);
+        }
+
+        .flashcard {
+            filter: var(--modal-shadow);
+
+            background-color: transparent;
+            border-radius: 0.5em;
+            width: 100%;
+            max-width: 20em;
+            /* min-height: 12em; */
+            aspect-ratio: 20 / 12;
+            perspective: 1000px;
+            transform-style: preserve-3d;
+        }
+        .flashcard-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.5s;
+            transform-style: preserve-3d;
+        }
+        .flashcard.flipped .flashcard-inner {
+            transform: rotateY(180deg);
+        }
+        .flashcard-front, .flashcard-back {
+            background-color: var(--bg-light);
+            border-radius: 0.5em;
+            padding: 1em;
+            font-size: 1.2em;
+
+            display: grid;
+            grid-template-rows: minmax(0, 1fr);
+
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden; /* Safari */
+            backface-visibility: hidden;
+        }
+        .flashcard-back {
+            transform: rotateY(180deg);
+        }
+        .flashcard:focus-visible .flashcard-front, .flashcard:focus-visible .flashcard-back {
+            outline: medium solid var(--text-dark);
+        }
+        .flashcard p {
+            /* border: thin solid blue; */
+            text-align: center;
+        }
+
+        /* fix firefox bug where .flashcard-back blocks scroll events to .flashcard-front even when back of card is hidden */
+        .flashcard-front, .flashcard-back {
+            pointer-events: none;
+        }
+        .flashcard:not(.flipped) .flashcard-front, .flashcard.flipped .flashcard-back {
+            pointer-events: auto;
+        }
+        /* partially rotate card on hover; must be applied to .flashcard instead of .flashcard-inner to preserve 3d compositing */
+        .flashcard:not(.flipped):hover {
+            transform: rotateY(10deg);
+        }
+        .flashcard.flipped:hover {
+            transform: rotateY(-10deg);
+        }
+
+        #flashcard-subtitle {
+            color: var(--text-medium);
+            max-width: 24em;
+            text-align: center;
+            align-self: center;
+        }
+
+        .flashcard-controls {
+            justify-content: center;
+        }
+        .flashcard-controls > .icon-svg {
+            border-radius: 1.5em;
+            width: 3em;
+            height: 3em;
+        }
+        .flashcard-controls > .icon-svg::after {
+            background-color: var(--bg-nav);
+            width: 70%;
+        }
+        .flashcard-controls > .icon-svg:hover {
+            background-color: var(--bg-hover-light);
+        }
+        .flashcard-controls > .icon-svg:focus-visible {
+            outline: medium solid var(--text-dark);
+        }
+        #flashcard-number {
+            padding: 0.2em 1em;
+            width: fit-content;
+            min-width: 8em;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div id='main' class='flex-col'>
+    <!-- TOP NAVBAR -->
+    <nav id='navbar' class='flex-row-centered' role='navigation' aria-label='Top Level'>
+        <h1>Chukchansi Flashcards</h1>
+        <a id='nav-skip' class='show-on-focus' href='#main-content'>Skip to content</a>
+        <div class='flex-sep'></div>
+        <button id='nav-target' class='flex-row' title='Expand and collapse menu' aria-expanded='false'>
+            <p class='desktop-only'>Menu</p>
+            <div class='icon-svg icon-hamburger'></div>
+        </button>
+        <div id='nav-adaptive-wrapper' class='flex-adapt'>
+            <div id='nav-items' class='flex-col'>
+                <ul class='flex-col'>
+                    <li><a href='./'>Home</a></li>
+                </ul>
+                <ul class='flex-col'>
+                    <li><a href='speaking-dictionary'>Speaking Dictionary</a></li>
+                    <li><a href='pdf-dictionary'>PDF Dictionary</a></li>
+                    <li><a href='stories'>Story Reader</a></li>
+                    <li><a href='flashcards'>Flashcards</a></li>
+                    <li><a href='wordsearch'>Wordsearch</a></li>
+                </ul>
+            </div>
+            <button id='nav-close' class='flex-grow' aria-label='Close menu'></button>
+        </div>
+    </nav>
+    <!-- PAGE CONTENT -->
+    <main id='main-content' class='flex-row flex-grow'>
+        <div id='panel-left' class='flex-col'>
+            <div class='flex-col flex-shrink flex-grow panel-content'>
+                <section id='vocab-sets' class='flex-col' aria-label='Flashcard sets'>
+                    <div class='flex-col flex-centered loading-wrapper'>
+                        <p class='loading-text'>Loading Flashcard Sets...</p>
+                        <div class='loading-animation-track loading-light'>
+                            <div class='loading-icon-full'></div>
+                            <div class='loading-icon-empty'></div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+            <div class='flex-col panel-nav mobile-only'>
+                <button id='goto-right' class='btn-primary'>View Flashcards</button>
+            </div>
+        </div>
+        <div id='panel-right' class='flex-col flex-grow flex-shrink'>
+            <div class='flex-col flex-shrink flex-grow panel-content'>
+                <div class='flex-col'>
+                    <section id='vocab-quick-nav' class='flex-row' aria-label='Quick navigation'>
+                        <a id='vocab-prev' class='flex-row-centered vocab-set-nav hidden' href='' aria-label='Previous flashcard set'>
+                            <div class='icon-svg icon-arrow-left'></div>
+                            <div class='flex-col'>
+                                <p class='vocab-nav-set'>Prev Vocab Set</p>
+                                <p class='vocab-nav-label' aria-hidden='true'>Prev</p>
+                            </div>
+                        </a>
+                        <div class='flex-sep'></div>
+                        <a id='vocab-next' class='flex-row-centered vocab-set-nav hidden' href='' aria-label='Next flashcard set'>
+                            <div class='flex-col'>
+                                <p class='vocab-nav-set'>Next Vocab Set</p>
+                                <p class='vocab-nav-label' aria-hidden='true'>Next</p>
+                            </div>
+                            <div class='icon-svg icon-arrow-right'></div>
+                        </a>
+                    </section>
+                    <h2 id='flashcard-set-title'>Loading Flashcards...</h2>
+                    <div id='flashcard-progress' aria-hidden='true'></div>
+                </div>
+                <section class='flex-col' aria-label='Flashcard'>
+                    <p class='sr-only'>Keyboard shortcut k to flip</p>
+                    <div id='flashcard-wrapper' class='flex-row-centered'>
+                        <!-- <div id='flashcard-0' class='flashcard'>
+                            <div class='flashcard-inner'>
+                                <div class='flashcard-front'>
+                                    <p class='flex-centered'>Flashcard 0 Front</p>
+                                </div>
+                                <div class='flex-centered flashcard-back'>
+                                    <p class='flex-centered'>Flashcard 0 Back</p>
+                                </div>
+                            </div>
+                        </div> -->
+                        <div class='flex-col flex-centered loading-wrapper' aria-hidden='true'>
+                            <div class='loading-animation-track loading-inset'>
+                                <div class='loading-icon-full'></div>
+                                <div class='loading-icon-empty'></div>
+                            </div>
+                        </div>
+                    </div>
+                    <p id='flashcard-subtitle'></p>
+                </section>
+                <div class='flex-row-centered flashcard-controls'>
+                    <button id='flashcard-prev' class='icon-svg icon-arrow-left' aria-keyshortcuts='j' aria-label='Previous flashcard keyboard shortcut j'></button>
+                    <div id='flashcard-number' aria-live='polite'>0 of 0</div>
+                    <button id='flashcard-next' class='icon-svg icon-arrow-right' aria-keyshortcuts='l' aria-label='Next flashcard keyboard shortcut l'></button>
+                </div>
+            </div>
+            <div class='flex-col panel-nav mobile-only'>
+                <button id='goto-left' class='btn-primary'>Back to Vocab Lists</button>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- TEMPLATES -->
+
+<template id='tpl-vocab-set'>
+    <a class='flex-row-centered vocab-set'>
+        <span class='vocab-number'>0</span>
+        <span class='vocab-title flex-shrink'>Vocab Set</span>
+    </a>
+</template>
+<template id='tpl-flashcard'>
+    <!--  aria-keyshortcuts='k' aria-label='Flashcard keyboard shortcut k to flip' -->
+    <button class='flashcard'>
+        <div class='flashcard-inner'>
+            <div class='flex-centered flashcard-front'>
+                <p class='sr-only'>Flashcard Front</p>
+                <p class='flex-centered flashcard-text' lang='en'>Flashcard Front Text</p>
+                <!-- <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p> -->
+            </div>
+            <section inert='true' class='flex-centered flashcard-back'>
+                <p class='sr-only'>Flashcard Back</p>
+                <p class='flex-centered flashcard-text' lang='yok'>Flashcard Back Text</p>
+            </section>
+        </div>
+    </button>
+</template>
+
+<!-- SCRIPTS -->
+
+<!-- <script type='text/javascript' src='script/navbar.js'></script> -->
+<!-- <script type='module' src='assets/js/vocab.js'></script> -->
+<script type='module'>
+    import nav from './assets/js/nav.js';
+    import vocab from './assets/js/vocab.js';
+
+    const isVocabManifestLoaded = () => !vocab.loading && Array.isArray(vocab.manifest) && vocab.manifest.length > 0; // doesn't handle actually-empty manifest
+    const isVocabLoaded = () => !vocab.loading && vocab.activeSetData && Array.isArray(vocab.activeSetData.words);
+
+    // CSS var manipulation
+    const CSSVars = {
+        get : (k) => getComputedStyle(document.documentElement).getPropertyValue(k),
+        set : (k,v) => document.documentElement.style.setProperty(k,v)
+    };
+    // text processing
+    const TRIM_LENGTH = 20;
+    const trim = (n,s='') => (s?.length < n) ? s : `${s.slice(0,Math.max(0,n-3))}...`;
+
+    // vocab sets (left panel)
+    const vocabSets = document.querySelector('#vocab-sets');
+    const vocabPrev = document.querySelector('#vocab-prev');
+    const vocabNext = document.querySelector('#vocab-next');
+    let vocabSetElems = [];
+    const populateVocabSets = () => {
+        // clear prev contents
+        vocabSets.textContent = '';
+        vocabSetElems = [];
+        if (!isVocabManifestLoaded()) {
+            console.error('No manifest loaded. Cannot populate vocab sets.');
+            return false;
+        } else {
+            console.log('Manifest is loaded. Populating vocab sets...');
+        }
+        // populate
+        vocab.forEachSet((vocabSet,i) => {
+            i = i + 1; // convert 0-indexed i to 1-indexed vocab set id
+            let e = document.querySelector('#tpl-vocab-set').content.firstElementChild.cloneNode(true);
+            if (i == vocab.activeSet) e.classList.add('active');
+            e.querySelector('.vocab-number').textContent = i;
+            e.querySelector('.vocab-title').textContent = vocabSet.title || 'Untitled';
+            e.href = `flashcards?set=${i}`; // fallback navigation if JS is disabled
+            e.onclick = (evt) => {
+                evt.preventDefault(); // if JS is enabled, block normal <a> nav in favor of fast SPA nav
+                const t0_loadVocab = performance.now();
+                console.log(`Loading vocab set ${i} "${vocabSet.title || 'Untitled'}"...`);
+                vocab.loadVocab(i, () => {
+                    console.log(`DONE in ${Math.round(performance.now()-t0_loadVocab)} ms`);
+                    nav.focusPanelRight();
+                    renderVocabSets();
+                    populateFlashcards();
+                    renderFlashcards();
+                });
+            };
+            vocabSets.appendChild(e);
+            vocabSetElems.push(e);
+        });
+        return true;
+    };
+    const renderVocabSets = () => {
+        if (!isVocabManifestLoaded()) {
+            console.error('No manifest loaded. Cannot render vocab sets.');
+            return false;
+        }
+        // vocab set selection menu (left panel)
+        for (let i = 0; i < vocabSetElems.length; i++) {
+            if (i+1 == vocab.activeSet) { // convert 0-indexed i to 1-indexed vocab set id
+                vocabSetElems[i].classList.add('active');
+            } else {
+                vocabSetElems[i].classList.remove('active');
+            }
+        }
+        // prev/next set nav buttons (right panel), with fallback href navigation if JS is disabled
+        vocabPrev.querySelector('.vocab-nav-set').textContent = trim(TRIM_LENGTH, vocab.manifest[vocab.activeSet-1 - 1]?.title || '');
+        vocabPrev.querySelector('.vocab-nav-set').title = vocab.manifest[vocab.activeSet-1 - 1]?.title || '';
+        vocabPrev.querySelector('.vocab-nav-set').ariaLabel = vocab.manifest[vocab.activeSet-1 - 1]?.title || '';
+        vocabNext.querySelector('.vocab-nav-set').textContent = trim(TRIM_LENGTH, vocab.manifest[vocab.activeSet-1 + 1]?.title || '');
+        vocabNext.querySelector('.vocab-nav-set').title = vocab.manifest[vocab.activeSet-1 + 1]?.title || '';
+        vocabNext.querySelector('.vocab-nav-set').ariaLabel = vocab.manifest[vocab.activeSet-1 + 1]?.title || '';
+        if (vocab.activeSet <= 1) {
+            vocabPrev.classList.add('hidden');
+            vocabPrev.href = '';
+        } else {
+            vocabPrev.classList.remove('hidden');
+            vocabPrev.href = `flashcards?set=${vocab.activeSet-1}`;
+        }
+        if (vocab.activeSet >= vocab.manifest.length) {
+            vocabNext.classList.add('hidden');
+            vocabNext.href = '';
+        } else {
+            vocabNext.classList.remove('hidden');
+            vocabNext.href = `flashcards?set=${vocab.activeSet+1}`;
+        }
+        return true;
+    };
+    const prevVocabSet = evt => {
+        if (!isVocabManifestLoaded()) {
+            console.error('No manifest loaded. Cannot select vocab sets.');
+            return false;
+        }
+        if (vocab.activeSet <= 1) return true;
+        evt?.preventDefault(); // if JS is enabled, block normal <a> nav in favor of fast SPA nav
+        vocab.loadVocab(vocab.activeSet - 1, () => { // loadVocab() performs input validation on set id
+            nav.focusPanelRight();
+            renderVocabSets();
+            populateFlashcards();
+            renderFlashcards();
+        });
+        return true;
+    };
+    const nextVocabSet = evt => {
+        if (!isVocabManifestLoaded()) {
+            console.error('No manifest loaded. Cannot select vocab sets.');
+            return false;
+        }
+        if (vocab.activeSet >= vocab.manifest.length) return true;
+        evt?.preventDefault(); // if JS is enabled, block normal <a> nav in favor of fast SPA nav
+        vocab.loadVocab(vocab.activeSet + 1, () => { // loadVocab() performs input validation on set id
+            nav.focusPanelRight();
+            renderVocabSets();
+            populateFlashcards();
+            renderFlashcards();
+        });
+        return true;
+    };
+
+    vocabPrev.onclick = prevVocabSet;
+    vocabNext.onclick = nextVocabSet;
+
+    // active vocab cards (right panel)
+    const gotoRight = document.querySelector('#goto-right');
+    const flashcardSetTitle = document.querySelector('#flashcard-set-title');
+    const flashcardProgress = document.querySelector('#flashcard-progress');
+    const flashcardWrapper = document.querySelector('#flashcard-wrapper');
+    const flashcardSubtitle = document.querySelector('#flashcard-subtitle');
+    const flashcardNumber = document.querySelector('#flashcard-number');
+    let activeFlashcard = -1;
+    let vocabFlashcardElems = [];
+    const populateFlashcards = () => {
+        // reset
+        flashcardWrapper.textContent = '';
+        activeFlashcard = 0;
+        vocabFlashcardElems = [];
+        if (!isVocabLoaded()) {
+            console.error('No vocab set loaded. Cannot populate flashcards.');
+            return false;
+        }
+        // set title
+        flashcardSetTitle.textContent = vocab.activeSetData.title || 'Untitled';
+        gotoRight.textContent = vocab.activeSetData.title || 'Untitled';
+        // populate flashcards
+        vocab.forEachFlashcard((card,i) => {
+            let e = document.querySelector('#tpl-flashcard').content.firstElementChild.cloneNode(true);
+            e.onclick = () => {
+                if (e.classList.contains('flipped')) {
+                    e.classList.remove('flipped');
+                    e.querySelector('.flashcard-front').inert = false;
+                    e.querySelector('.flashcard-back').inert = true;
+                } else {
+                    e.classList.add('flipped');
+                    e.querySelector('.flashcard-front').inert = true;
+                    e.querySelector('.flashcard-back').inert = false;
+                }
+            };
+            e.querySelector('.flashcard-front > .flashcard-text').textContent = card.L1;
+            e.querySelector('.flashcard-back > .flashcard-text').textContent = card.L2;
+            flashcardWrapper.appendChild(e);
+            vocabFlashcardElems.push(e);
+        });
+    };
+    const renderFlashcards = () => {
+        if (!isVocabLoaded()) {
+            console.error('No vocab set loaded. Cannot render flashcards.');
+            return false;
+        }
+        CSSVars.set('--flashcard-progress', `${100 * activeFlashcard/(vocabFlashcardElems.length-1)}%`);
+        flashcardSubtitle.textContent = vocab.activeSetData.words[activeFlashcard].note || '';
+        flashcardNumber.textContent = `${activeFlashcard + 1} of ${vocabFlashcardElems.length}`;
+        for (let i = 0; i < vocabFlashcardElems.length; i++) {
+            if (i < activeFlashcard) {
+                vocabFlashcardElems[i].classList.add('to-left');
+                vocabFlashcardElems[i].classList.remove('to-right');
+                vocabFlashcardElems[i].inert = true;
+            } else if (i > activeFlashcard) {
+                vocabFlashcardElems[i].classList.remove('to-left');
+                vocabFlashcardElems[i].classList.add('to-right');
+                vocabFlashcardElems[i].inert = true;
+            } else {
+                vocabFlashcardElems[i].classList.remove('to-left');
+                vocabFlashcardElems[i].classList.remove('to-right');
+                vocabFlashcardElems[i].inert = false;
+            }
+        }
+    };
+    const prevFlashcard = () => {
+        activeFlashcard = Math.max(0, activeFlashcard-1);
+        renderFlashcards();
+    };
+    const nextFlashcard = () => {
+        activeFlashcard = Math.min(vocabFlashcardElems.length-1, activeFlashcard+1);
+        renderFlashcards();
+    };
+
+    document.querySelector('#flashcard-prev').onclick = prevFlashcard;
+    document.querySelector('#flashcard-next').onclick = nextFlashcard;
+
+    // track modifier keys
+    let altDown = false;
+    window.addEventListener('keydown', evt => {
+        if (evt.key === 'Alt') altDown = true;
+    });
+    window.addEventListener('keyup', evt => {
+        if (evt.key === 'Alt') altDown = false;
+    });
+    // keyboard shortcuts
+    window.addEventListener('keydown', evt => {
+        if (altDown) {
+            // vocab set nav
+            if (evt.key === 'j' || evt.key === 'J') {
+                prevVocabSet();
+            } else if (evt.key === 'l' || evt.key === 'L') {
+                nextVocabSet();
+            }
+        } else {
+            // flashcard controls
+            if (evt.key === 'j' || evt.key === 'J') {
+                prevFlashcard();
+            } else if (evt.key == 'l' || evt.key === 'L') {
+                nextFlashcard();
+            } else if (evt.key === 'k' || evt.key === 'K') {
+                vocabFlashcardElems[activeFlashcard].click();
+            }
+        }
+    });
+
+    // long term stuff...
+        // TODO: scrollable overflow
+        // TODO: images and audio, link to dictionary entry
+        // TODO: touch swiping between flashcards, and between left/right panel
+        // TODO: 2-panel focus management in mobile mode (block interaction w/ hidden panel)
+        // TODO: nav menu focus trap
+        // TODO: display error message on failure to load resource
+
+    // init
+    vocab.loadManifest(() => {
+        populateVocabSets(); // populate vocab lists in left panel
+        vocab.loadVocab(vocab.activeSet, () => {
+            console.log(`Initial vocab loaded.`);
+            renderVocabSets();
+            populateFlashcards();
+            renderFlashcards();
+        }); // load default vocab set
+    });
+
+    // window.addEventListener('keydown', evt => {
+    //     if (evt.key == 'm') {
+    //         vocab.loadManifest(() => {
+    //             console.log('Manifest loaded.');
+    //         });
+    //     } else if (evt.key == 'f') {
+    //         vocab.loadVocab(vocab.activeSet, () => {
+    //             console.log(`Initial vocab loaded.`);
+    //             renderVocabSets();
+    //             populateFlashcards();
+    //             renderFlashcards();
+    //         }); // load default vocab set
+    //     } else if (evt.key == 'p') {
+    //         populateVocabSets(); // populate vocab lists in left panel
+    //     } else if (evt.key == 'r') {
+    //         renderVocabSets();
+    //     }
+    //     // if (evt.key != 'x') return;
+    //     // vocab.loadManifest(() => {
+    //     //     populateVocabSets(); // populate vocab lists in left panel
+    //     //     vocab.loadVocab(vocab.activeSet, () => {
+    //     //         console.log(`Initial vocab loaded.`);
+    //     //         renderVocabSets();
+    //     //         populateFlashcards();
+    //     //         renderFlashcards();
+    //     //     }); // load default vocab set
+    //     // });
+    // });
+</script>
+
+</body>
+</html>

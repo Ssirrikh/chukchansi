@@ -1,0 +1,18 @@
+{
+    "title" : "Months of the Year",
+    "thumbnail" : "thumbnail.jpg",
+    "words" : [
+        { "L1": "January", "L2": "Hach'eemataw", "image": "", "audio": "", "note": "lit. when things are new/young" },
+        { "L1": "February", "L2": "Soopultaw", "image": "", "audio": "", "note": "lit. time of frost" },
+        { "L1": "March", "L2": "Tishamyuw", "image": "", "audio": "", "note": "lit. when things come out" },
+        { "L1": "April", "L2": "Maalisin Boohultaw", "image": "", "audio": "", "note": "lit. growing time of clover" },
+        { "L1": "May", "L2": "Shokiwtaw", "image": "", "audio": "", "note": "lit. when it's windy" },
+        { "L1": "June", "L2": "Hayaalataw", "image": "", "audio": "", "note": "lit. when it is summertime" },
+        { "L1": "July", "L2": "Taxaatiʔin Xattaw", "image": "", "audio": "", "note": "lit. when sourberries are eaten" },
+        { "L1": "August", "L2": "Xap'eelataw", "image": "", "audio": "", "note": "lit. time when it's hot" },
+        { "L1": "September", "L2": "Chipneʔen Yoloowintaw", "image": "", "audio": "", "note": "lit. when chipneʔ (spirit doctors) gather" },
+        { "L1": "October", "L2": "Gewwishtaw", "image": "", "audio": "", "note": "lit. time to meet each other" },
+        { "L1": "November", "L2": "Gay'sinhanaw", "image": "", "audio": "", "note": "lit. time to be liked/appreciated" },
+        { "L1": "December", "L2": "Wok'yiwshataw", "image": "", "audio": "", "note": "lit. time to give each other" }
+    ]
+}
